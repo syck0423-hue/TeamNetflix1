@@ -103,10 +103,10 @@
     margin-top: 30px;
   }
   #selector {
-    position: relative;
+    position: absp;ite;
     font-size: 28px;
     color: #ffa500; /* START와 같은 색 */
-    transition: top 0.2s;
+    transition: top 0.2s, left 0.2s;
   }
 
   .selected {
@@ -186,16 +186,24 @@ const noEl = document.getElementById("no");
 const selector = document.getElementById("selector");
 
 function updateSelection() {
+  const yesRect = yesEl.getBoundingClientRect();
+  const noRect = noEl.getBoundingClientRect();
+  const containerRect = startScreen.getBoundingClientRect();
+
   if (selectedOption === "yes") {
     yesEl.classList.add("selected");
     noEl.classList.remove("selected");
-    selector.style.top = "10px"; // YES 옆 위치 (값은 화면에 맞게 조정)
-    selector.style.left = "-60px";
+
+    // YES 옆 위치
+    selector.style.top = (yesRect.top - containerRect.top) + "px";
+    selector.style.left = (yesRect.left - containerRect.left - 40) + "px";
   } else {
     noEl.classList.add("selected");
     yesEl.classList.remove("selected");
-    selector.style.top = "10px"; // NO 옆 위치
-    selector.style.left = "-60px";
+
+    // NO 옆 위치
+    selector.style.top = (noRect.top - containerRect.top) + "px";
+    selector.style.left = (noRect.left - containerRect.left - 40) + "px";
   }
 }
 
@@ -316,6 +324,7 @@ function endGame(resultImg) {
   resultScreen.style.display = "flex";
   resultImage.src = resultImg;
 }
+updateSelection();
 </script>
 </body>
 </html>
