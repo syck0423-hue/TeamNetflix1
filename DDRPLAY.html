@@ -83,9 +83,13 @@
   #start-screen {
     display: flex;
     flex-direction: column;
+    justify-content: center; /* 세로 중앙 정렬 */
+    align-items: center;     /* 가로 중앙 정렬 */
     font-family: 'combofont', sans-serif;
-    color : #ffffff;
-    position: relative;
+    color: #ffffff;
+    position: absolute;      /* relative → absolute 로 변경 */
+    inset: 0;                /* 상하좌우 모두 0으로 맞춤 */
+    z-index: 10;
   }
 
   #start-screen h1 {
@@ -103,7 +107,7 @@
     margin-top: 30px;
   }
   #selector {
-    position: absp;ite;
+    position: absolute;
     font-size: 28px;
     color: #ffa500; /* START와 같은 색 */
     transition: top 0.2s, left 0.2s;
