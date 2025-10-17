@@ -83,18 +83,30 @@
   #start-screen {
     display: flex;
     flex-direction: column;
-    color: #ffa500;
     font-family: 'combofont', sans-serif;
+    color : #ffffff;
+    position: relative;
   }
 
   #start-screen h1 {
     font-size: 72px;
     margin-bottom: 40px;
+    color: #ffa500;
   }
 
   #start-options {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
     font-size: 28px;
-    margin-top: 20px;
+    text-align: center;
+    margin-top: 30px;
+  }
+  #selector {
+    position: absolute;
+    font-size: 28px;
+    color: #ffa500; /* START와 같은 색 */
+    transition: top 0.2s;
   }
 
   .selected {
@@ -127,10 +139,10 @@
       <h1>START</h1>
       <div>ARE YOU READY?</div>
       <div id="start-options">
-        <span id="yes" class="selected">YES</span>
-        <span> &nbsp; &lt; &nbsp;&nbsp; </span>
-        <span id="no">NO</span>
+        <div id="yes-line"><span id="yes" class="selected">YES</span></div>
+        <div id="no-line"><span id="no">NO</span></div>
       </div>
+      <div id="selector">◀</div>
     </div>
 
     <!-- 카운트다운 -->
@@ -171,10 +183,25 @@ let gameStarted = false;
 let selectedOption = "yes";
 const yesEl = document.getElementById("yes");
 const noEl = document.getElementById("no");
+const selector = document.getElementById("selector");
+
+function updateSelection() {
+  if (selectedOption === "yes") {
+    yesEl.classList.add("selected");
+    noEl.classList.remove("selected");
+    selector.style.top = "190px"; // YES 옆 위치 (값은 화면에 맞게 조정)
+    selector.style.left = "350px";
+  } else {
+    noEl.classList.add("selected");
+    yesEl.classList.remove("selected");
+    selector.style.top = "230px"; // NO 옆 위치
+    selector.style.left = "350px";
+  }
+}
 
 window.addEventListener("keydown", (e) => {
   if (!gameStarted) {
-    if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
       selectedOption = (selectedOption === "yes") ? "no" : "yes";
       updateSelection();
     } else if (e.key === "Enter") {
