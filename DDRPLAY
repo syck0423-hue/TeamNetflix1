@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>리듬게임</title>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  #game-container {
+    position: relative;
+    width: 600px;
+    height: 800px;
+    background: url("images/background.png") no-repeat center/cover;
+    overflow: hidden;
+    border: 3px solid #444;
+    border-radius: 10px;
+  }
+
+  /* 고정 화살표 (판정선) */
+  .fixed-arrow {
+    position: absolute;
+    bottom: 100px;
+    width: 80px;
+    height: 80px;
+    opacity: 0.5;
+  }
+
+  .arrow {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+  }
+
+  #fixed-left { left: 60px; background: url("images/left_gray.png") no-repeat center/contain; }
+  #fixed-down { left: 180px; background: url("images/down_gray.png") no-repeat center/contain; }
+  #fixed-up { left: 300px; background: url("images/up_gray.png") no-repeat center/contain; }
+  #fixed-right { left: 420px; background: url("images/right_gray.png") no-repeat center/contain; }
+
+  #combo {
+    position: absolute;
+    top: 20px;
+    width: 100%;
+    text-align: center;
+    font-size: 48px;
+    color: yellow;
+    text-shadow: 2px 2px 4px #000;
+  }
+
+  #result-screen {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    font-size: 48px;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+</style>
+</head>
+<body>
+  <div id="game-container">
+    <div id="combo">COMBO: 0</div>
+
+    <!-- 판정선 화살표 -->
+    <div id="fixed-left" class="fixed-arrow"></div>
+    <div id="fixed-down" class="fixed-arrow"></div>
+    <div id="fixed-up" class="fixed-arrow"></div>
+    <div id="fixed-right" class="fixed-arrow"></div>
+
+    <!-- 결과창 -->
+    <div id="result-screen">
+      <img id="result-image" src="" alt="결과" />
+      <div style="margin-top:20px;font-size:28px;">R키로 다시 시작</div>
+    </div>
+  </div>
+
+<script>
+const container = document.getElementById("game-container");
+const comboDisplay = document.getElementById("combo");
+const resultScreen = document.getElementById("result-screen");
+const resultImage = document.getElementById("result-image");
+
+// 화살표 이미지 매핑
+const arrowImages = {
+  1: "images/left.png",
+  2: "images/down.png",
+  3: "images/up.png",
+  4: "images/right.png"
+};
+
+// 화살표 X 좌표 매핑
+const positions = {
+  1: 60,
+  2: 180,
+  3: 300,
+  4: 420
+};
+
+// 전체 노트 시퀀스
+const sequence = [
+  2,2,4,3,3,2,2,4,3,3, // 첫 구간
+  "gap",2,2,"gap", // 텀 후
+  4,2,2,3,3,4,"gap", // 텀 후
+  1,2,2,4,"gap", // 텀 후
+  2,2,3,4,3,2,2 // 마지막
+];
+
+// 게임 설정
+const fallSpeed = 3; // px/frame
+const noteInterval = 600; // 각 노트 간격 (ms)
+const hitWindow = 60; // 판정 허용 거리(px)
+const totalNotes = 29;
+
+// 상태 변수
+let activeArrows = [];
+let combo = 0;
+let missedCount = 0;
+let currentIndex = 0;
+let gameOver = false;
+
+function createArrow(type) {
+  const arrow = document.createElement("div");
+  arrow.classList.add("arrow");
+  arrow.style.left = positions[type] + "px";
+  arrow.style.top = "-80px";
+  arrow.dataset.type = type;
+  arrow.style.background = `url(${arrowImages[type]}) no-repeat center/contain`;
+  container.appendChild(arrow);
+  activeArrows.push(arrow);
+}
+
+function dropArrows() {
+  if (currentIndex >= sequence.length || gameOver) return;
+
+  const next = sequence[currentIndex];
+  currentIndex++;
+
+  if (next === "gap") {
+    setTimeout(dropArrows, noteInterval * 1.5);
+    return;
+  }
+
+  createArrow(next);
+  setTimeout(dropArrows, noteInterval);
+}
+
+function updateArrows() {
+  if (gameOver) return;
+
+  activeArrows.forEach((arrow, i) => {
+    const top = parseFloat(arrow.style.top);
+    arrow.style.top = top + fallSpeed + "px";
+
+    if (top > 800) {
+      // 놓침 처리
+      missedCount++;
+      resetCombo();
+      container.removeChild(arrow);
+      activeArrows.splice(i, 1);
+      checkEnd();
+    }
+  });
+
+  requestAnimationFrame(updateArrows);
+}
+
+// 입력 처리
+window.addEventListener("keydown", (e) => {
+  if (gameOver && e.key.toLowerCase() === "r") location.reload();
+
+  const keyMap = { ArrowLeft: 1, ArrowDown: 2, ArrowUp: 3, ArrowRight: 4 };
+  const input = keyMap[e.key];
+  if (!input || gameOver) return;
+
+  const hit = activeArrows.find(a => parseInt(a.dataset.type) === input);
+
+  if (hit) {
+    const dist = Math.abs(parseFloat(hit.style.top) - 620); // fixed-arrow Y 근처
+    if (dist < hitWindow) {
+      combo++;
+      comboDisplay.textContent = `COMBO: ${combo}`;
+      container.removeChild(hit);
+      activeArrows = activeArrows.filter(a => a !== hit);
+    } else {
+      missedCount++;
+      resetCombo();
+    }
+  } else {
+    missedCount++;
+    resetCombo();
+  }
+  checkEnd();
+});
+
+function resetCombo() {
+  combo = 0;
+  comboDisplay.textContent = `COMBO: ${combo}`;
+}
+
+function checkEnd() {
+  if (missedCount >= 2) {
+    endGame("images/gameover.png");
+  } else if (currentIndex >= sequence.length && activeArrows.length === 0) {
+    if (missedCount === 0) {
+      endGame("images/excellent.png");
+    } else {
+      endGame("images/great.png");
+    }
+  }
+}
+
+function endGame(resultImg) {
+  gameOver = true;
+  resultScreen.style.display = "flex";
+  resultImage.src = resultImg;
+}
+
+dropArrows();
+updateArrows();
+</script>
+</body>
+</html>
