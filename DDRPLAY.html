@@ -19,7 +19,7 @@
     position: relative;
     width: 600px;
     height: 800px;
-    background: url("images/background.png") no-repeat center/cover;
+    background: url("img/bg.png") no-repeat center/cover;
     overflow: hidden;
     border: 3px solid #444;
     border-radius: 10px;
@@ -40,10 +40,10 @@
     height: 80px;
   }
 
-  #fixed-left { left: 60px; background: url("images/left_gray.png") no-repeat center/contain; }
-  #fixed-down { left: 180px; background: url("images/down_gray.png") no-repeat center/contain; }
-  #fixed-up { left: 300px; background: url("images/up_gray.png") no-repeat center/contain; }
-  #fixed-right { left: 420px; background: url("images/right_gray.png") no-repeat center/contain; }
+  #fixed-left { left: 60px; background: url("img/l_off.png") no-repeat center/contain; }
+  #fixed-down { left: 180px; background: url("img/d_off.png") no-repeat center/contain; }
+  #fixed-up { left: 300px; background: url("img/u_off.png") no-repeat center/contain; }
+  #fixed-right { left: 420px; background: url("img/r_off.png") no-repeat center/contain; }
 
   #combo {
     position: absolute;
@@ -93,10 +93,10 @@ const resultImage = document.getElementById("result-image");
 
 // 화살표 이미지 매핑
 const arrowImages = {
-  1: "images/left.png",
-  2: "images/down.png",
-  3: "images/up.png",
-  4: "images/right.png"
+  1: "img/l_on.png",
+  2: "img/d_on.png",
+  3: "img/u_on.png",
+  4: "img/r_on.png"
 };
 
 // 화살표 X 좌표 매핑
@@ -210,12 +210,12 @@ function resetCombo() {
 
 function checkEnd() {
   if (missedCount >= 2) {
-    endGame("images/gameover.png");
+    endGame("img/over copy.png");
   } else if (currentIndex >= sequence.length && activeArrows.length === 0) {
     if (missedCount === 0) {
-      endGame("images/excellent.png");
+      endGame("img/ex copy.png");
     } else {
-      endGame("images/great.png");
+      endGame("img/gr copy.png");
     }
   }
 }
