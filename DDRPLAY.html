@@ -103,7 +103,7 @@
     margin-top: 30px;
   }
   #selector {
-    position: absolute;
+    position: relative;
     font-size: 28px;
     color: #ffa500; /* START와 같은 색 */
     transition: top 0.2s;
@@ -189,13 +189,13 @@ function updateSelection() {
   if (selectedOption === "yes") {
     yesEl.classList.add("selected");
     noEl.classList.remove("selected");
-    selector.style.top = "190px"; // YES 옆 위치 (값은 화면에 맞게 조정)
-    selector.style.left = "350px";
+    selector.style.top = "10px"; // YES 옆 위치 (값은 화면에 맞게 조정)
+    selector.style.left = "-60px";
   } else {
     noEl.classList.add("selected");
     yesEl.classList.remove("selected");
-    selector.style.top = "230px"; // NO 옆 위치
-    selector.style.left = "350px";
+    selector.style.top = "10px"; // NO 옆 위치
+    selector.style.left = "-60px";
   }
 }
 
@@ -235,16 +235,6 @@ window.addEventListener("keydown", (e) => {
   }
   checkEnd();
 });
-
-function updateSelection() {
-  if (selectedOption === "yes") {
-    yesEl.classList.add("selected");
-    noEl.classList.remove("selected");
-  } else {
-    noEl.classList.add("selected");
-    yesEl.classList.remove("selected");
-  }
-}
 
 // ---------- 카운트다운 + 게임 시작 ----------
 function startCountdown() {
