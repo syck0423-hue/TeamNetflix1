@@ -210,12 +210,12 @@ function resetCombo() {
 
 function checkEnd() {
   if (missedCount >= 2) {
-    endGame("img/over copy.png");
+    endGame("img/over.png");
   } else if (currentIndex >= sequence.length && activeArrows.length === 0) {
     if (missedCount === 0) {
-      endGame("img/ex copy.png");
+      endGame("img/ex.png");
     } else {
-      endGame("img/gr copy.png");
+      endGame("img/gr.png");
     }
   }
 }
