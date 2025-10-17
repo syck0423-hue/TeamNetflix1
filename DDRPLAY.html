@@ -6,11 +6,11 @@
 <title>리듬게임</title>
 <style>
   @font-face {
-  font-family: 'combofont';
-  src: url('font/DNFBitBitv2.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
+    font-family: 'combofont';
+    src: url('font/DNFBitBitv2.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
   body {
     margin: 0;
     overflow: hidden;
@@ -36,14 +36,14 @@
     width: 80px;
     height: 80px;
     opacity: 0.5;
-    z-index:2;
+    z-index: 2;
   }
 
   .arrow {
     position: absolute;
     width: 80px;
     height: 80px;
-    z-index:3;
+    z-index: 3;
   }
 
   #fixed-left { left: 270px; background: url("img/l_off.png") no-repeat center/contain; }
@@ -59,26 +59,53 @@
     color: #20052e;
     text-shadow: 2px 2px 4px #000;
   }
-  #combo-label{
+  #combo-label {
     font-size: 20px;
   }
   #combo-number {
-  font-family: 'combofont', sans-serif;
-  font-size: 80px;
-  font-weight: bold;
-}
+    font-family: 'combofont', sans-serif;
+    font-size: 80px;
+    font-weight: bold;
+  }
 
-  #result-screen {
+  #result-screen, #start-screen, #countdown {
     position: absolute;
     inset: 0;
-    background: rgba(0,0,0,0.7);
+    background: rgba(0, 0, 0, 0.7);
     color: white;
-    font-size: 48px;
     display: none;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     z-index: 10;
+  }
+
+  #start-screen {
+    display: flex;
+    flex-direction: column;
+    color: #ffa500;
+    font-family: 'combofont', sans-serif;
+  }
+
+  #start-screen h1 {
+    font-size: 72px;
+    margin-bottom: 40px;
+  }
+
+  #start-options {
+    font-size: 28px;
+    margin-top: 20px;
+  }
+
+  .selected {
+    color: #fff;
+    text-shadow: 0 0 10px #fff;
+  }
+
+  #countdown {
+    font-family: 'combofont', sans-serif;
+    font-size: 100px;
+    color: #fff;
   }
 </style>
 </head>
@@ -88,13 +115,28 @@
       <div id="combo-label">COMBO</div>
       <div id="combo-number">0</div>
     </div>
-    <!-- 판정선 화살표 -->
+
+    <!-- 판정선 -->
     <div id="fixed-left" class="fixed-arrow"></div>
     <div id="fixed-down" class="fixed-arrow"></div>
     <div id="fixed-up" class="fixed-arrow"></div>
     <div id="fixed-right" class="fixed-arrow"></div>
 
-    <!-- 결과창 -->
+    <!-- 시작 화면 -->
+    <div id="start-screen">
+      <h1>START</h1>
+      <div>ARE YOU READY?</div>
+      <div id="start-options">
+        <span id="yes" class="selected">YES</span>
+        <span> &nbsp; &lt; &nbsp;&nbsp; </span>
+        <span id="no">NO</span>
+      </div>
+    </div>
+
+    <!-- 카운트다운 -->
+    <div id="countdown"></div>
+
+    <!-- 결과 화면 -->
     <div id="result-screen">
       <img id="result-image" src="" alt="결과" />
       <div style="margin-top:20px;font-size:28px;">R키로 다시 시작</div>
@@ -105,93 +147,43 @@
 const container = document.getElementById("game-container");
 const resultScreen = document.getElementById("result-screen");
 const resultImage = document.getElementById("result-image");
+const startScreen = document.getElementById("start-screen");
+const countdown = document.getElementById("countdown");
 
 // 화살표 이미지 매핑
-const arrowImages = {
-  1: "img/l_on.png",
-  2: "img/d_on.png",
-  3: "img/u_on.png",
-  4: "img/r_on.png"
-};
+const arrowImages = {1: "img/l_on.png", 2: "img/d_on.png", 3: "img/u_on.png", 4: "img/r_on.png"};
+const positions = {1: 270, 2: 370, 3: 470, 4: 570};
 
-// 화살표 X 좌표 매핑
-const positions = {
-  1: 270,
-  2: 370,
-  3: 470,
-  4: 570
-};
+// 노트 시퀀스
+const sequence = [2,2,4,3,3,2,2,4,3,3,"gap",2,2,"gap",4,2,2,3,3,4,"gap",1,2,2,4,"gap",2,2,3,4,3,2,2];
 
-// 전체 노트 시퀀스
-const sequence = [
-  2,2,4,3,3,2,2,4,3,3, // 첫 구간
-  "gap",2,2,"gap", // 텀 후
-  4,2,2,3,3,4,"gap", // 텀 후
-  1,2,2,4,"gap", // 텀 후
-  2,2,3,4,3,2,2 // 마지막
-];
-
-// 게임 설정
-const fallSpeed = 3; // px/frame
-const noteInterval = 600; // 각 노트 간격 (ms)
-const hitWindow = 80; // 판정 허용 거리(px)
-const totalNotes = 29;
-
-// 상태 변수
+const fallSpeed = 3;
+const noteInterval = 600;
+const hitWindow = 80;
 let activeArrows = [];
 let combo = 0;
 let missedCount = 0;
 let currentIndex = 0;
 let gameOver = false;
+let gameStarted = false;
 
-function createArrow(type) {
-  const arrow = document.createElement("div");
-  arrow.classList.add("arrow");
-  arrow.style.left = positions[type] + "px";
-  arrow.style.top = "-80px";
-  arrow.dataset.type = type;
-  arrow.style.background = `url(${arrowImages[type]}) no-repeat center/contain`;
-  container.appendChild(arrow);
-  activeArrows.push(arrow);
-}
+// ---------- START 화면 ----------
+let selectedOption = "yes";
+const yesEl = document.getElementById("yes");
+const noEl = document.getElementById("no");
 
-function dropArrows() {
-  if (currentIndex >= sequence.length || gameOver) return;
-
-  const next = sequence[currentIndex];
-  currentIndex++;
-
-  if (next === "gap") {
-    setTimeout(dropArrows, noteInterval * 2.5);
+window.addEventListener("keydown", (e) => {
+  if (!gameStarted) {
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+      selectedOption = (selectedOption === "yes") ? "no" : "yes";
+      updateSelection();
+    } else if (e.key === "Enter") {
+      if (selectedOption === "yes") startCountdown();
+    }
     return;
   }
 
-  createArrow(next);
-  setTimeout(dropArrows, noteInterval);
-}
-
-function updateArrows() {
-  if (gameOver) return;
-
-  activeArrows.forEach((arrow, i) => {
-    const top = parseFloat(arrow.style.top);
-    arrow.style.top = top + fallSpeed + "px";
-
-    if (top > 460) {
-      // 놓침 처리
-      missedCount++;
-      resetCombo();
-      container.removeChild(arrow);
-      activeArrows.splice(i, 1);
-      checkEnd();
-    }
-  });
-
-  requestAnimationFrame(updateArrows);
-}
-
-// 입력 처리
-window.addEventListener("keydown", (e) => {
+  // 게임 중
   if (gameOver && e.key.toLowerCase() === "r") location.reload();
 
   const keyMap = { ArrowLeft: 1, ArrowDown: 2, ArrowUp: 3, ArrowRight: 4 };
@@ -199,9 +191,8 @@ window.addEventListener("keydown", (e) => {
   if (!input || gameOver) return;
 
   const hit = activeArrows.find(a => parseInt(a.dataset.type) === input);
-
   if (hit) {
-    const dist = Math.abs(parseFloat(hit.style.top) - 420); // fixed-arrow Y 근처
+    const dist = Math.abs(parseFloat(hit.style.top) - 420);
     if (dist < hitWindow) {
       combo++;
       document.getElementById("combo-number").textContent = combo;
@@ -218,6 +209,77 @@ window.addEventListener("keydown", (e) => {
   checkEnd();
 });
 
+function updateSelection() {
+  if (selectedOption === "yes") {
+    yesEl.classList.add("selected");
+    noEl.classList.remove("selected");
+  } else {
+    noEl.classList.add("selected");
+    yesEl.classList.remove("selected");
+  }
+}
+
+// ---------- 카운트다운 + 게임 시작 ----------
+function startCountdown() {
+  startScreen.style.display = "none";
+  countdown.style.display = "flex";
+
+  let count = 3;
+  countdown.textContent = count;
+  const interval = setInterval(() => {
+    count--;
+    if (count === 0) {
+      clearInterval(interval);
+      countdown.style.display = "none";
+      gameStarted = true;
+      dropArrows();
+      updateArrows();
+    } else {
+      countdown.textContent = count;
+    }
+  }, 1000);
+}
+
+// ---------- 노트 생성 및 갱신 ----------
+function createArrow(type) {
+  const arrow = document.createElement("div");
+  arrow.classList.add("arrow");
+  arrow.style.left = positions[type] + "px";
+  arrow.style.top = "-80px";
+  arrow.dataset.type = type;
+  arrow.style.background = `url(${arrowImages[type]}) no-repeat center/contain`;
+  container.appendChild(arrow);
+  activeArrows.push(arrow);
+}
+
+function dropArrows() {
+  if (currentIndex >= sequence.length || gameOver) return;
+  const next = sequence[currentIndex++];
+  if (next === "gap") {
+    setTimeout(dropArrows, noteInterval * 2.5);
+    return;
+  }
+  createArrow(next);
+  setTimeout(dropArrows, noteInterval);
+}
+
+function updateArrows() {
+  if (gameOver) return;
+  activeArrows.forEach((arrow, i) => {
+    const top = parseFloat(arrow.style.top);
+    arrow.style.top = top + fallSpeed + "px";
+
+    if (top > 460) { // 판정선 지나면 바로 미스
+      missedCount++;
+      resetCombo();
+      container.removeChild(arrow);
+      activeArrows.splice(i, 1);
+      checkEnd();
+    }
+  });
+  requestAnimationFrame(updateArrows);
+}
+
 function resetCombo() {
   combo = 0;
   document.getElementById("combo-number").textContent = combo;
@@ -227,11 +289,8 @@ function checkEnd() {
   if (missedCount >= 2) {
     endGame("img/over.png");
   } else if (currentIndex >= sequence.length && activeArrows.length === 0) {
-    if (missedCount === 0) {
-      endGame("img/ex.png");
-    } else {
-      endGame("img/gr.png");
-    }
+    if (missedCount === 0) endGame("img/ex.png");
+    else endGame("img/gr.png");
   }
 }
 
@@ -240,9 +299,6 @@ function endGame(resultImg) {
   resultScreen.style.display = "flex";
   resultImage.src = resultImg;
 }
-
-dropArrows();
-updateArrows();
 </script>
 </body>
 </html>
