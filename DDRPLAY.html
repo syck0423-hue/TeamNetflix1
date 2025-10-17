@@ -200,14 +200,14 @@ function updateSelection() {
 
     // YES 옆 위치
     selector.style.top = (yesRect.top - containerRect.top) + "px";
-    selector.style.left = (yesRect.left - containerRect.left + 10) + "px";
+    selector.style.left = (yesRect.right - containerRect.left + 10) + "px";
   } else {
     noEl.classList.add("selected");
     yesEl.classList.remove("selected");
 
     // NO 옆 위치
     selector.style.top = (noRect.top - containerRect.top) + "px";
-    selector.style.left = (noRect.left - containerRect.left + 10) + "px";
+    selector.style.left = (noRect.right - containerRect.left + 10) + "px";
   }
 }
 
