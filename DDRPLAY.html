@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>리듬게임</title>
 <style>
+  @font-face {
+  font-family: 'combofont';
+  src: url('font/DNFBitBitv2.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
   body {
     margin: 0;
     overflow: hidden;
@@ -17,18 +23,16 @@
 
   #game-container {
     position: relative;
-    width: 600px;
-    height: 800px;
+    width: 916px;
+    height: 517px;
     background: url("img/bg.png") no-repeat center/cover;
     overflow: hidden;
-    border: 3px solid #444;
-    border-radius: 10px;
   }
 
   /* 고정 화살표 (판정선) */
   .fixed-arrow {
     position: absolute;
-    bottom: 100px;
+    bottom: 60px;
     width: 80px;
     height: 80px;
     opacity: 0.5;
@@ -47,13 +51,20 @@
 
   #combo {
     position: absolute;
-    top: 20px;
+    top: 80px;
     width: 100%;
     text-align: center;
-    font-size: 48px;
-    color: yellow;
+    color: #20052e;
     text-shadow: 2px 2px 4px #000;
   }
+  #combo-label{
+    font-size: 20px;
+  }
+  #combo-number {
+  font-family: 'combofont', sans-serif;
+  font-size: 80px;
+  font-weight: bold;
+}
 
   #result-screen {
     position: absolute;
@@ -71,7 +82,8 @@
 </head>
 <body>
   <div id="game-container">
-    <div id="combo">COMBO: 0</div>
+  <div id="combo-label">COMBO</div>
+  <div id="combo-number">0</div>
 
     <!-- 판정선 화살표 -->
     <div id="fixed-left" class="fixed-arrow"></div>
@@ -206,7 +218,7 @@ window.addEventListener("keydown", (e) => {
 
 function resetCombo() {
   combo = 0;
-  comboDisplay.textContent = `COMBO: ${combo}`;
+  document.getElementById("combo-number").textContent = combo;
 }
 
 function checkEnd() {
