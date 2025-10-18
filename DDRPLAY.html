@@ -101,15 +101,15 @@
     font-size: 32px;
     text-align: center;
     margin-top: 40px;
-    position: relative;
+    position: relative; /* 기준 부모 */
   }
 
   #selector {
-    position: fixed; /* absolute → fixed로 변경 */
+    position: absolute; /* 다시 absolute */
     font-size: 28px;
     color: #ffa500;
     transition: top 0.2s, left 0.2s;
-    z-index: 15; /* 다른 요소보다 위로 */
+    z-index: 15;
   }
 
   .selected {
@@ -212,21 +212,20 @@ const selector = document.getElementById("selector");
 function updateSelection() {
   const ruleRect = ruleEl.getBoundingClientRect();
   const startRect = startEl.getBoundingClientRect();
-  const containerRect = startScreen.getBoundingClientRect();
+  const optionsRect = document.getElementById("start-options").getBoundingClientRect();
 
   if (selectedOption === "rule") {
     ruleEl.classList.add("selected");
     startEl.classList.remove("selected");
 
-    // ▶ 왼쪽 배치
-    selector.style.top = (ruleRect.top - containerRect.top) + "px";
-    selector.style.left = (ruleRect.left - containerRect.left - 40) + "px";
+    selector.style.top = (ruleRect.top - optionsRect.top) + "px";
+    selector.style.left = (ruleRect.left - optionsRect.left - 40) + "px";
   } else {
     startEl.classList.add("selected");
     ruleEl.classList.remove("selected");
 
-    selector.style.top = (startRect.top - containerRect.top) + "px";
-    selector.style.left = (startRect.left - containerRect.left - 40) + "px";
+    selector.style.top = (startRect.top - optionsRect.top) + "px";
+    selector.style.left = (startRect.left - optionsRect.left - 40) + "px";
   }
 }
 
