@@ -9,6 +9,20 @@
     font-family: 'neodgm';
     src: url('font/neodgm.ttf') format('truetype');
   }
+  
+  html, body {
+    cursor: url("img/default.cur"), auto;
+  }
+
+  /* 텍스트 영역 커서 */
+  * {
+    cursor: url("img/mytext.cur"), text;
+  }
+
+  /* 클릭 가능한 요소들 */
+  button, a, [role="button"] {
+    cursor: url("img/pointer.cur"), pointer;
+  }
   body {
     margin: 0;
     overflow: hidden;
