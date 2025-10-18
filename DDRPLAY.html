@@ -249,7 +249,10 @@ window.addEventListener("keydown", (e) => {
   }
 
   // 게임 중
-  if (gameOver && e.key.toLowerCase() === "r") location.reload();
+  if (gameOver && e.key.toLowerCase() === "r") {
+    restartGameDirectly();
+    return;
+  }
 
   const keyMap = { a: 1, s: 2, w: 3, d: 4 };
   const input = keyMap[e.key.toLowerCase()];
@@ -359,6 +362,46 @@ function endGame(resultImg) {
   resultScreen.style.display = "flex";
   resultImage.src = resultImg;
 }
+  
+function restartGameDirectly() {
+  // 1) 숨김 처리: 결과 화면 감추기
+  resultScreen.style.display = "none";
+
+  // 2) 기존 노트(액티브 엘리먼트) 전부 제거
+  activeArrows.forEach(a => {
+    if (a.parentNode === container) container.removeChild(a);
+  });
+  activeArrows = [];
+
+  // 3) 상태 초기화 (콤보, 카운트 등)
+  combo = 0;
+  missedCount = 0;
+  hitCount = 0;
+  currentIndex = 0;
+  gameOver = false;
+  gameStarted = false;
+  document.getElementById("combo-number").textContent = combo;
+
+  // 4) 3초 카운트다운 표시 후 바로 게임 시작
+  countdown.style.display = "flex";
+  let c = 3;
+  countdown.textContent = c;
+  const iv = setInterval(() => {
+    c--;
+    if (c <= 0) {
+      clearInterval(iv);
+      countdown.style.display = "none";
+      // 실제 게임 시작
+      gameStarted = true;
+      // 시퀀스 포인터(currentIndex)는 0으로 초기화되어 있으므로 dropArrows가 정상 동작
+      dropArrows();
+      updateArrows();
+    } else {
+      countdown.textContent = c;
+    }
+  }, 1000);
+}
+  
 
 updateSelection();
 </script>
