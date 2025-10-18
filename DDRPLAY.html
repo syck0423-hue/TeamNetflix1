@@ -14,7 +14,7 @@
   body {
     margin: 0;
     overflow: hidden;
-    background-color: #000;
+    background-color: #fff;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -23,9 +23,9 @@
 
   #game-container {
     position: relative;
-    width: 916px;
-    height: 517px;
-    background: url("img/bg.png") no-repeat center/cover;
+    width: 926px;
+    height: 574px;
+    background-color: #000;
     overflow: hidden;
   }
 
@@ -46,10 +46,10 @@
     z-index: 3;
   }
 
-  #fixed-left { left: 270px; background: url("img/l_off.png") no-repeat center/contain; }
-  #fixed-down { left: 370px; background: url("img/d_off.png") no-repeat center/contain; }
-  #fixed-up { left: 470px; background: url("img/u_off.png") no-repeat center/contain; }
-  #fixed-right { left: 570px; background: url("img/r_off.png") no-repeat center/contain; }
+  #fixed-left { left: 270px; background: url("img/ddr/left.png") no-repeat center/contain; }
+  #fixed-down { left: 370px; background: url("img/ddr/down.png") no-repeat center/contain; }
+  #fixed-up { left: 470px; background: url("img/ddr/up.png") no-repeat center/contain; }
+  #fixed-right { left: 570px; background: url("img/ddr/right.png") no-repeat center/contain; }
 
   #combo {
     position: absolute;
@@ -167,7 +167,7 @@ const startScreen = document.getElementById("start-screen");
 const countdown = document.getElementById("countdown");
 
 // 화살표 이미지 매핑
-const arrowImages = {1: "img/l_on.png", 2: "img/d_on.png", 3: "img/u_on.png", 4: "img/r_on.png"};
+const arrowImages = {1: "img/ddr/left_note.png", 2: "img/ddr/down_note.png", 3: "img/ddr/up_note.png", 4: "img/ddr/right_note.png"};
 const positions = {1: 270, 2: 370, 3: 470, 4: 570};
 
 // 노트 시퀀스
