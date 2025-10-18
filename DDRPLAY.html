@@ -8,8 +8,6 @@
   @font-face {
     font-family: 'combofont';
     src: url('font/DNFBitBitv2.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
   }
   body {
     margin: 0;
@@ -29,20 +27,20 @@
     overflow: hidden;
   }
 
-  /* 고정 화살표 (판정선) */
+  /* 화살표 */
   .fixed-arrow {
     position: absolute;
     bottom: 60px;
-    width: 80px;
-    height: 80px;
+    width: 82px;
+    height: 82px;
     opacity: 0.5;
     z-index: 2;
   }
 
   .arrow {
     position: absolute;
-    width: 80px;
-    height: 80px;
+    width: 82px;
+    height: 82px;
     z-index: 3;
   }
 
@@ -68,7 +66,7 @@
     font-weight: bold;
   }
 
-  #result-screen, #start-screen, #countdown {
+  #result-screen, #start-screen, #countdown, #rule-screen {
     position: absolute;
     inset: 0;
     background: rgba(0, 0, 0, 0.7);
@@ -83,13 +81,10 @@
   #start-screen {
     display: flex;
     flex-direction: column;
-    justify-content: center; /* 세로 중앙 정렬 */
-    align-items: center;     /* 가로 중앙 정렬 */
+    justify-content: center;
+    align-items: center;
     font-family: 'combofont', sans-serif;
     color: #ffffff;
-    position: absolute;      /* relative → absolute 로 변경 */
-    inset: 0;                /* 상하좌우 모두 0으로 맞춤 */
-    z-index: 10;
   }
 
   #start-screen h1 {
@@ -101,16 +96,19 @@
   #start-options {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    font-size: 28px;
+    gap: 25px;
+    font-size: 32px;
     text-align: center;
-    margin-top: 30px;
+    margin-top: 40px;
+    position: relative;
   }
+
   #selector {
     position: absolute;
-    font-size: 28px;
-    color: #ffa500; /* START와 같은 색 */
-    transition: top 0.2s, left 0.2s;
+    font-size: 32px;
+    color: #ffa500;
+    left: -40px; /* 글자 왼쪽 */
+    transition: top 0.2s;
   }
 
   .selected {
@@ -121,7 +119,13 @@
   #countdown {
     font-family: 'combofont', sans-serif;
     font-size: 100px;
-    color: #fff;
+  }
+
+  #rule-screen {
+    font-family: 'combofont', sans-serif;
+    font-size: 26px;
+    text-align: center;
+    padding: 40px;
   }
 </style>
 </head>
@@ -141,12 +145,20 @@
     <!-- 시작 화면 -->
     <div id="start-screen">
       <h1>START</h1>
-      <div>ARE YOU READY?</div>
       <div id="start-options">
-        <div id="yes-line"><span id="yes" class="selected">YES</span></div>
-        <div id="no-line"><span id="no">NO</span></div>
+        <div id="rule-line"><span id="rule" class="selected">RULE</span></div>
+        <div id="start-line"><span id="start">START</span></div>
+        <div id="selector">▶</div>
       </div>
-      <div id="selector">◀</div>
+    </div>
+
+    <!-- RULE 창 -->
+    <div id="rule-screen">
+      <h2>🎵 게임 룰 🎵</h2>
+      <p>W, A, S, D 키를 사용해서 화살표에 맞춰 입력하세요.<br>
+      타이밍에 맞게 누르면 콤보가 올라갑니다.<br>
+      게임이 끝나면 정확도에 따라 Perfect / Good / Fail 결과가 표시됩니다.<br><br>
+      [ESC] 키를 눌러 돌아가기</p>
     </div>
 
     <!-- 카운트다운 -->
@@ -165,9 +177,15 @@ const resultScreen = document.getElementById("result-screen");
 const resultImage = document.getElementById("result-image");
 const startScreen = document.getElementById("start-screen");
 const countdown = document.getElementById("countdown");
+const ruleScreen = document.getElementById("rule-screen");
 
 // 화살표 이미지 매핑
-const arrowImages = {1: "img/ddr/left_note.png", 2: "img/ddr/down_note.png", 3: "img/ddr/up_note.png", 4: "img/ddr/right_note.png"};
+const arrowImages = {
+  1: "img/ddr/left_note.png",
+  2: "img/ddr/down_note.png",
+  3: "img/ddr/up_note.png",
+  4: "img/ddr/right_note.png"
+};
 const positions = {1: 270, 2: 370, 3: 470, 4: 570};
 
 // 노트 시퀀스
@@ -179,54 +197,57 @@ const hitWindow = 80;
 let activeArrows = [];
 let combo = 0;
 let missedCount = 0;
+let hitCount = 0;
 let currentIndex = 0;
 let gameOver = false;
 let gameStarted = false;
 
 // ---------- START 화면 ----------
-let selectedOption = "yes";
-const yesEl = document.getElementById("yes");
-const noEl = document.getElementById("no");
+let selectedOption = "rule";
+const ruleEl = document.getElementById("rule");
+const startEl = document.getElementById("start");
 const selector = document.getElementById("selector");
 
 function updateSelection() {
-  const yesRect = yesEl.getBoundingClientRect();
-  const noRect = noEl.getBoundingClientRect();
+  const ruleRect = ruleEl.getBoundingClientRect();
+  const startRect = startEl.getBoundingClientRect();
   const containerRect = startScreen.getBoundingClientRect();
 
-  if (selectedOption === "yes") {
-    yesEl.classList.add("selected");
-    noEl.classList.remove("selected");
-
-    // YES 옆 위치
-    selector.style.top = (yesRect.top - containerRect.top) + "px";
-    selector.style.left = (yesRect.right - containerRect.left + 10) + "px";
+  if (selectedOption === "rule") {
+    ruleEl.classList.add("selected");
+    startEl.classList.remove("selected");
+    selector.style.top = (ruleRect.top - containerRect.top) + "px";
   } else {
-    noEl.classList.add("selected");
-    yesEl.classList.remove("selected");
-
-    // NO 옆 위치
-    selector.style.top = (noRect.top - containerRect.top) + "px";
-    selector.style.left = (noRect.right - containerRect.left + 10) + "px";
+    startEl.classList.add("selected");
+    ruleEl.classList.remove("selected");
+    selector.style.top = (startRect.top - containerRect.top) + "px";
   }
 }
 
 window.addEventListener("keydown", (e) => {
-  if (!gameStarted) {
-    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-      selectedOption = (selectedOption === "yes") ? "no" : "yes";
+  if (!gameStarted && !ruleScreen.style.display.includes("flex")) {
+    if (e.key.toLowerCase() === "w" || e.key.toLowerCase() === "s") {
+      selectedOption = (selectedOption === "rule") ? "start" : "rule";
       updateSelection();
     } else if (e.key === "Enter") {
-      if (selectedOption === "yes") startCountdown();
+      if (selectedOption === "rule") showRule();
+      else startCountdown();
     }
+    return;
+  }
+
+  // 🎯 룰 화면 닫기 (ESC 키로 변경)
+  if (ruleScreen.style.display === "flex" && e.key === "Escape") {
+    ruleScreen.style.display = "none";
+    startScreen.style.display = "flex";
     return;
   }
 
   // 게임 중
   if (gameOver && e.key.toLowerCase() === "r") location.reload();
 
-  const keyMap = { ArrowLeft: 1, ArrowDown: 2, ArrowUp: 3, ArrowRight: 4 };
-  const input = keyMap[e.key];
+  const keyMap = { a: 1, s: 2, w: 3, d: 4 };
+  const input = keyMap[e.key.toLowerCase()];
   if (!input || gameOver) return;
 
   const hit = activeArrows.find(a => parseInt(a.dataset.type) === input);
@@ -234,6 +255,7 @@ window.addEventListener("keydown", (e) => {
     const dist = Math.abs(parseFloat(hit.style.top) - 420);
     if (dist < hitWindow) {
       combo++;
+      hitCount++;
       document.getElementById("combo-number").textContent = combo;
       container.removeChild(hit);
       activeArrows = activeArrows.filter(a => a !== hit);
@@ -248,7 +270,11 @@ window.addEventListener("keydown", (e) => {
   checkEnd();
 });
 
-// ---------- 카운트다운 + 게임 시작 ----------
+function showRule() {
+  startScreen.style.display = "none";
+  ruleScreen.style.display = "flex";
+}
+
 function startCountdown() {
   startScreen.style.display = "none";
   countdown.style.display = "flex";
@@ -269,12 +295,11 @@ function startCountdown() {
   }, 1000);
 }
 
-// ---------- 노트 생성 및 갱신 ----------
 function createArrow(type) {
   const arrow = document.createElement("div");
   arrow.classList.add("arrow");
   arrow.style.left = positions[type] + "px";
-  arrow.style.top = "-80px";
+  arrow.style.top = "-82px";
   arrow.dataset.type = type;
   arrow.style.background = `url(${arrowImages[type]}) no-repeat center/contain`;
   container.appendChild(arrow);
@@ -297,8 +322,7 @@ function updateArrows() {
   activeArrows.forEach((arrow, i) => {
     const top = parseFloat(arrow.style.top);
     arrow.style.top = top + fallSpeed + "px";
-
-    if (top > 460) { // 판정선 지나면 바로 미스
+    if (top > 460) {
       missedCount++;
       resetCombo();
       container.removeChild(arrow);
@@ -315,11 +339,13 @@ function resetCombo() {
 }
 
 function checkEnd() {
-  if (missedCount >= 2) {
-    endGame("img/over.png");
-  } else if (currentIndex >= sequence.length && activeArrows.length === 0) {
-    if (missedCount === 0) endGame("img/ex.png");
-    else endGame("img/gr.png");
+  if (currentIndex >= sequence.length && activeArrows.length === 0) {
+    const total = hitCount + missedCount;
+    const ratio = hitCount / total;
+    if (missedCount === 0) endGame("img/ddr/perfect.png");
+    else if (missedCount === 1) endGame("img/ddr/good.png");
+    else if (ratio < 0.5) endGame("img/ddr/fail.png");
+    else endGame("img/ddr/good.png");
   }
 }
 
@@ -328,6 +354,7 @@ function endGame(resultImg) {
   resultScreen.style.display = "flex";
   resultImage.src = resultImg;
 }
+
 updateSelection();
 </script>
 </body>
