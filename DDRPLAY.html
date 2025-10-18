@@ -105,10 +105,11 @@
   }
 
   #selector {
-    position: absolute;
+    position: fixed; /* absolute → fixed로 변경 */
     font-size: 28px;
     color: #ffa500;
     transition: top 0.2s, left 0.2s;
+    z-index: 15; /* 다른 요소보다 위로 */
   }
 
   .selected {
@@ -145,7 +146,7 @@
     <!-- 시작 화면 -->
     <div id="start-screen">
       <h1>히스토리명</h1>
-      <p>W, S키 메뉴 선택 후 Enter키를 입력해주세요.</p>
+      <p style="font-size:24px;">W, S키 메뉴 선택 후 Enter키를 입력해주세요.</p>
       <div id="start-options">
         <div id="rule-line"><span id="rule" class="selected">RULE</span></div>
         <div id="start-line"><span id="start">START</span></div>
