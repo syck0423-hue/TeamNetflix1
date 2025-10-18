@@ -54,7 +54,7 @@
     top: 80px;
     width: 100%;
     text-align: center;
-    color: #20052e;
+    color: #c351ff;
     text-shadow: 2px 2px 4px #000;
   }
   #combo-label {
@@ -105,10 +105,9 @@
 
   #selector {
     position: absolute;
-    font-size: 32px;
+    font-size: 28px;
     color: #ffa500;
-    left: -40px; /* 글자 왼쪽 */
-    transition: top 0.2s;
+    transition: top 0.2s, left 0.2s;
   }
 
   .selected {
@@ -216,11 +215,16 @@ function updateSelection() {
   if (selectedOption === "rule") {
     ruleEl.classList.add("selected");
     startEl.classList.remove("selected");
+
+    // ▶ 왼쪽 배치
     selector.style.top = (ruleRect.top - containerRect.top) + "px";
+    selector.style.left = (ruleRect.left - containerRect.left - 40) + "px";
   } else {
     startEl.classList.add("selected");
     ruleEl.classList.remove("selected");
+
     selector.style.top = (startRect.top - containerRect.top) + "px";
+    selector.style.left = (startRect.left - containerRect.left - 40) + "px";
   }
 }
 
