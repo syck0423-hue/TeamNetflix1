@@ -76,39 +76,55 @@
   }
 
   /* 🌟 모자 빛나는 효과 */
-    .hat-glow {
+      .hat-glow {
     position: absolute;
-    bottom: 40px; /* 모자 바로 위 */
-    left: 100px; /* 모자 중심 쪽으로 이동 */
-    width: 400px;
-    height: 260px;
+    bottom: 170px; /* 🔥 모자 윗부분 위치 (모자 높이에 맞게 조정) */
+    left: 180px;   /* 모자 중심 */
+    width: 250px;
+    height: 120px;
     background: radial-gradient(
-      circle,
+      ellipse at center,
       rgba(255, 255, 200, 0.9) 0%,
-      rgba(255, 200, 50, 0.6) 25%,
-      rgba(255, 150, 0, 0.3) 50%,
-      rgba(255, 255, 0, 0) 80%
+      rgba(255, 220, 100, 0.7) 25%,
+      rgba(255, 150, 0, 0.4) 55%,
+      rgba(255, 200, 0, 0) 100%
     );
     opacity: 0;
     z-index: 1;
-    border-radius: 50%;
+    border-radius: 50% 50% 0 0; /* 윗쪽 둥글게 */
     pointer-events: none;
-    filter: blur(40px);
+    filter: blur(30px);
     transition: opacity 0.3s ease;
+    transform-origin: center bottom;
   }
 
   .hat-glow.active {
     opacity: 1;
-    animation: glowPulse 1s ease-out;
+    animation: topGlow 1.2s ease-out;
   }
 
-  @keyframes glowPulse {
-    0% { transform: scale(0.6); opacity: 0.4; filter: blur(30px); }
-    40% { transform: scale(1.2); opacity: 1; filter: blur(50px); }
-    70% { transform: scale(1.3); opacity: 0.8; filter: blur(70px); }
-    100% { transform: scale(1.1); opacity: 0; filter: blur(90px); }
+  @keyframes topGlow {
+    0% {
+      transform: scaleY(0.6);
+      opacity: 0.4;
+      filter: blur(20px);
+    }
+    40% {
+      transform: scaleY(1.3);
+      opacity: 1;
+      filter: blur(35px);
+    }
+    70% {
+      transform: scaleY(1.4);
+      opacity: 0.8;
+      filter: blur(50px);
+    }
+    100% {
+      transform: scaleY(1.1);
+      opacity: 0;
+      filter: blur(70px);
+    }
   }
-
 </style>
 </head>
 <body>
