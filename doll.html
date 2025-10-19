@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>움직이는 인형 눈</title>
+<title>움직이는 인형 눈 (드래그 가능)</title>
 <style>
   body {
     background: black;
@@ -25,9 +25,23 @@
   }
 
   .doll {
-    position: relative;
+    position: absolute;
     width: 216px;
     height: 503px;
+    cursor: grab;
+    user-select: none;
+  }
+
+  .doll:active {
+    cursor: grabbing;
+  }
+
+  .body {
+    width: 100%;
+    height: auto;
+    display: block;
+    position: relative;
+    z-index: 1;
   }
 
   .eyes {
@@ -40,26 +54,21 @@
     background-size: contain;
     pointer-events: none;
     transition: transform 0.05s linear;
-    z-index: 0; /* 👈 몸보다 뒤로 보내기 */
-  }
-
-  .body {
-    position: relative;
-    z-index: 1; /* 👈 몸이 눈 위에 오도록 */
+    z-index: 0;
   }
 </style>
 </head>
 <body>
 
-<div class="stage">
-  <!-- 왼쪽 인형 (눈 움직임 있음) -->
-  <div class="doll" id="doll-left">
+<div class="stage" id="stage">
+  <!-- 왼쪽 인형 (드래그 + 눈 움직임) -->
+  <div class="doll" id="doll-left" style="left: 150px; top: 50px;">
     <img src="img/doll/body.png" class="body" alt="인형 몸">
     <div class="eyes" id="eyes-left"></div>
   </div>
 
-  <!-- 오른쪽 인형 (눈 고정) -->
-  <div class="doll" id="doll-right">
+  <!-- 오른쪽 인형 (고정) -->
+  <div class="doll" id="doll-right" style="right: 150px; bottom: 50px;">
     <img src="img/doll/body.png" class="body" alt="인형 몸">
     <div class="eyes" id="eyes-right"></div>
   </div>
@@ -68,7 +77,9 @@
 <script>
   const eyesLeft = document.getElementById("eyes-left");
   const dollLeft = document.getElementById("doll-left");
+  const stage = document.getElementById("stage");
 
+  // === 🎯 눈 움직임 ===
   document.addEventListener("mousemove", (e) => {
     const rect = dollLeft.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
@@ -78,11 +89,54 @@
     const dy = e.clientY - centerY;
     const angle = Math.atan2(dy, dx);
 
-    const moveRadius = 6; // 눈이 움직이는 거리(px)
+    const moveRadius = 6;
     const offsetX = Math.cos(angle) * moveRadius;
     const offsetY = Math.sin(angle) * moveRadius;
 
     eyesLeft.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+  });
+
+  // === 🎯 인형 드래그 기능 ===
+  let isDragging = false;
+  let startX, startY;
+  let initialX, initialY;
+
+  dollLeft.addEventListener("mousedown", (e) => {
+    isDragging = true;
+    startX = e.clientX;
+    startY = e.clientY;
+
+    const rect = dollLeft.getBoundingClientRect();
+    const stageRect = stage.getBoundingClientRect();
+
+    initialX = rect.left - stageRect.left;
+    initialY = rect.top - stageRect.top;
+
+    dollLeft.style.cursor = "grabbing";
+  });
+
+  document.addEventListener("mousemove", (e) => {
+    if (!isDragging) return;
+
+    const stageRect = stage.getBoundingClientRect();
+
+    let x = initialX + (e.clientX - startX);
+    let y = initialY + (e.clientY - startY);
+
+    // 스테이지 밖으로 못 나가게 제한
+    const maxX = stageRect.width - dollLeft.offsetWidth;
+    const maxY = stageRect.height - dollLeft.offsetHeight;
+
+    x = Math.max(0, Math.min(x, maxX));
+    y = Math.max(0, Math.min(y, maxY));
+
+    dollLeft.style.left = `${x}px`;
+    dollLeft.style.top = `${y}px`;
+  });
+
+  document.addEventListener("mouseup", () => {
+    isDragging = false;
+    dollLeft.style.cursor = "grab";
   });
 </script>
 
