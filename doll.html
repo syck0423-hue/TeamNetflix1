@@ -30,22 +30,22 @@
     height: 503px;
   }
 
-  .body {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-
   .eyes {
     position: absolute;
-    top: 102px; /* 👁 눈의 위치 (몸 기준) */
-    left: 52px;
+    top: 92px;
+    left: 42px;
     width: 112px;
     height: 60px;
     background: url("img/doll/eye.png") no-repeat center;
     background-size: contain;
     pointer-events: none;
     transition: transform 0.05s linear;
+    z-index: 0; /* 👈 몸보다 뒤로 보내기 */
+  }
+
+  .body {
+    position: relative;
+    z-index: 1; /* 👈 몸이 눈 위에 오도록 */
   }
 </style>
 </head>
