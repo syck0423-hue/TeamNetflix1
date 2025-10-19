@@ -156,4 +156,10 @@
   });
 
   // 이미지 기본 드래그 방지
-  document.querySelectorAl
+  document.querySelectorAll("img").forEach(img => {
+    img.addEventListener("dragstart", (e) => e.preventDefault());
+  });
+</script>
+
+</body>
+</html>
