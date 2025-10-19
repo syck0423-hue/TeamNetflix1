@@ -1,3 +1,8 @@
+<!DOCTYPE html> 
+<html lang="ko"> 
+  <head> 
+    <meta charset="UTF-8"> 
+    <title>모자 마술</title>
 <style>
   body {
     background: white;
@@ -70,7 +75,11 @@
     animation: shake 0.4s;
   }
 </style>
-
+<body>
+  <div class="stage">
+    <img class="item" id="magic-item" src="" alt="">
+    <img class="hat" id="magic-hat" src="img/magic/hat.png" alt="hat">
+  </div>
 <script>
   const items = [
     { src: "img/magic/20.png", prob: 20 },
@@ -123,3 +132,7 @@
     }, 2000);
   });
 </script>
+</body>
+  </head>
+</html>
+
