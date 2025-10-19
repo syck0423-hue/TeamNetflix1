@@ -98,11 +98,17 @@
 
     const dx = e.clientX - centerX;
     const dy = e.clientY - centerY;
+    const distance = Math.sqrt(dx * dx + dy * dy); // 마우스와 눈 중심 거리
     const angle = Math.atan2(dy, dx);
 
-    const moveRadius = 6;
-    const offsetX = Math.cos(angle) * moveRadius;
-    const offsetY = Math.sin(angle) * moveRadius;
+    const maxDistance = 100; // 눈이 반응하는 최대 거리(px)
+    const moveRadius = 6;    // 눈이 움직일 최대 반경(px)
+
+    // 🔥 마우스가 가까워질수록 움직임이 작아지도록 비율 계산
+    const ratio = Math.min(distance / maxDistance, 1);
+
+    const offsetX = Math.cos(angle) * moveRadius * ratio;
+    const offsetY = Math.sin(angle) * moveRadius * ratio;
 
     eyesLeft.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
   });
