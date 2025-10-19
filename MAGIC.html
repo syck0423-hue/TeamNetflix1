@@ -1,115 +1,139 @@
-<!DOCTYPE html> 
-<html lang="ko"> 
-  <head> 
-    <meta charset="UTF-8"> 
-    <title>모자 마술</title> 
-    <style> 
-      body { 
-        background: white; 
-        margin: 0; 
-        display: flex; 
-        justify-content: center; 
-        align-items: center; 
-        height: 574px; 
-        overflow: hidden; 
-      } 
-      html, body { 
-        cursor: url("/TeamNetflix1/img/cur/basic_cur.png"), auto; 
-      } 
-      .stage { 
-        position: relative; 
-        width: 926px; 
-        height: 574px; 
-        background: url("img/magic/bg.gif"); 
-        overflow: hidden; 
-      } 
-      /* 아이템 */ 
-      .item { 
-        position: absolute; 
-        bottom: 130px; /* 모자 위치 기준 */ 
-        left: 310px; /* 모자 중심 근처로 조정 */ 
-        width: 100px; height: 100px; 
-        transform: translateX(-50%) scale(0.2); 
-        opacity: 0; 
-        transition: transform 1s ease-out, opacity 0.5s ease-out; 
-        z-index: 1; pointer-events: none; 
-      } 
-      .item.show { 
-        opacity: 1; 
-        transform: translateX(-50%) translateY(-160px) scale(1); /* 모자보다 살짝 위로 */ 
-      } 
-      /* 모자 (앞면 이미지) */ 
-      .hat { 
-        position: absolute; 
-        bottom: 8px; 
-        left: 150px; 
-        width: 324px; 
-        height: 256px; 
-        transform: none; 
-        z-index: 2; 
-        cursor: url("/TeamNetflix1/img/cur/마술봉.png"), auto; 
-        transition: filter 0.2s; 
-      } 
-      .hat:hover { 
-        filter: brightness(0.8); 
-      } 
-      /* ✅ 모자 진동 애니메이션 */ 
-      @keyframes shake { 
-        0% { transform: translate(0, 0) rotate(0deg); } 
-        20% { transform: translate(-5px, 0) rotate(-2deg); } 
-        40% { transform: translate(5px, 0) rotate(2deg); } 
-        60% { transform: translate(-4px, 0) rotate(-1.5deg); } 
-        80% { transform: translate(4px, 0) rotate(1.5deg); } 
-        100% { transform: translate(0, 0) rotate(0deg); } 
-      } 
-      .hat.shake { 
-        animation: shake 0.4s; 
-      } 
-    </style> 
-    <body> 
-      <div class="stage"> 
-        <img class="item" id="magic-item" src="" alt=""> 
-        <img class="hat" id="magic-hat" src="img/magic/hat.png" alt="hat"> 
-      </div> 
-      <script> 
-        const items = [ 
-          { src: "img/magic/20.png", prob: 20 }, 
-          { src: "img/magic/15-1.png", prob: 15 }, 
-          { src: "img/magic/15-2.png", prob: 15 }, 
-          { src: "img/magic/15-3.png", prob: 15 }, 
-          { src: "img/magic/15-4.png", prob: 15 }, 
-          { src: "img/magic/10.png", prob: 10 }, 
-          { src: "img/magic/3-1.png", prob: 3 }, 
-          { src: "img/magic/3-2.png", prob: 3 }, 
-          { src: "img/magic/2-1.png", prob: 2 }, 
-          { src: "img/magic/2-2.png", prob: 2 }, ]; 
-        
-        const hat = document.getElementById("magic-hat");
-        
-        const item = document.getElementById("magic-item"); 
-        
-        let isAnimating = false; 
-        hat.addEventListener("click", () => { 
-          if (isAnimating) { // ✅ 이미 동작 중이면 흔들리기만 함 hat.classList.add("shake"); 
-            setTimeout(() => hat.classList.remove("shake"), 400); 
-            return; 
-          } 
-          isAnimating = true; 
-          const rand = Math.random() * 100; 
-          let cumulative = 0; 
-          let selected = items[0]; 
-          for (let i = 0; i < items.length; i++) { 
-            cumulative += items[i].prob; if (rand <= cumulative) 
-            { selected = items[i]; break; } 
-          } 
-          item.src = selected.src; 
-          item.classList.remove("show"); 
-          void item.offsetWidth;
-          // transition 재적용 item.classList.add("show"); 
-          setTimeout(() => { item.classList.remove("show"); 
-                            isAnimating = false; }, 2000); 
-        }); 
-      </script> 
-    </body> 
-  </head> 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>모자 마술</title>
+<style>
+  body {
+    background: white;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 574px;
+    overflow: hidden;
+  }
+  html, body {
+    cursor: url("/TeamNetflix1/img/cur/basic_cur.png"), auto;
+  }
+
+  .stage {
+    position: relative;
+    width: 926px;
+    height: 574px;
+    background: url("img/magic/bg.gif");
+    overflow: hidden;
+  }
+
+  /* 아이템 */
+  .item {
+    position: absolute;
+    bottom: 130px;
+    left: 310px;
+    width: 100px;
+    height: 100px;
+    transform: translateX(-50%) scale(0.2);
+    opacity: 0;
+    transition: transform 1s ease-out, opacity 0.5s ease-out;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .item.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-160px) scale(1);
+  }
+
+  /* 모자 (앞면 이미지) */
+  .hat {
+    position: absolute;
+    bottom: 8px;
+    left: 150px;
+    width: 324px;
+    height: 256px;
+    transform: none;
+    z-index: 2;
+    cursor: url("/TeamNetflix1/img/cur/마술봉.png"), auto;
+    transition: filter 0.2s;
+  }
+
+  .hat:hover {
+    filter: brightness(0.8);
+  }
+
+  /* ✅ 모자 진동 애니메이션 */
+  @keyframes shake {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    20% { transform: translate(-5px, 0) rotate(-2deg); }
+    40% { transform: translate(5px, 0) rotate(2deg); }
+    60% { transform: translate(-4px, 0) rotate(-1.5deg); }
+    80% { transform: translate(4px, 0) rotate(1.5deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
+  }
+
+  .hat.shake {
+    animation: shake 0.4s;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <img class="item" id="magic-item" src="" alt="">
+  <img class="hat" id="magic-hat" src="img/magic/hat.png" alt="hat">
+</div>
+
+<script>
+  const items = [
+    { src: "img/magic/20.png", prob: 20 },
+    { src: "img/magic/15-1.png", prob: 15 },
+    { src: "img/magic/15-2.png", prob: 15 },
+    { src: "img/magic/15-3.png", prob: 15 },
+    { src: "img/magic/15-4.png", prob: 15 },
+    { src: "img/magic/10.png", prob: 10 },
+    { src: "img/magic/3-1.png", prob: 3 },
+    { src: "img/magic/3-2.png", prob: 3 },
+    { src: "img/magic/2-1.png", prob: 2 },
+    { src: "img/magic/2-2.png", prob: 2 },
+  ];
+
+  const hat = document.getElementById("magic-hat");
+  const item = document.getElementById("magic-item");
+
+  let isAnimating = false;
+
+  hat.addEventListener("click", () => {
+    if (isAnimating) {
+      hat.classList.add("shake");
+      setTimeout(() => hat.classList.remove("shake"), 400);
+      return;
+    }
+
+    isAnimating = true;
+
+    const rand = Math.random() * 100;
+    let cumulative = 0;
+    let selected = items[0];
+
+    for (let i = 0; i < items.length; i++) {
+      cumulative += items[i].prob;
+      if (rand <= cumulative) {
+        selected = items[i];
+        break;
+      }
+    }
+
+    item.src = selected.src;
+    item.classList.remove("show");
+    void item.offsetWidth; // transition 재적용
+    item.classList.add("show");
+
+    setTimeout(() => {
+      item.classList.remove("show");
+      isAnimating = false;
+    }, 2000);
+  });
+</script>
+
+</body>
 </html>
