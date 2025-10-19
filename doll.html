@@ -27,7 +27,6 @@
     height: 503px;
     user-select: none;
     cursor: grab;
-    transition: transform 0.2s ease;
   }
 
   .doll:active {
@@ -97,10 +96,11 @@
 
   // 🧸 드래그 기능
   let isDragging = false;
-  let startX, startY, offsetX, offsetY;
+  let offsetX = 0;
+  let offsetY = 0;
 
   dollLeft.addEventListener("mousedown", (e) => {
-    e.preventDefault(); // 🚫 브라우저 기본 드래그 방지
+    e.preventDefault(); // 기본 드래그 방지
     isDragging = true;
 
     const rect = dollLeft.getBoundingClientRect();
@@ -111,8 +111,6 @@
 
     // 클릭 시 맨 위로 올리기
     dollLeft.style.zIndex = 9999;
-
-    dollLeft.style.transform = "scale(1.05)";
     dollLeft.style.cursor = "grabbing";
   });
 
@@ -127,6 +125,7 @@
     const maxX = stageRect.width - dollLeft.offsetWidth;
     const maxY = stageRect.height - dollLeft.offsetHeight;
 
+    // 범위 제한
     x = Math.max(0, Math.min(x, maxX));
     y = Math.max(0, Math.min(y, maxY));
 
@@ -138,9 +137,8 @@
     if (!isDragging) return;
     isDragging = false;
 
-    dollLeft.style.transform = "scale(1)";
     dollLeft.style.cursor = "grab";
-    dollLeft.style.zIndex = 1;
+    // 드래그 끝나도 z-index 유지 (자연스러움 유지)
   });
 
   // 🧩 기본 이미지 드래그 방지 (금지표시 제거 핵심)
