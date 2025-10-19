@@ -1,13 +1,126 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-	<meta charset="UTF-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Portfolio</title>
+<meta charset="UTF-8">
+<title>🎃 할로윈 인덱스</title>
+<style>
+  @font-face {
+    font-family: 'Creepster';
+    src: url('https://fonts.gstatic.com/s/creepster/v12/AlZy_zVUqJz4yMrniH4Rcn35.woff2') format('woff2');
+  }
+
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle at center, #1a0d0d 0%, #000 80%);
+    font-family: 'Creepster', cursive;
+    overflow: hidden;
+	cursor: url("img/cur/basic_cur.png"), pointer;
+  }
+
+  /* 박스 그리드 */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    gap: 15px;
+    width: 90vmin;
+    height: 90vmin;
+  }
+
+  /* 각 박스 스타일 */
+  .box {
+    position: relative;
+    background: #220000;
+    border: 2px solid #ff6600;
+    border-radius: 10px;
+    color: #ffb84d;
+    font-size: 1.8rem;
+    text-align: center;
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 10px rgba(255, 102, 0, 0.6);
+    transition: all 0.25s ease;
+    animation: flicker 3s infinite alternate;
+  }
+
+  .box:hover {
+    color: #fff;
+    background: #ff6600;
+    box-shadow: 0 0 25px #ff6600, 0 0 50px #ff3300;
+    transform: scale(1.1) rotate(-2deg);
+    cursor: url("img/cur/click_cur.png"), pointer;
+  }
+
+  /* 글자 깜빡이는 느낌 */
+  @keyframes flicker {
+    0% { opacity: 1; }
+    10% { opacity: 0.95; }
+    20% { opacity: 0.9; }
+    30% { opacity: 0.85; }
+    40% { opacity: 0.95; }
+    50% { opacity: 1; }
+    60% { opacity: 0.9; }
+    70% { opacity: 1; }
+    80% { opacity: 0.85; }
+    90% { opacity: 0.95; }
+    100% { opacity: 1; }
+  }
+
+  /* 부드럽게 나타나는 효과 */
+  .box::before {
+    content: "";
+    position: absolute;
+    top: -2px; left: -2px; right: -2px; bottom: -2px;
+    border-radius: 10px;
+    box-shadow: 0 0 30px rgba(255, 102, 0, 0.3);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .box:hover::before {
+    opacity: 1;
+  }
+</style>
 </head>
 <body>
-  <a href="DDRPLAY.html">ddrplay</a>
-	<a href="MAGIC.html">magic</a>
+
+<div class="grid">
+  <a href="DDRPLAY.html" class="box">🎩DDR🎩</a>
+  <a href="MAGIC.html" class="box">🕯️MAGIC🕯️</a>
+  <a href="page3.html" class="box">🕸️</a>
+  <a href="page4.html" class="box">💀</a>
+  <a href="page5.html" class="box">🦇</a>
+
+  <a href="page6.html" class="box">🎃</a>
+  <a href="page7.html" class="box">🧙‍♀️</a>
+  <a href="page8.html" class="box">🧛‍♂️</a>
+  <a href="page9.html" class="box">👻</a>
+  <a href="page10.html" class="box">🕷️</a>
+
+  <a href="page11.html" class="box">🧟‍♀️</a>
+  <a href="page12.html" class="box">🪦</a>
+  <a href="page13.html" class="box">⚰️</a>
+  <a href="page14.html" class="box">🩸</a>
+  <a href="page15.html" class="box">🪄</a>
+
+  <a href="page16.html" class="box">🎭</a>
+  <a href="page17.html" class="box">🍬</a>
+  <a href="page18.html" class="box">🧹</a>
+  <a href="page19.html" class="box">🐈‍⬛</a>
+  <a href="page20.html" class="box">🔥</a>
+
+  <a href="page21.html" class="box">🔮</a>
+  <a href="page22.html" class="box">☠️</a>
+  <a href="page23.html" class="box">🦉</a>
+  <a href="page24.html" class="box">👁️</a>
+  <a href="page25.html" class="box">🕯️</a>
+</div>
+
 </body>
 </html>
