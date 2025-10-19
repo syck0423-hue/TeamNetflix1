@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>움직이는 인형 눈</title>
+<style>
+  body {
+    background: black;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 574px;
+  }
+
+  .stage {
+    position: relative;
+    width: 926px;
+    height: 574px;
+    background: #111;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .doll {
+    position: relative;
+    width: 216px;
+    height: 503px;
+  }
+
+  .body {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .eyes {
+    position: absolute;
+    top: 102px; /* 👁 눈의 위치 (몸 기준) */
+    left: 52px;
+    width: 112px;
+    height: 60px;
+    background: url("눈.png") no-repeat center;
+    background-size: contain;
+    pointer-events: none;
+    transition: transform 0.05s linear;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <!-- 왼쪽 인형 (눈 움직임 있음) -->
+  <div class="doll" id="doll-left">
+    <img src="몸.png" class="body" alt="인형 몸">
+    <div class="eyes" id="eyes-left"></div>
+  </div>
+
+  <!-- 오른쪽 인형 (눈 고정) -->
+  <div class="doll" id="doll-right">
+    <img src="몸.png" class="body" alt="인형 몸">
+    <div class="eyes" id="eyes-right"></div>
+  </div>
+</div>
+
+<script>
+  const eyesLeft = document.getElementById("eyes-left");
+  const dollLeft = document.getElementById("doll-left");
+
+  document.addEventListener("mousemove", (e) => {
+    const rect = dollLeft.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 3.5;
+
+    const dx = e.clientX - centerX;
+    const dy = e.clientY - centerY;
+    const angle = Math.atan2(dy, dx);
+
+    const moveRadius = 6; // 눈이 움직이는 거리(px)
+    const offsetX = Math.cos(angle) * moveRadius;
+    const offsetY = Math.sin(angle) * moveRadius;
+
+    eyesLeft.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+  });
+</script>
+
+</body>
+</html>
