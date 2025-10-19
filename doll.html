@@ -12,6 +12,8 @@
     align-items: center;
     height: 574px;
   }
+
+  /* 기본 커서 설정 */
   html, body {
     cursor: url("/TeamNetflix1/img/cur/basic_cur.png"), auto;
   }
@@ -29,18 +31,17 @@
     width: 216px;
     height: 503px;
     user-select: none;
-    cursor: grab;
+    cursor: url("/TeamNetflix1/img/cur/click_cur.png"), auto; /* ✅ 항상 같은 커서 */
   }
 
-  /* 왼쪽 인형 초기 중앙 정렬 */
+  /* 왼쪽 인형 */
   #doll-left {
     left: 150px;
     top: 50%;
     transform: translateY(-50%);
-    cursor: url("/TeamNetflix1/img/cur/click_cur.png"), auto;
   }
 
-  /* 오른쪽 인형 초기 중앙 정렬 */
+  /* 오른쪽 인형 */
   #doll-right {
     right: 150px;
     top: 50%;
@@ -121,7 +122,7 @@
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
 
-    // ✅ transform 제거 전, 현재 화면상의 실제 위치(px)로 고정
+    // 현재 위치를 px 값으로 고정
     const actualTop = rect.top - stageRect.top;
     const actualLeft = rect.left - stageRect.left;
     dollLeft.style.top = `${actualTop}px`;
@@ -129,14 +130,12 @@
     dollLeft.style.transform = "none";
 
     dollLeft.style.zIndex = 9999;
-    dollLeft.style.cursor = "grabbing";
   });
 
   document.addEventListener("mousemove", (e) => {
     if (!isDragging) return;
 
     const stageRect = stage.getBoundingClientRect();
-
     let x = e.clientX - stageRect.left - offsetX;
     let y = e.clientY - stageRect.top - offsetY;
 
@@ -153,14 +152,8 @@
   document.addEventListener("mouseup", () => {
     if (!isDragging) return;
     isDragging = false;
-    dollLeft.style.cursor = "grab";
+    dollLeft.style.zIndex = 1;
   });
 
-  // 기본 이미지 드래그 방지
-  document.querySelectorAll("img").forEach(img => {
-    img.addEventListener("dragstart", (e) => e.preventDefault());
-  });
-</script>
-
-</body>
-</html>
+  // 이미지 기본 드래그 방지
+  document.querySelectorAl
