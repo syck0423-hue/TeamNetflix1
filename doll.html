@@ -29,6 +29,20 @@
     cursor: grab;
   }
 
+  /* 왼쪽 인형 초기 중앙 정렬 */
+  #doll-left {
+    left: 150px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  /* 오른쪽 인형 초기 중앙 정렬 */
+  #doll-right {
+    right: 150px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
   .doll:active {
     cursor: grabbing;
   }
@@ -60,13 +74,13 @@
 
 <div class="stage" id="stage">
   <!-- 왼쪽 인형 (드래그 + 눈 움직임) -->
-  <div class="doll" id="doll-left" style="left: 150px; top: 50px;">
+  <div class="doll" id="doll-left">
     <img src="img/doll/body.png" class="body" alt="인형 몸">
     <div class="eyes" id="eyes-left"></div>
   </div>
 
   <!-- 오른쪽 인형 (고정) -->
-  <div class="doll" id="doll-right" style="right: 150px; bottom: 50px;">
+  <div class="doll" id="doll-right">
     <img src="img/doll/body.png" class="body" alt="인형 몸">
     <div class="eyes" id="eyes-right"></div>
   </div>
@@ -100,7 +114,7 @@
   let offsetY = 0;
 
   dollLeft.addEventListener("mousedown", (e) => {
-    e.preventDefault(); // 기본 드래그 방지
+    e.preventDefault();
     isDragging = true;
 
     const rect = dollLeft.getBoundingClientRect();
@@ -109,9 +123,11 @@
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
 
-    // 클릭 시 맨 위로 올리기
     dollLeft.style.zIndex = 9999;
     dollLeft.style.cursor = "grabbing";
+
+    // 드래그 시작 시 transform 초기화 (translateY 제거)
+    dollLeft.style.transform = "";
   });
 
   document.addEventListener("mousemove", (e) => {
@@ -125,7 +141,6 @@
     const maxX = stageRect.width - dollLeft.offsetWidth;
     const maxY = stageRect.height - dollLeft.offsetHeight;
 
-    // 범위 제한
     x = Math.max(0, Math.min(x, maxX));
     y = Math.max(0, Math.min(y, maxY));
 
@@ -136,12 +151,9 @@
   document.addEventListener("mouseup", () => {
     if (!isDragging) return;
     isDragging = false;
-
     dollLeft.style.cursor = "grab";
-    // 드래그 끝나도 z-index 유지 (자연스러움 유지)
   });
 
-  // 🧩 기본 이미지 드래그 방지 (금지표시 제거 핵심)
   document.querySelectorAll("img").forEach(img => {
     img.addEventListener("dragstart", (e) => e.preventDefault());
   });
