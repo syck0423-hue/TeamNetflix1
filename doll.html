@@ -43,17 +43,13 @@
     transform: translateY(-50%);
   }
 
-  .doll:active {
-    cursor: grabbing;
-  }
-
   .body {
     width: 100%;
     height: auto;
     display: block;
     position: relative;
     z-index: 1;
-    pointer-events: none; /* 드래그 시 이미지 잡히는 현상 방지 */
+    pointer-events: none;
   }
 
   .eyes {
@@ -73,13 +69,11 @@
 <body>
 
 <div class="stage" id="stage">
-  <!-- 왼쪽 인형 (드래그 + 눈 움직임) -->
   <div class="doll" id="doll-left">
     <img src="img/doll/body.png" class="body" alt="인형 몸">
     <div class="eyes" id="eyes-left"></div>
   </div>
 
-  <!-- 오른쪽 인형 (고정) -->
   <div class="doll" id="doll-right">
     <img src="img/doll/body.png" class="body" alt="인형 몸">
     <div class="eyes" id="eyes-right"></div>
@@ -123,11 +117,15 @@
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
 
+    // ✅ transform 제거 전, 현재 화면상의 실제 위치(px)로 고정
+    const actualTop = rect.top - stageRect.top;
+    const actualLeft = rect.left - stageRect.left;
+    dollLeft.style.top = `${actualTop}px`;
+    dollLeft.style.left = `${actualLeft}px`;
+    dollLeft.style.transform = "none";
+
     dollLeft.style.zIndex = 9999;
     dollLeft.style.cursor = "grabbing";
-
-    // 드래그 시작 시 transform 초기화 (translateY 제거)
-    dollLeft.style.transform = "";
   });
 
   document.addEventListener("mousemove", (e) => {
@@ -154,6 +152,7 @@
     dollLeft.style.cursor = "grab";
   });
 
+  // 기본 이미지 드래그 방지
   document.querySelectorAll("img").forEach(img => {
     img.addEventListener("dragstart", (e) => e.preventDefault());
   });
