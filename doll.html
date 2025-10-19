@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>움직이는 인형 눈 (드래그 가능)</title>
+<title>움직이는 인형 눈</title>
 <style>
   body {
     background: black;
@@ -18,9 +18,6 @@
     width: 926px;
     height: 574px;
     background: #111;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
     overflow: hidden;
   }
 
@@ -28,8 +25,9 @@
     position: absolute;
     width: 216px;
     height: 503px;
-    cursor: grab;
     user-select: none;
+    cursor: grab;
+    transition: transform 0.2s ease;
   }
 
   .doll:active {
@@ -42,6 +40,7 @@
     display: block;
     position: relative;
     z-index: 1;
+    pointer-events: none; /* 드래그 시 이미지 잡히는 현상 방지 */
   }
 
   .eyes {
@@ -79,7 +78,7 @@
   const dollLeft = document.getElementById("doll-left");
   const stage = document.getElementById("stage");
 
-  // === 🎯 눈 움직임 ===
+  // 👁 눈 움직임
   document.addEventListener("mousemove", (e) => {
     const rect = dollLeft.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
@@ -96,22 +95,24 @@
     eyesLeft.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
   });
 
-  // === 🎯 인형 드래그 기능 ===
+  // 🧸 드래그 기능
   let isDragging = false;
-  let startX, startY;
-  let initialX, initialY;
+  let startX, startY, offsetX, offsetY;
 
   dollLeft.addEventListener("mousedown", (e) => {
+    e.preventDefault(); // 🚫 브라우저 기본 드래그 방지
     isDragging = true;
-    startX = e.clientX;
-    startY = e.clientY;
 
     const rect = dollLeft.getBoundingClientRect();
     const stageRect = stage.getBoundingClientRect();
 
-    initialX = rect.left - stageRect.left;
-    initialY = rect.top - stageRect.top;
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
 
+    // 클릭 시 맨 위로 올리기
+    dollLeft.style.zIndex = 9999;
+
+    dollLeft.style.transform = "scale(1.05)";
     dollLeft.style.cursor = "grabbing";
   });
 
@@ -120,10 +121,9 @@
 
     const stageRect = stage.getBoundingClientRect();
 
-    let x = initialX + (e.clientX - startX);
-    let y = initialY + (e.clientY - startY);
+    let x = e.clientX - stageRect.left - offsetX;
+    let y = e.clientY - stageRect.top - offsetY;
 
-    // 스테이지 밖으로 못 나가게 제한
     const maxX = stageRect.width - dollLeft.offsetWidth;
     const maxY = stageRect.height - dollLeft.offsetHeight;
 
@@ -135,8 +135,17 @@
   });
 
   document.addEventListener("mouseup", () => {
+    if (!isDragging) return;
     isDragging = false;
+
+    dollLeft.style.transform = "scale(1)";
     dollLeft.style.cursor = "grab";
+    dollLeft.style.zIndex = 1;
+  });
+
+  // 🧩 기본 이미지 드래그 방지 (금지표시 제거 핵심)
+  document.querySelectorAll("img").forEach(img => {
+    img.addEventListener("dragstart", (e) => e.preventDefault());
   });
 </script>
 
