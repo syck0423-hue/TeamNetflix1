@@ -22,7 +22,7 @@
     position: relative;
     width: 926px;
     height: 574px;
-    background: #111;
+    background: url("img/doll/image.png");
     overflow: hidden;
   }
 
@@ -40,14 +40,6 @@
     top: 50%;
     transform: translateY(-50%);
   }
-
-  /* 오른쪽 인형 */
-  #doll-right {
-    right: 150px;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-
   .body {
     width: 100%;
     height: auto;
@@ -78,11 +70,6 @@
     <img src="img/doll/body.png" class="body" alt="인형 몸">
     <div class="eyes" id="eyes-left"></div>
   </div>
-
-  <div class="doll" id="doll-right">
-    <img src="img/doll/body.png" class="body" alt="인형 몸">
-    <div class="eyes" id="eyes-right"></div>
-  </div>
 </div>
 
 <script>
@@ -111,59 +98,6 @@
     const offsetY = Math.sin(angle) * moveRadius * ratio;
 
     eyesLeft.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-  });
-
-  // 🧸 드래그 기능
-  let isDragging = false;
-  let offsetX = 0;
-  let offsetY = 0;
-
-  dollLeft.addEventListener("mousedown", (e) => {
-    e.preventDefault();
-    isDragging = true;
-
-    const rect = dollLeft.getBoundingClientRect();
-    const stageRect = stage.getBoundingClientRect();
-
-    offsetX = e.clientX - rect.left;
-    offsetY = e.clientY - rect.top;
-
-    // 현재 위치를 px 값으로 고정
-    const actualTop = rect.top - stageRect.top;
-    const actualLeft = rect.left - stageRect.left;
-    dollLeft.style.top = `${actualTop}px`;
-    dollLeft.style.left = `${actualLeft}px`;
-    dollLeft.style.transform = "none";
-
-    dollLeft.style.zIndex = 9999;
-  });
-
-  document.addEventListener("mousemove", (e) => {
-    if (!isDragging) return;
-
-    const stageRect = stage.getBoundingClientRect();
-    let x = e.clientX - stageRect.left - offsetX;
-    let y = e.clientY - stageRect.top - offsetY;
-
-    const maxX = stageRect.width - dollLeft.offsetWidth;
-    const maxY = stageRect.height - dollLeft.offsetHeight;
-
-    x = Math.max(0, Math.min(x, maxX));
-    y = Math.max(0, Math.min(y, maxY));
-
-    dollLeft.style.left = `${x}px`;
-    dollLeft.style.top = `${y}px`;
-  });
-
-  document.addEventListener("mouseup", () => {
-    if (!isDragging) return;
-    isDragging = false;
-    dollLeft.style.zIndex = 1;
-  });
-
-  // 이미지 기본 드래그 방지
-  document.querySelectorAll("img").forEach(img => {
-    img.addEventListener("dragstart", (e) => e.preventDefault());
   });
 </script>
 
