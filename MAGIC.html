@@ -104,7 +104,6 @@
 
   hat.addEventListener("click", () => {
     if (isAnimating) {
-      // 이미 애니메이션 중이면 모자만 살짝 흔들림
       hat.classList.add("shake");
       setTimeout(() => hat.classList.remove("shake"), 400);
       return;
@@ -112,10 +111,11 @@
 
     isAnimating = true;
 
-    // 확률 계산
+    // 랜덤 아이템 선택
     const rand = Math.random() * 100;
     let cumulative = 0;
     let selected = items[0];
+
     for (let i = 0; i < items.length; i++) {
       cumulative += items[i].prob;
       if (rand <= cumulative) {
@@ -124,30 +124,24 @@
       }
     }
 
-    // 아이템 세팅 및 등장
+    // 아이템 등장
     item.src = selected.src;
     item.classList.remove("show");
-    void item.offsetWidth; // 트랜지션 리셋
+    void item.offsetWidth; // transition 재적용
     item.classList.add("show");
 
-    // 🧙 애니메이션 타이밍 제어
-    // 1) 올라오는 데 1초, 
-    // 2) 잠깐 떠 있다가 
-    // 3) 내려가며 사라짐 (opacity 0)
+    // 🕒 애니메이션 타이밍 제어
+    // 2초 동안 등장 후 사라지는 애니메이션을 기다린 다음 다시 클릭 가능하게 함
     setTimeout(() => {
-      item.style.transition = "transform 1s ease-in, opacity 0.5s ease-in";
-      item.style.opacity = 0;
-      item.style.transform = "translateX(-50%) translateY(0) scale(0.2)";
-    }, 1500); // 1.5초 떠있는 상태 유지
-
-    // 3) 모든 애니메이션이 끝난 뒤에 다음 클릭 가능
-    setTimeout(() => {
-      // transition 원래대로 복구
-      item.style.transition = "transform 1s ease-out, opacity 0.5s ease-out";
-      isAnimating = false;
-    }, 3000); // 전체 주기 3초 정도
+      item.classList.remove("show");
+      // 아이템이 완전히 사라진 뒤 클릭 가능
+      setTimeout(() => {
+        isAnimating = false;
+      }, 500); // 사라지는 트랜지션 시간
+    }, 2000); // 보여지는 시간
   });
 </script>
+
 
 </body>
 </html>
