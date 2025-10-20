@@ -61,7 +61,7 @@
     filter: brightness(0.8);
   }
 
-  /* ✅ 모자 진동 애니메이션 */
+  /* 모자 진동 애니메이션 */
   @keyframes shake {
     0% { transform: translate(0, 0) rotate(0deg); }
     20% { transform: translate(-5px, 0) rotate(-2deg); }
@@ -104,6 +104,7 @@
 
   hat.addEventListener("click", () => {
     if (isAnimating) {
+      // 이미 애니메이션 중이면 모자만 살짝 흔들림
       hat.classList.add("shake");
       setTimeout(() => hat.classList.remove("shake"), 400);
       return;
@@ -111,10 +112,10 @@
 
     isAnimating = true;
 
+    // 확률 계산
     const rand = Math.random() * 100;
     let cumulative = 0;
     let selected = items[0];
-
     for (let i = 0; i < items.length; i++) {
       cumulative += items[i].prob;
       if (rand <= cumulative) {
@@ -123,15 +124,28 @@
       }
     }
 
+    // 아이템 세팅 및 등장
     item.src = selected.src;
     item.classList.remove("show");
-    void item.offsetWidth; // transition 재적용
+    void item.offsetWidth; // 트랜지션 리셋
     item.classList.add("show");
 
+    // 🧙 애니메이션 타이밍 제어
+    // 1) 올라오는 데 1초, 
+    // 2) 잠깐 떠 있다가 
+    // 3) 내려가며 사라짐 (opacity 0)
     setTimeout(() => {
-      item.classList.remove("show");
+      item.style.transition = "transform 1s ease-in, opacity 0.5s ease-in";
+      item.style.opacity = 0;
+      item.style.transform = "translateX(-50%) translateY(0) scale(0.2)";
+    }, 1500); // 1.5초 떠있는 상태 유지
+
+    // 3) 모든 애니메이션이 끝난 뒤에 다음 클릭 가능
+    setTimeout(() => {
+      // transition 원래대로 복구
+      item.style.transition = "transform 1s ease-out, opacity 0.5s ease-out";
       isAnimating = false;
-    }, 2000);
+    }, 3000); // 전체 주기 3초 정도
   });
 </script>
 
