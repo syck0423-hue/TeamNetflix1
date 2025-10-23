@@ -265,13 +265,23 @@ function onMouseUp(e) {
     img.dataset.inBox = "false";
 
     // 요소의 전체 바운딩이 원 내부에 완전히 들어왔는지 검사 (원 내부 완전 포함)
-   const insideWholeCircle = insideCircleAllCorners(
-  rect.left - circleRect.left,
-  rect.top - circleRect.top,
-  rect.width,
-  rect.height,
-  circleRadius
-);
+   // 요소의 전체 바운딩이 원 내부에 완전히 들어왔는지 검사
+const circleCenterX = circleRect.left + circleRect.width / 2;
+const circleCenterY = circleRect.top + circleRect.height / 2;
+
+const corners = [
+  [rect.left, rect.top],
+  [rect.right, rect.top],
+  [rect.left, rect.bottom],
+  [rect.right, rect.bottom]
+];
+
+const insideWholeCircle = corners.every(([px, py]) => {
+  const dx = px - circleCenterX;
+  const dy = py - circleCenterY;
+  return Math.sqrt(dx * dx + dy * dy) <= circleRadius;
+});
+
 
     if (insideWholeCircle) {
       // 화면(클라이언트) 좌표 -> stage 좌표로 변환
