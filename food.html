@@ -158,22 +158,6 @@
     return { x: clientX - rect.left, y: clientY - rect.top };
   }
 
-  function reorderBoxItems() {
-    const stageRect = stage.getBoundingClientRect();
-    const boxRect = box.getBoundingClientRect();
-    let curY = boxRect.top - stageRect.top + 10;
-
-    boxItems.forEach(item => {
-      const w = item.offsetWidth;
-      const h = item.offsetHeight;
-      const centerX = (boxRect.left - stageRect.left) + (boxRect.width - w) / 2;
-
-      item.style.left = `${centerX}px`;
-      item.style.top = `${curY}px`;
-      curY += h + gap;
-    });
-  }
-
   function enableDraggingForFoods() {
     document.querySelectorAll(".food").forEach(img => {
       img.addEventListener("mousedown", e => {
@@ -212,37 +196,38 @@ function updateBoxLayout(targetImg) {
   const boxRect = box.getBoundingClientRect();
   const stageRect = stage.getBoundingClientRect();
 
-  // box 안에서의 상대 좌표
++ const centerX = boxRect.left - stageRect.left + (boxRect.width - targetImg.offsetWidth) / 2;
+
   function clampInsideBox(y, img) {
     const minY = boxRect.top - stageRect.top;
     const maxY = minY + boxRect.height - img.offsetHeight;
     return Math.max(minY, Math.min(y, maxY));
   }
 
-  // 새 요소 위치 기준으로 재정렬
   boxItems.sort((a, b) => {
     if (a === targetImg) return -1;
     if (b === targetImg) return 1;
     return (a.offsetTop - b.offsetTop);
   });
 
-  // 충돌 방지 재배치
   let curY = clampInsideBox(targetImg.offsetTop, targetImg);
+
++ // ⬇ target도 중앙 고정
++ targetImg.style.left = centerX + "px";
   targetImg.style.top = curY + "px";
 
   for (const img of boxItems) {
     if (img === targetImg) continue;
 
     if (img.offsetTop < curY) {
-      // 위쪽 아이템 → 차곡 정렬
       curY = img.offsetTop + img.offsetHeight + GAP;
     } else {
-      // 아래쪽 아이템 → 밀리면서 정렬
       img.style.top = (curY + targetImg.offsetHeight + GAP) + "px";
       curY = img.offsetTop + img.offsetHeight + GAP;
     }
 
-    img.style.left = (boxRect.left - stageRect.left + 10) + "px";
++   // ⬇ 모든 요소 중앙 고정
++   img.style.left = centerX + "px";
   }
 }
 
