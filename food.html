@@ -195,38 +195,59 @@ function updateBoxLayout(droppedImg) {
   const boxRect = box.getBoundingClientRect();
   const stageRect = stage.getBoundingClientRect();
 
-  // ✅ droppedImg 기준 정렬 우선
+  // 1. Y 기준 정렬
   boxItems.sort((a, b) => a.offsetTop - b.offsetTop);
 
-  // ✅ droppedImg의 "들어오길 원하는 위치" 유지하면서
-  // 앞뒤로 자연스럽게 밀어내기
-  let prevBottom = boxRect.top - stageRect.top;
+  // 2. droppedImg의 index 찾기
+  const dropIndex = boxItems.indexOf(droppedImg);
 
+  // 3. droppedImg 기준 위쪽 정리 (위로 미는 로직도 포함)
+  for (let i = dropIndex - 1; i >= 0; i--) {
+    const curr = boxItems[i];
+    const next = boxItems[i + 1];
+    const desiredBottom = next.offsetTop - GAP;
+
+    if (curr.offsetTop + curr.offsetHeight > desiredBottom) {
+      curr.style.top = `${desiredBottom - curr.offsetHeight}px`;
+    }
+  }
+
+  // 4. droppedImg 기준 아래쪽 정리
+  for (let i = dropIndex + 1; i < boxItems.length; i++) {
+    const curr = boxItems[i];
+    const prev = boxItems[i - 1];
+    const desiredTop = prev.offsetTop + prev.offsetHeight + GAP;
+
+    if (curr.offsetTop < desiredTop) {
+      curr.style.top = `${desiredTop}px`;
+    }
+  }
+
+  // 5. 중앙 X 정렬
   boxItems.forEach(item => {
-    const idealY = Math.max(item.offsetTop, prevBottom);
-    item.style.top = `${idealY}px`;
-
-    // ✅ 박스 중앙 정렬 (전부 동일하게)
     const w = item.offsetWidth;
     const centerX = (boxRect.left - stageRect.left) + (boxRect.width - w) / 2;
     item.style.left = `${centerX}px`;
-
-    prevBottom = idealY + item.offsetHeight + GAP;
   });
 
-  // ✅ 박스 아래쪽 넘김 방지 (모두 위로 재정렬)
+  // 6. 박스 범위 초과 시 전체 이동
+  const minTop = boxRect.top - stageRect.top;
   const maxBottom = boxRect.bottom - stageRect.top;
-  const last = boxItems[boxItems.length - 1];
-  if (!last) return;
 
-  const bottom = last.offsetTop + last.offsetHeight;
-  if (bottom > maxBottom) {
-    const diff = bottom - maxBottom;
+  const topMost = Math.min(...boxItems.map(i => i.offsetTop));
+  const bottomMost = Math.max(...boxItems.map(i => i.offsetTop + i.offsetHeight));
+
+  let shift = 0;
+  if (topMost < minTop) shift = minTop - topMost;
+  if (bottomMost > maxBottom) shift = maxBottom - bottomMost;
+
+  if (shift !== 0) {
     boxItems.forEach(i => {
-      i.style.top = `${i.offsetTop - diff}px`;
+      i.style.top = `${i.offsetTop + shift}px`;
     });
   }
 }
+
 
   function onMouseUp() {
   if (!dragged) return;
