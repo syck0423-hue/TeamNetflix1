@@ -194,30 +194,61 @@
   const GAP = 2; // 박스내 간격
 
   // 박스 내부 레이아웃 재정렬 (겹치지 않도록 위/아래로 벌려줌, 박스 범위 초과 보정 포함)
- function updateBoxLayout(droppedImg) {
-  const itemHeightList = boxItems.map(item => item.offsetHeight);
-  
-  // droppedImg가 어느 위치에 들어왔는지만 판단
-  boxItems.sort((a, b) => a.offsetTop - b.offsetTop);
-
-  // droppedImg 기준으로 순서 확정 후
-  const newOrder = [...boxItems];
-
-  // 위에서 아래로 일정한 간격으로 위치 재배치
-  let currentTop = 0;
-  newOrder.forEach(item => {
-    item.style.top = `${currentTop}px`;
-    currentTop += item.offsetHeight + GAP;
-
-    // 중앙 정렬 유지
+  function updateBoxLayout(droppedImg) {
     const boxRect = box.getBoundingClientRect();
     const stageRect = stage.getBoundingClientRect();
-    const w = item.offsetWidth;
-    const centerX = (boxRect.left - stageRect.left) + (boxRect.width - w) / 2;
-    item.style.left = `${centerX}px`;
-  });
-}
 
+    // 1) Y 기준 정렬
+    boxItems.sort((a, b) => a.offsetTop - b.offsetTop);
+
+    // 2) droppedImg 인덱스 찾기
+    const dropIndex = boxItems.indexOf(droppedImg);
+
+    // 3) droppedImg 기준 위쪽 조정 (위로 밀어내기)
+    for (let i = dropIndex - 1; i >= 0; i--) {
+      const curr = boxItems[i];
+      const next = boxItems[i + 1];
+      const desiredBottom = next.offsetTop - GAP;
+      if (curr.offsetTop + curr.offsetHeight > desiredBottom) {
+        curr.style.top = `${desiredBottom - curr.offsetHeight}px`;
+      }
+    }
+
+    // 4) droppedImg 기준 아래쪽 조정 (아래로 밀기)
+    for (let i = dropIndex + 1; i < boxItems.length; i++) {
+      const curr = boxItems[i];
+      const prev = boxItems[i - 1];
+      const desiredTop = prev.offsetTop + prev.offsetHeight + GAP;
+      if (curr.offsetTop < desiredTop) {
+        curr.style.top = `${desiredTop}px`;
+      }
+    }
+
+    // 5) 중앙 X 정렬 (모두 가운데로)
+    boxItems.forEach(item => {
+      const w = item.offsetWidth;
+      const centerX = (boxRect.left - stageRect.left) + (boxRect.width - w) / 2;
+      item.style.left = `${centerX}px`;
+    });
+
+    // 6) 박스 범위 초과 시 전체 조정(위로/아래로 이동)
+    const minTop = boxRect.top - stageRect.top;
+    const maxBottom = boxRect.bottom - stageRect.top;
+    if (boxItems.length === 0) return;
+
+    const topMost = Math.min(...boxItems.map(i => i.offsetTop));
+    const bottomMost = Math.max(...boxItems.map(i => i.offsetTop + i.offsetHeight));
+
+    let shift = 0;
+    if (topMost < minTop) shift = minTop - topMost;
+    if (bottomMost > maxBottom) shift = maxBottom - bottomMost;
+
+    if (shift !== 0) {
+      boxItems.forEach(i => {
+        i.style.top = `${i.offsetTop + shift}px`;
+      });
+    }
+  }
 
   // 마우스 업 핸들러 (updateBoxLayout와는 별도)
   function onMouseUp() {
