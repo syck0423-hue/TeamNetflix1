@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>방금 수정한 것</title>
+  <title>원형 내부 음식 배치 + 드래그 이동 (수정 완성본)</title>
 
   <style>
     html, body {
@@ -42,6 +42,8 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      flex-direction: column;
+      overflow-y: auto;
     }
     .food {
       position: absolute;
@@ -202,6 +204,7 @@ function onMouseMove(e) {
 
 // ✅ 박스 정렬
 const GAP = 2;
+
 // ✅ 박스 레이아웃 갱신 (수정된 버전)
 function updateBoxLayout() {
   let yCursor = GAP;
@@ -220,7 +223,6 @@ function updateBoxLayout() {
     yCursor += h + GAP;
   });
 }
-
 
 // ✅ 마우스 떼기 처리 (핵심 수정 완료)
 // ✅ 마우스 떼기 처리 (핵심 수정 완료)
@@ -280,7 +282,6 @@ function onMouseUp() {
   document.removeEventListener("mousemove", onMouseMove);
   document.removeEventListener("mouseup", onMouseUp);
 }
-
 
 // ⭐ 초기 드래그 활성화
 enableDraggingForFoods();
