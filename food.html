@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>원 내부 음식 랜덤 배치 (겹침 방지 + 경계 유지)</title>
+<title>원형 내부 랜덤 음식 배치 (살짝 겹침 허용)</title>
 <style>
   body {
     margin: 0;
@@ -25,7 +25,7 @@
     width: 342px;
     height: 342px;
     border-radius: 50%;
-    background: rgba(255, 150, 150, 0.2);
+    background: rgba(255, 150, 150, 0.3);
     top: 126px;
     left: 83px;
     overflow: hidden;
@@ -35,7 +35,7 @@
     position: absolute;
     width: 333px;
     height: 431px;
-    background: rgba(150, 150, 255, 0.2);
+    background: rgba(150, 150, 255, 0.3);
     top: 71px;
     right: 76px;
   }
@@ -44,6 +44,7 @@
     position: absolute;
     user-select: none;
     pointer-events: none;
+    transition: transform 0.3s ease;
   }
 </style>
 </head>
@@ -71,22 +72,8 @@
   ];
 
   const circleRadius = 342 / 2;
-  const placed = []; // 배치된 이미지 정보 저장
-  const buffer = 8; // 이미지 간 최소 간격
-
-  function isOverlapping(x, y, w, h) {
-    for (const p of placed) {
-      if (
-        x < p.x + p.w + buffer &&
-        x + w > p.x - buffer &&
-        y < p.y + p.h + buffer &&
-        y + h > p.y - buffer
-      ) {
-        return true;
-      }
-    }
-    return false;
-  }
+  const placedFoods = [];
+  const buffer = 5; // 겹침 허용 (작을수록 더 붙음)
 
   foods.forEach(food => {
     const img = document.createElement("img");
@@ -97,46 +84,44 @@
     img.style.width = `${w}px`;
     img.style.height = `${h}px`;
 
-    let x, y, tries = 0;
-    const maxTries = 1000;
+    let x, y, distance;
+    let tries = 0;
+    const maxTries = 500;
 
-    // 원 내부 & 겹침 없는 좌표 찾기
     do {
-      const angle = Math.random() * 2 * Math.PI;
-      const radius = Math.random() * (circleRadius - Math.max(w, h) / 2);
-      const centerX = circleRadius + Math.cos(angle) * radius;
-      const centerY = circleRadius + Math.sin(angle) * radius;
+      x = Math.random() * (circleRadius * 2 - w);
+      y = Math.random() * (circleRadius * 2 - h);
 
-      x = centerX - w / 2;
-      y = centerY - h / 2;
+      const dx = x + w / 2 - circleRadius;
+      const dy = y + h / 2 - circleRadius;
+      distance = Math.sqrt(dx * dx + dy * dy);
 
+      let overlap = false;
+      for (const placed of placedFoods) {
+        const dx2 = (x + w / 2) - (placed.x + placed.w / 2);
+        const dy2 = (y + h / 2) - (placed.y + placed.h / 2);
+        const dist = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+        if (dist < (Math.max(w, placed.w) / 2) - buffer) {
+          overlap = true;
+          break;
+        }
+      }
+
+      if (!overlap && distance <= circleRadius - Math.max(w, h) / 2) break;
       tries++;
-      if (tries > maxTries) break;
+    } while (tries < maxTries);
 
-      // 원 경계 체크
-      const corners = [
-        [x, y],
-        [x + w, y],
-        [x, y + h],
-        [x + w, y + h]
-      ];
+    // 500번 시도해도 못 넣으면 그냥 랜덤 배치 (겹침 허용)
+    if (tries >= maxTries) {
+      x = Math.random() * (circleRadius * 2 - w);
+      y = Math.random() * (circleRadius * 2 - h);
+    }
 
-      const insideCircle = corners.every(([cx, cy]) => {
-        const dx = cx - circleRadius;
-        const dy = cy - circleRadius;
-        return Math.sqrt(dx * dx + dy * dy) <= circleRadius;
-      });
+    img.style.left = `${x}px`;
+    img.style.top = `${y}px`;
 
-      if (!insideCircle) continue;
-      if (isOverlapping(x, y, w, h)) continue;
-
-      // 조건 만족 시 배치 확정
-      img.style.left = `${x}px`;
-      img.style.top = `${y}px`;
-      placed.push({ x, y, w, h });
-      circle.appendChild(img);
-      break;
-    } while (true);
+    placedFoods.push({ x, y, w, h });
+    circle.appendChild(img);
   });
 </script>
 
