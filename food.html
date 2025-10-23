@@ -203,25 +203,27 @@ function onMouseMove(e) {
 
 // ✅ 박스 정렬
 const GAP = 2;
+// ✅ 박스 레이아웃 갱신 (수정된 버전)
 function updateBoxLayout() {
   let yCursor = GAP;
 
-boxItems.forEach(item => {
-  const w = item.offsetWidth;
-  const h = item.offsetHeight;
+  boxItems.forEach(item => {
+    const w = item.offsetWidth;
+    const h = item.offsetHeight;
 
-  const centerX = (box.clientWidth - w) / 2;
-  item.style.left = `${centerX}px`;
-  item.style.top = `${yCursor}px`;
+    const centerX = (box.clientWidth - w) / 2;
+    item.style.left = `${centerX}px`;
+    item.style.top = `${yCursor}px`;
 
-  // ✅ DOM 계층을 확실히 박스 안으로 이동
-  box.appendChild(item);
+    // ✅ DOM 계층을 확실히 박스 안으로 이동
+    box.appendChild(item);
 
-  yCursor += h + GAP;
-});
-
+    yCursor += h + GAP;
+  });
 }
 
+
+// ✅ 마우스 떼기 처리 (핵심 수정 완료)
 // ✅ 마우스 떼기 처리 (핵심 수정 완료)
 function onMouseUp() {
   if (!dragged) return;
@@ -257,9 +259,11 @@ function onMouseUp() {
 
     boxItems.splice(newIndex, 0, img);
     box.appendChild(img);
-updateBoxLayout();
 
-  }  else {
+    // ✅ 박스 레이아웃 갱신
+    updateBoxLayout();
+
+  } else {
     // ✅ 박스 밖 → 원래 자리로 복귀
     img.dataset.inBox = "false";
 
@@ -269,8 +273,7 @@ updateBoxLayout();
 
     const idx = boxItems.indexOf(img);
     if (idx >= 0) boxItems.splice(idx, 1);
-}
-
+  }
 
   img.classList.remove("dragging");
   dragged = null;
@@ -278,6 +281,7 @@ updateBoxLayout();
   document.removeEventListener("mousemove", onMouseMove);
   document.removeEventListener("mouseup", onMouseUp);
 }
+
 
 // ⭐ 초기 드래그 활성화
 enableDraggingForFoods();
