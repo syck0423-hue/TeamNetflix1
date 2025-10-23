@@ -182,40 +182,52 @@
     dragged.style.top = `${e.clientY - stageRect.top - offsetY}px`;
   }
 
-  function onMouseUp() {
-    if (!dragged) return;
+  function onMouseUp(e) {
+  if (!dragged) return;
 
-    const boxRect = box.getBoundingClientRect();
-    const stageRect = document.querySelector(".stage").getBoundingClientRect();
-    const imgRect = dragged.getBoundingClientRect();
+  const boxRect = box.getBoundingClientRect();
+  const stageRect = document.querySelector(".stage").getBoundingClientRect();
+  const imgRect = dragged.getBoundingClientRect();
 
-    const isInside =
-      imgRect.right > boxRect.left &&
-      imgRect.left < boxRect.right &&
-      imgRect.bottom > boxRect.top &&
-      imgRect.top < boxRect.bottom;
+  const isInside =
+    imgRect.right > boxRect.left &&
+    imgRect.left < boxRect.right &&
+    imgRect.bottom > boxRect.top &&
+    imgRect.top < boxRect.bottom;
 
-    if (isInside) {
-      const y = imgRect.top - stageRect.top;
+  if (isInside) {
+    dragged.dataset.inBox = "true";
 
-      let x = (boxRect.left - stageRect.left);
-      x = Math.max(x, Math.min(x + boxRect.width - imgRect.width, imgRect.left - stageRect.left));
+    // ✅ 유저가 드래그한 Y값 유지
+    let y = imgRect.top - stageRect.top;
 
-      dragged.style.left = `${x}px`;
-      dragged.style.top = `${y}px`;
-      dragged.dataset.inBox = "true";
+    // ✅ 박스 오른쪽 안쪽에 붙이기
+    let x = (boxRect.left - stageRect.left) + (boxRect.width / 2) - (imgRect.width / 2);
 
-      resolveOverlap(dragged);
-    } else {
-      dragged.dataset.inBox = "false";
-    }
+    // ✅ 박스 내부로 제한
+    x = Math.max(
+      (boxRect.left - stageRect.left),
+      Math.min(
+        (boxRect.right - stageRect.left) - imgRect.width,
+        x
+      )
+    );
 
-    dragged.classList.remove("dragging");
-    dragged = null;
+    dragged.style.left = `${x}px`;
+    dragged.style.top = `${y}px`;
 
-    document.removeEventListener("mousemove", onMouseMove);
-    document.removeEventListener("mouseup", onMouseUp);
+    resolveOverlap(dragged);
+  } else {
+    dragged.dataset.inBox = "false";
   }
+
+  dragged.classList.remove("dragging");
+  dragged = null;
+
+  document.removeEventListener("mousemove", onMouseMove);
+  document.removeEventListener("mouseup", onMouseUp);
+}
+
 
   // === 🍱 겹침 방지 함수 ===
   function resolveOverlap(target) {
