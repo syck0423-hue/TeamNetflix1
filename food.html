@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>원형 내부 랜덤 음식 배치</title>
+<title>원형 내부 랜덤 음식 배치 (비겹침)</title>
 <style>
   body {
     margin: 0;
@@ -26,7 +26,7 @@
     width: 342px;
     height: 342px;
     border-radius: 50%;
-    background: rgba(255, 150, 150, 0.3);
+    background: rgba(255, 150, 150, 0.2);
     top: 126px;
     left: 83px;
     overflow: hidden;
@@ -37,7 +37,7 @@
     position: absolute;
     width: 333px;
     height: 431px;
-    background: rgba(150, 150, 255, 0.3);
+    background: rgba(150, 150, 255, 0.2);
     top: 71px;
     right: 76px;
   }
@@ -46,7 +46,7 @@
   .food {
     position: absolute;
     user-select: none;
-    pointer-events: none; /* 나중에 드래그 넣을 때 해제하면 됨 */
+    pointer-events: none;
   }
 </style>
 </head>
@@ -75,6 +75,23 @@
   ];
 
   const circleRadius = 342 / 2;
+  const placed = []; // 배치된 이미지 좌표 저장용
+
+  function isOverlapping(x, y, w, h) {
+    // 다른 이미지들과의 충돌 검사
+    for (const p of placed) {
+      const buffer = 8; // 최소 간격
+      if (
+        x < p.x + p.w + buffer &&
+        x + w + buffer > p.x &&
+        y < p.y + p.h + buffer &&
+        y + h + buffer > p.y
+      ) {
+        return true; // 겹침
+      }
+    }
+    return false;
+  }
 
   foods.forEach(food => {
     const img = document.createElement("img");
@@ -85,8 +102,9 @@
     img.style.width = `${w}px`;
     img.style.height = `${h}px`;
 
-    // 원 안 랜덤 위치 계산
-    let x, y, distance;
+    let x, y, distance, tries = 0;
+    const maxTries = 500; // 무한 루프 방지
+
     do {
       x = Math.random() * (circleRadius * 2 - w);
       y = Math.random() * (circleRadius * 2 - h);
@@ -94,11 +112,18 @@
       const dx = x + w / 2 - circleRadius;
       const dy = y + h / 2 - circleRadius;
       distance = Math.sqrt(dx * dx + dy * dy);
-    } while (distance > circleRadius - Math.max(w, h) / 2);
+
+      tries++;
+      if (tries > maxTries) break; // 위치 찾기 실패 시 중단
+    } while (
+      distance > circleRadius - Math.max(w, h) / 2 ||
+      isOverlapping(x, y, w, h)
+    );
 
     img.style.left = `${x}px`;
     img.style.top = `${y}px`;
 
+    placed.push({ x, y, w, h });
     circle.appendChild(img);
   });
 </script>
