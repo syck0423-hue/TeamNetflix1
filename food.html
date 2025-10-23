@@ -207,6 +207,7 @@ const GAP = 2;
 function updateBoxLayout() {
   let yCursor = GAP;
 
+  // 박스 내 요소들을 위로 밀어 정렬
   boxItems.forEach(item => {
     const w = item.offsetWidth;
     const h = item.offsetHeight;
@@ -218,12 +219,11 @@ function updateBoxLayout() {
     // ✅ DOM 계층을 확실히 박스 안으로 이동
     box.appendChild(item);
 
-    yCursor += h + GAP;
+    yCursor += h + GAP;  // 다음 아이템을 위로 배치
   });
 }
 
 
-// ✅ 마우스 떼기 처리 (핵심 수정 완료)
 // ✅ 마우스 떼기 처리 (핵심 수정 완료)
 function onMouseUp() {
   if (!dragged) return;
@@ -271,6 +271,7 @@ function onMouseUp() {
     img.style.top = `${img.dataset.originalTop}px`;
     circle.appendChild(img);
 
+    // 박스에서 해당 아이템 제거
     const idx = boxItems.indexOf(img);
     if (idx >= 0) boxItems.splice(idx, 1);
   }
@@ -281,7 +282,6 @@ function onMouseUp() {
   document.removeEventListener("mousemove", onMouseMove);
   document.removeEventListener("mouseup", onMouseUp);
 }
-
 
 // ⭐ 초기 드래그 활성화
 enableDraggingForFoods();
