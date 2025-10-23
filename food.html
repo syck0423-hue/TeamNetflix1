@@ -255,19 +255,35 @@ if (inside) {
 
 
     } else {
-      img.dataset.inBox = "false";
-      img.style.left = `${originalX}px`;
-      img.style.top = `${originalY}px`;
+  img.dataset.inBox = "false";
 
-      const idx = boxItems.indexOf(img);
-      if (idx >= 0) boxItems.splice(idx, 1);
-    }
+  // ✅ 현재 드롭 위치가 원 안이면 새 위치를 그대로 적용
+  const rectCircle = circle.getBoundingClientRect();
+  const insideCircle =
+    rect.left >= rectCircle.left &&
+    rect.right <= rectCircle.right &&
+    rect.top >= rectCircle.top &&
+    rect.bottom <= rectCircle.bottom;
 
-    img.classList.remove("dragging");
-    dragged = null;
+  if (insideCircle) {
+    const newX = rect.left - stageRect.left;
+    const newY = rect.top - stageRect.top;
+    img.style.left = `${newX}px`;
+    img.style.top = `${newY}px`;
 
-    document.removeEventListener("mousemove", onMouseMove);
-    document.removeEventListener("mouseup", onMouseUp);
+    // ✅ 원에서의 새 '기억 좌표' 갱신
+    img.dataset.originalLeft = newX;
+    img.dataset.originalTop = newY;
+  } else {
+    // 원 영역 밖이면 → 기존 위치로 복귀
+    img.style.left = `${img.dataset.originalLeft}px`;
+    img.style.top = `${img.dataset.originalTop}px`;
+  }
+
+  const idx = boxItems.indexOf(img);
+  if (idx >= 0) boxItems.splice(idx, 1);
+}
+
   }
 
   // 초기 활성화
