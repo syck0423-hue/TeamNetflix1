@@ -195,22 +195,39 @@ function updateBoxLayout(targetImg) {
   const boxRect = box.getBoundingClientRect();
   const stageRect = stage.getBoundingClientRect();
 
-  const imgWidth = targetImg.offsetWidth || parseInt(targetImg.style.width);
-  const centerX = (boxRect.left - stageRect.left) + (boxRect.width - imgWidth) / 2;
+  // ✅ 박스 중앙 X 한 번만 계산하고 통일
+  boxItems.forEach(item => {
+    const w = item.offsetWidth || parseInt(item.style.width);
+    const centerX = (boxRect.left - stageRect.left) + (boxRect.width - w) / 2;
+    item.style.left = `${centerX}px`;
+  });
 
-  // ✅ 모든 요소 Y를 기준으로 다시 정렬
+  // ✅ 드롭된 Y 기준으로 정렬하도록 우선 sort
   boxItems.sort((a, b) => a.offsetTop - b.offsetTop);
 
-  // ✅ 중앙 정렬 보장 + 간격 유지
-  let curY = boxRect.top - stageRect.top;
+  // ✅ 겹치지 않게 위→아래 자연스럽게 재배치
+  for (let i = 1; i < boxItems.length; i++) {
+    const prev = boxItems[i - 1];
+    const cur = boxItems[i];
 
-  for (const item of boxItems) {
-    const newY = curY;
-    item.style.left = `${centerX}px`;
-    item.style.top = `${newY}px`;
-    curY += item.offsetHeight + GAP;
+    const minY = prev.offsetTop + prev.offsetHeight + GAP;
+    if (cur.offsetTop < minY) {
+      cur.style.top = `${minY}px`;
+    }
+  }
+
+  // ✅ 아래 요소도 박스를 넘으면 올라오게
+  const maxBottom = (boxRect.bottom - stageRect.top);
+
+  for (let i = boxItems.length - 1; i >= 0; i--) {
+    const item = boxItems[i];
+    const bottom = item.offsetTop + item.offsetHeight;
+    if (bottom > maxBottom) {
+      item.style.top = `${maxBottom - item.offsetHeight}px`;
+    }
   }
 }
+
 
 
 
