@@ -227,19 +227,14 @@ function updateBoxLayout() {
       rect.bottom > boxRect.top &&
       rect.top < boxRect.bottom;
 
-    if (inside) {
-      img.dataset.inBox = "true";
+if (inside) {
+  img.dataset.inBox = "true";
 
-      // Y값만 유지 (X는 중앙 정렬에서 맞춰줌)
-      img.style.top = `${y}px`;
+  // 기존에 있었다면 먼저 제거
+  const oldIndex = boxItems.indexOf(img);
+  if (oldIndex !== -1) boxItems.splice(oldIndex, 1);
 
-      if (!boxItems.includes(img)) {
-  // 새로 박스에 들어온 경우 → 맨 아래에 추가
-  boxItems.push(img);
-} else {
-  // 박스 내 이동 → 정확한 인덱스 재계산
-  boxItems.splice(boxItems.indexOf(img), 1);
-
+  // 새로운 위치를 계산하여 삽입
   const middleY = rect.top + rect.height / 2;
   let newIndex = boxItems.findIndex(el => {
     const r = el.getBoundingClientRect();
@@ -248,9 +243,9 @@ function updateBoxLayout() {
 
   if (newIndex === -1) newIndex = boxItems.length;
   boxItems.splice(newIndex, 0, img);
-}
 
-updateBoxLayout();
+  updateBoxLayout();
+
 
     } else {
       img.dataset.inBox = "false";
