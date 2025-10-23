@@ -217,74 +217,92 @@ function updateBoxLayout() {
 }
 
   // 마우스 업 핸들러 (updateBoxLayout와는 별도)
-  function onMouseUp() {
-    if (!dragged) return;
+function onMouseUp(e) {
+  if (!dragged) return;
 
-    const img = dragged;
-    const rect = img.getBoundingClientRect();
-    const stageRect = stage.getBoundingClientRect();
-    const boxRect = box.getBoundingClientRect();
+  const img = dragged;
+  const rect = img.getBoundingClientRect();
+  const stageRect = stage.getBoundingClientRect();
+  const boxRect = box.getBoundingClientRect();
+  const circleRect = circle.getBoundingClientRect();
 
-    const x = rect.left - stageRect.left;
-    const y = rect.top - stageRect.top;
+  // 드래그한 요소의 중심점 (client coords)
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
 
-    const inside =
-      rect.right > boxRect.left &&
-      rect.left < boxRect.right &&
-      rect.bottom > boxRect.top &&
-      rect.top < boxRect.bottom;
+  // 박스 안에 '중심점'이 들어왔는지로 판정 (더 직관적이고 안정적)
+  const droppedInBox = (
+    centerX >= boxRect.left &&
+    centerX <= boxRect.right &&
+    centerY >= boxRect.top &&
+    centerY <= boxRect.bottom
+  );
 
-if (inside) {
-  img.dataset.inBox = "true";
+  // 디버그 (필요하면 콘솔 확인)
+  // console.log('center', centerX, centerY, 'box', boxRect.left, boxRect.top, droppedInBox);
 
-  // 기존에 있었다면 먼저 제거
-  const oldIndex = boxItems.indexOf(img);
-  if (oldIndex !== -1) boxItems.splice(oldIndex, 1);
+  if (droppedInBox) {
+    img.dataset.inBox = "true";
 
-  // 새로운 위치를 계산하여 삽입
-  const middleY = rect.top + rect.height / 2;
-  let newIndex = boxItems.findIndex(el => {
-    const r = el.getBoundingClientRect();
-    return middleY < r.top + r.height / 2;
-  });
+    // 기존에 boxItems에 있으면 제거
+    const oldIndex = boxItems.indexOf(img);
+    if (oldIndex !== -1) boxItems.splice(oldIndex, 1);
 
-  if (newIndex === -1) newIndex = boxItems.length;
-  boxItems.splice(newIndex, 0, img);
+    // 새로운 인덱스는 중심점의 Y와 다른 아이템들의 중심 Y를 비교해서 결정
+    let newIndex = boxItems.findIndex(el => {
+      const r = el.getBoundingClientRect();
+      const elCenterY = r.top + r.height / 2;
+      return centerY < elCenterY;
+    });
+    if (newIndex === -1) newIndex = boxItems.length;
+    boxItems.splice(newIndex, 0, img);
 
-  updateBoxLayout();
+    // 박스 내부에서 보여주기 위해 position을 강제 재배치
+    updateBoxLayout();
 
-
-    } else {
-  img.dataset.inBox = "false";
-
-  // ✅ 현재 드롭 위치가 원 안이면 새 위치를 그대로 적용
-  const rectCircle = circle.getBoundingClientRect();
-  const insideCircle =
-    rect.left >= rectCircle.left &&
-    rect.right <= rectCircle.right &&
-    rect.top >= rectCircle.top &&
-    rect.bottom <= rectCircle.bottom;
-
-  if (insideCircle) {
-    const newX = rect.left - stageRect.left;
-    const newY = rect.top - stageRect.top;
-    img.style.left = `${newX}px`;
-    img.style.top = `${newY}px`;
-
-    // ✅ 원에서의 새 '기억 좌표' 갱신
-    img.dataset.originalLeft = newX;
-    img.dataset.originalTop = newY;
   } else {
-    // 원 영역 밖이면 → 기존 위치로 복귀
-    img.style.left = `${img.dataset.originalLeft}px`;
-    img.style.top = `${img.dataset.originalTop}px`;
+    // 박스 밖에 드롭된 경우 (원으로 돌려보낼 수 있는지 검사)
+    img.dataset.inBox = "false";
+
+    // 요소의 전체 바운딩이 원 내부에 완전히 들어왔는지 검사 (원 내부 완전 포함)
+    const insideWholeCircle = (
+      rect.left >= circleRect.left &&
+      rect.right <= circleRect.right &&
+      rect.top >= circleRect.top &&
+      rect.bottom <= circleRect.bottom
+    );
+
+    if (insideWholeCircle) {
+      // 화면(클라이언트) 좌표 -> stage 좌표로 변환
+      const newX = rect.left - stageRect.left;
+      const newY = rect.top - stageRect.top;
+      img.style.left = `${newX}px`;
+      img.style.top = `${newY}px`;
+
+      // 원에서의 '기억 좌표' 갱신
+      img.dataset.originalLeft = newX;
+      img.dataset.originalTop = newY;
+    } else {
+      // 원 내부에도 아니면 원래 저장된 좌표로 복귀
+      img.style.left = `${img.dataset.originalLeft}px`;
+      img.style.top = `${img.dataset.originalTop}px`;
+    }
+
+    // boxItems에서 제거(존재하면)
+    const idx = boxItems.indexOf(img);
+    if (idx >= 0) boxItems.splice(idx, 1);
+
+    // 박스 레이아웃이 바뀌었을 수 있으니 재계산
+    updateBoxLayout();
   }
 
-  const idx = boxItems.indexOf(img);
-  if (idx >= 0) boxItems.splice(idx, 1);
+  // 정리
+  img.classList.remove("dragging");
+  dragged = null;
+  document.removeEventListener("mousemove", onMouseMove);
+  document.removeEventListener("mouseup", onMouseUp);
 }
 
-  }
 
   // 초기 활성화
   enableDraggingForFoods();
