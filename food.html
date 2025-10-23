@@ -87,7 +87,8 @@
 
   const circleRadius = 342 / 2;
   const placedFoods = [];
-  const buffer = 5;
+  const boxItems = [];
+  const gap = 6; // 박스 내부 food 간격(px)
 
   function insideCircleAllCorners(x, y, w, h, radius) {
     const cx = radius, cy = radius;
@@ -101,26 +102,23 @@
     });
   }
 
-  // Circle inside placement
   foods.forEach(food => {
     const img = document.createElement("img");
     img.src = `img/food/${food.name}.png`;
     img.className = "food";
-
     const [w, h] = food.size;
     img.style.width = `${w}px`;
     img.style.height = `${h}px`;
 
     let x, y;
     let tries = 0;
-    const maxTries = 1000;
+    const maxTries = 800;
 
     while (tries < maxTries) {
       const angle = Math.random() * 2 * Math.PI;
       const r = Math.random() * (circleRadius - Math.max(w, h) / 2);
       const cx = circleRadius + Math.cos(angle) * r;
       const cy = circleRadius + Math.sin(angle) * r;
-
       x = cx - w / 2;
       y = cy - h / 2;
 
@@ -132,19 +130,12 @@
       for (const p of placedFoods) {
         const dx = (x+w/2)-(p.x+p.w/2);
         const dy = (y+h/2)-(p.y+p.h/2);
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist < (Math.max(w, p.w)/2) - buffer) {
+        if (Math.sqrt(dx*dx + dy*dy) < (Math.max(w, p.w))) {
           overlap = true; break;
         }
       }
-
       if (!overlap) break;
       tries++;
-    }
-
-    if (tries >= maxTries) {
-      x = circleRadius - w/2;
-      y = circleRadius - h/2;
     }
 
     img.style.left = `${x}px`;
@@ -152,6 +143,7 @@
     img.dataset.originalLeft = x;
     img.dataset.originalTop = y;
     img.dataset.inBox = "false";
+    img.dataset.index = -1;
 
     placedFoods.push({ x, y, w, h });
     circle.appendChild(img);
@@ -166,19 +158,20 @@
     return { x: clientX - rect.left, y: clientY - rect.top };
   }
 
-  function overlapBoxItems(img) {
-    const rectA = img.getBoundingClientRect();
-    return [...document.querySelectorAll(".food")]
-      .filter(o => o !== img && o.dataset.inBox === "true")
-      .some(o => {
-        const B = o.getBoundingClientRect();
-        return !(
-          rectA.right < B.left ||
-          rectA.left > B.right ||
-          rectA.bottom < B.top ||
-          rectA.top > B.bottom
-        );
-      });
+  function reorderBoxItems() {
+    const stageRect = stage.getBoundingClientRect();
+    const boxRect = box.getBoundingClientRect();
+    let curY = boxRect.top - stageRect.top + 10;
+
+    boxItems.forEach(item => {
+      const w = item.offsetWidth;
+      const h = item.offsetHeight;
+      const centerX = (boxRect.left - stageRect.left) + (boxRect.width - w) / 2;
+
+      item.style.left = `${centerX}px`;
+      item.style.top = `${curY}px`;
+      curY += h + gap;
+    });
   }
 
   function enableDraggingForFoods() {
@@ -186,17 +179,16 @@
       img.addEventListener("mousedown", e => {
         e.preventDefault();
         dragged = img;
+        dragged.classList.add("dragging");
 
         const rect = img.getBoundingClientRect();
         const stageRect = stage.getBoundingClientRect();
-
         originalX = rect.left - stageRect.left;
         originalY = rect.top - stageRect.top;
 
         offsetX = e.clientX - rect.left;
         offsetY = e.clientY - rect.top;
 
-        img.classList.add("dragging");
         stage.appendChild(img);
         img.style.left = originalX + "px";
         img.style.top = originalY + "px";
@@ -209,13 +201,9 @@
 
   function onMouseMove(e) {
     if (!dragged) return;
-
     const pos = clientToStagePos(e.clientX, e.clientY);
-    let x = pos.x - offsetX;
-    let y = pos.y - offsetY;
-
-    dragged.style.left = x + "px";
-    dragged.style.top = y + "px";
+    dragged.style.left = `${pos.x - offsetX}px`;
+    dragged.style.top = `${pos.y - offsetY}px`;
   }
 
   function onMouseUp() {
@@ -226,8 +214,7 @@
     const stageRect = stage.getBoundingClientRect();
     const boxRect = box.getBoundingClientRect();
 
-    const x = rect.left - stageRect.left;
-    const y = rect.top - stageRect.top;
+    const centerOfItem = rect.top + rect.height / 2;
 
     const inside =
       rect.right > boxRect.left &&
@@ -238,33 +225,29 @@
     if (inside) {
       img.dataset.inBox = "true";
 
-      // 범위 보정
-      const minX = (boxRect.left - stageRect.left);
-      const maxX = minX + boxRect.width - img.offsetWidth;
-      const minY = (boxRect.top - stageRect.top);
-      const maxY = minY + boxRect.height - img.offsetHeight;
+      const filtered = boxItems.filter(it => it !== img);
+      let idx = filtered.findIndex(it => {
+        const r = it.getBoundingClientRect();
+        return centerOfItem < (r.top + r.height / 2);
+      });
+      if (idx === -1) idx = filtered.length;
 
-      let nx = Math.max(minX, Math.min(x, maxX));
-      let ny = Math.max(minY, Math.min(y, maxY));
+      filtered.splice(idx, 0, img);
+      boxItems.length = 0;
+      boxItems.push(...filtered);
 
-      img.style.left = nx + "px";
-      img.style.top = ny + "px";
-
-      if (overlapBoxItems(img)) {
-        img.dataset.inBox = "false";
-        img.style.left = originalX + "px";
-        img.style.top = originalY + "px";
-      }
-
+      reorderBoxItems();
     } else {
       img.dataset.inBox = "false";
-      img.style.left = originalX + "px";
-      img.style.top = originalY + "px";
+      img.style.left = `${originalX}px`;
+      img.style.top = `${originalY}px`;
+      const index = boxItems.indexOf(img);
+      if (index >= 0) boxItems.splice(index, 1);
+      reorderBoxItems();
     }
 
     img.classList.remove("dragging");
     dragged = null;
-
     document.removeEventListener("mousemove", onMouseMove);
     document.removeEventListener("mouseup", onMouseUp);
   }
