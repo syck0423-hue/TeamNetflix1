@@ -194,6 +194,40 @@
     const pos = clientToStagePos(e.clientX, e.clientY);
     dragged.style.left = `${pos.x - offsetX}px`;
     dragged.style.top = `${pos.y - offsetY}px`;
+    // === circle 범위 제한 ===
+const stageRect2 = stage.getBoundingClientRect();
+const circleRect2 = circle.getBoundingClientRect();
+
+const imgRect = dragged.getBoundingClientRect();
+const w = imgRect.width;
+const h = imgRect.height;
+
+// 이미지 중심 좌표 (stage 기준)
+const centerXstage = imgRect.left - stageRect2.left + w / 2;
+const centerYstage = imgRect.top - stageRect2.top + h / 2;
+
+// 원 중심 좌표 (stage 기준)
+const circleCenterXstage = (circleRect2.left - stageRect2.left) + circleRect2.width / 2;
+const circleCenterYstage = (circleRect2.top - stageRect2.top) + circleRect2.height / 2;
+
+// 중심과 원 중심 거리
+const dx = centerXstage - circleCenterXstage;
+const dy = centerYstage - circleCenterYstage;
+const distance = Math.sqrt(dx*dx + dy*dy);
+
+// 원 경계밖으로 나갔으면 들어오도록 보정
+const maxHalf = Math.max(w, h) / 2;
+const allowedRadius = circleRadius - maxHalf;
+
+if (distance > allowedRadius) {
+  const ratio = allowedRadius / distance;
+  const newCenterX = circleCenterXstage + dx * ratio;
+  const newCenterY = circleCenterYstage + dy * ratio;
+
+  dragged.style.left = `${newCenterX - w / 2}px`;
+  dragged.style.top = `${newCenterY - h / 2}px`;
+}
+
   }
 
   const GAP = 2; // 박스내 간격
@@ -290,7 +324,8 @@ const cornersStage = [
 const insideWholeCircle = cornersStage.every(([px, py]) => {
   const dx = px - circleCenterX;
   const dy = py - circleCenterY;
-  return Math.sqrt(dx*dx + dy*dy) <= circleRadius;
+  const maxHalf = Math.max(rect.width, rect.height) / 2;
+return Math.sqrt(dx*dx + dy*dy) <= (circleRadius - maxHalf);
 });
 
 
