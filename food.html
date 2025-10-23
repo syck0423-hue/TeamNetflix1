@@ -158,67 +158,64 @@
   });
 
   // === 🎯 드래그 앤 드롭 로직 ===
-  let dragged = null;
-  let offsetX, offsetY;
+ // === 🎯 새롭게 수정된 드래그 앤 드롭 로직 ===
+let dragged = null;
+let offsetX = 0, offsetY = 0;
 
-  document.querySelectorAll(".food").forEach(img => {
-    img.addEventListener("mousedown", e => {
-      dragged = img;
-      dragged.classList.add("dragging");
+document.querySelectorAll(".food").forEach(img => {
+  img.addEventListener("mousedown", e => {
+    dragged = img;
+    dragged.classList.add("dragging");
 
-      const rect = img.getBoundingClientRect();
-      offsetX = e.clientX - rect.left;
-      offsetY = e.clientY - rect.top;
+    const rect = dragged.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
 
-      document.addEventListener("mousemove", onMouseMove);
-      document.addEventListener("mouseup", onMouseUp);
-    });
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
   });
+});
 
-  function onMouseMove(e) {
-    if (!dragged) return;
-    const stageRect = document.querySelector(".stage").getBoundingClientRect();
+function onMouseMove(e) {
+  if (!dragged) return;
 
-    const x = e.clientX - stageRect.left - offsetX;
-    const y = e.clientY - stageRect.top - offsetY;
+  const stageRect = document.querySelector(".stage").getBoundingClientRect();
+  dragged.style.left = `${e.clientX - stageRect.left - offsetX}px`;
+  dragged.style.top = `${e.clientY - stageRect.top - offsetY}px`;
+}
 
-    dragged.style.left = `${x}px`;
-    dragged.style.top = `${y}px`;
+function onMouseUp(e) {
+  if (!dragged) return;
+
+  const boxRect = box.getBoundingClientRect();
+  const stageRect = document.querySelector(".stage").getBoundingClientRect();
+  const imgRect = dragged.getBoundingClientRect();
+
+  const isInside =
+    imgRect.right > boxRect.left &&
+    imgRect.left < boxRect.right &&
+    imgRect.bottom > boxRect.top &&
+    imgRect.top < boxRect.bottom;
+
+  if (isInside) {
+    // ✅ 박스 내부 기준 중앙 정렬
+    const centerX = (boxRect.left - stageRect.left) + (boxRect.width - imgRect.width) / 2;
+    const centerY = (boxRect.top - stageRect.top) + (boxRect.height - imgRect.height) / 2;
+
+    dragged.style.left = `${centerX}px`;
+    dragged.style.top = `${centerY}px`;
+
+    // 박스 안에서도 계속 드래그 가능
+    dragged.dataset.inBox = "true";
   }
 
-  function onMouseUp(e) {
-    if (!dragged) return;
+  dragged.classList.remove("dragging");
+  dragged = null;
 
-    const boxRect = box.getBoundingClientRect();
-    const imgRect = dragged.getBoundingClientRect();
+  document.removeEventListener("mousemove", onMouseMove);
+  document.removeEventListener("mouseup", onMouseUp);
+}
 
-    // 박스 안에 들어갔는지 판단
-    if (
-      imgRect.right > boxRect.left &&
-      imgRect.left < boxRect.right &&
-      imgRect.bottom > boxRect.top &&
-      imgRect.top < boxRect.bottom
-    ) {
-      // ✅ 박스 중앙 정렬
-      const boxStageRect = box.getBoundingClientRect();
-      const stageRect = document.querySelector(".stage").getBoundingClientRect();
-      const centerX = boxStageRect.left - stageRect.left + (boxStageRect.width - imgRect.width) / 2;
-      const centerY = boxStageRect.top - stageRect.top + (boxStageRect.height - imgRect.height) / 2;
-
-      dragged.style.left = `${centerX}px`;
-      dragged.style.top = `${centerY}px`;
-    } else {
-      // ❌ 원래 자리로 복귀
-      dragged.style.left = dragged.dataset.originalX + "px";
-      dragged.style.top = dragged.dataset.originalY + "px";
-    }
-
-    dragged.classList.remove("dragging");
-    dragged = null;
-
-    document.removeEventListener("mousemove", onMouseMove);
-    document.removeEventListener("mouseup", onMouseUp);
-  }
 </script>
 
 </body>
