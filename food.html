@@ -2,68 +2,62 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>원형 내부 음식 배치 + 드래그 이동 (수정본)</title>
+<title>원형 내부 음식 배치 + 드래그 이동 (수정 완성본)</title>
+
 <style>
-  html, body {
-    cursor: url("/TeamNetflix1/img/cur/basic_cur.png"), auto;
-  }
-  /* 클릭 가능한 요소들 */
-  button, a, [role="button"] {
-    cursor: url("/TeamNetflix1/img/cur/click_cur.png"), pointer;
-  }
-  body {
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-
-  .stage {
-    position: relative;
-    width: 926px;
-    height: 574px;
-    background: url('img/food/bg.png') no-repeat center center;
-    background-size: contain;
-  }
-
-  .circle {
-    position: absolute;
-    width: 342px;
-    height: 342px;
-    border-radius: 50%;
-    top: 126px;
-    left: 83px;
-    overflow: visible;
-  }
-
-  .box {
-    position: absolute;
-    width: 333px;
-    height: 431px;
-    top: 71px;
-    right: 76px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .food {
-    position: absolute;
-    user-select: none;
-    cursor: url("/TeamNetflix1/img/cur/click_cur.png"), pointer;
-    transition: transform 0.15s ease;
-    will-change: transform, left, top;
-  }
-
-  .food.dragging {
-    opacity: 0.9;
-    cursor: url("/TeamNetflix1/img/cur/click_cur.png"), pointer;
-    z-index: 999;
-    transform: scale(1.06);
-    transition: none;
-  }
+html, body {
+  cursor: url("/TeamNetflix1/img/cur/basic_cur.png"), auto;
+}
+button, a, [role="button"] {
+  cursor: url("/TeamNetflix1/img/cur/click_cur.png"), pointer;
+}
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+.stage {
+  position: relative;
+  width: 926px;
+  height: 574px;
+  background: url('img/food/bg.png') no-repeat center center;
+  background-size: contain;
+}
+.circle {
+  position: absolute;
+  width: 342px;
+  height: 342px;
+  border-radius: 50%;
+  top: 126px;
+  left: 83px;
+}
+.box {
+  position: absolute;
+  width: 333px;
+  height: 431px;
+  top: 71px;
+  right: 76px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.food {
+  position: absolute;
+  user-select: none;
+  cursor: url("/TeamNetflix1/img/cur/click_cur.png"), pointer;
+  transition: transform 0.15s ease;
+  will-change: transform, left, top;
+}
+.food.dragging {
+  opacity: 0.9;
+  transform: scale(1.06);
+  transition: none;
+  z-index: 999;
+}
 </style>
+
 </head>
 <body>
 
@@ -73,165 +67,142 @@
 </div>
 
 <script>
-  const stage = document.getElementById('stage');
-  const circle = document.getElementById("circle");
-  const box = document.getElementById("box");
+// DOM 요소
+const stage = document.getElementById('stage');
+const circle = document.getElementById("circle");
+const box = document.getElementById("box");
 
-  const foods = [
-    { name: "BREATHE", size: [135, 47] },
-    { name: "CORRECT", size: [121, 45] },
-    { name: "DIG", size: [55, 48] },
-    { name: "ELECTRIC", size: [130, 43] },
-    { name: "GLASS", size: [106, 32] },
-    { name: "KID", size: [58, 44] },
-    { name: "NETFLIX", size: [137, 36] },
-    { name: "SUSTAIN", size: [121, 43] },
-    { name: "TRICK", size: [88, 36] },
-    { name: "XERASIA", size: [143, 46] }
+// 음식 데이터
+const foods = [
+  { name: "BREATHE", size: [135, 47] },
+  { name: "CORRECT", size: [121, 45] },
+  { name: "DIG", size: [55, 48] },
+  { name: "ELECTRIC", size: [130, 43] },
+  { name: "GLASS", size: [106, 32] },
+  { name: "KID", size: [58, 44] },
+  { name: "NETFLIX", size: [137, 36] },
+  { name: "SUSTAIN", size: [121, 43] },
+  { name: "TRICK", size: [88, 36] },
+  { name: "XERASIA", size: [143, 46] }
+];
+
+const circleRadius = 342 / 2;
+const placedFoods = [];
+const boxItems = [];
+
+// 식품이 원 내부에 완전히 들어가있는지 검사
+function insideCircleAllCorners(x, y, w, h, radius) {
+  const cx = radius;
+  const cy = radius;
+  const corners = [
+    [x, y], [x+w, y],
+    [x, y+h], [x+w, y+h]
   ];
-
-  const circleRadius = 342 / 2;
-  const placedFoods = [];
-  const boxItems = [];
-
-  function insideCircleAllCorners(x, y, w, h, radius) {
-    const cx = radius, cy = radius;
-    const corners = [
-      [x, y], [x+w, y], [x, y+h], [x+w, y+h]
-    ];
-    return corners.every(([px, py]) => {
-      const dx = px - cx;
-      const dy = py - cy;
-      return Math.sqrt(dx*dx + dy*dy) <= radius;
-    });
-  }
-
-  // 초기 랜덤 배치 (원 내부)
-  foods.forEach(food => {
-    const img = document.createElement("img");
-    img.src = `img/food/${food.name}.png`;
-    img.className = "food";
-    const [w, h] = food.size;
-    img.style.width = `${w}px`;
-    img.style.height = `${h}px`;
-
-    let x = 0, y = 0;
-    let tries = 0;
-    const maxTries = 800;
-
-    while (tries < maxTries) {
-      const angle = Math.random() * 2 * Math.PI;
-      const r = Math.random() * (circleRadius - Math.max(w, h) / 2);
-      const cx = circleRadius + Math.cos(angle) * r;
-      const cy = circleRadius + Math.sin(angle) * r;
-      x = cx - w / 2;
-      y = cy - h / 2;
-
-      if (!insideCircleAllCorners(x, y, w, h, circleRadius)) {
-        tries++; continue;
-      }
-
-      let overlap = false;
-      for (const p of placedFoods) {
-        const dx = (x + w/2) - (p.x + p.w/2);
-        const dy = (y + h/2) - (p.y + p.h/2);
-        if (Math.sqrt(dx*dx + dy*dy) < (Math.max(w, p.w))) {
-          overlap = true; break;
-        }
-      }
-      if (!overlap) break;
-      tries++;
-    }
-
-    img.style.left = `${x}px`;
-    img.style.top = `${y}px`;
-    img.dataset.originalLeft = x;
-    img.dataset.originalTop = y;
-    img.dataset.inBox = "false";
-
-    placedFoods.push({ x, y, w, h });
-    circle.appendChild(img);
+  return corners.every(([px, py]) => {
+    const dx = px - cx;
+    const dy = py - cy;
+    return Math.sqrt(dx*dx + dy*dy) <= radius;
   });
-
-  // 드래그 변수
-  let dragged = null;
-  let offsetX = 0, offsetY = 0;
-  let originalX = 0, originalY = 0;
-
-  function clientToStagePos(clientX, clientY) {
-    const rect = stage.getBoundingClientRect();
-    return { x: clientX - rect.left, y: clientY - rect.top };
-  }
-
-  function enableDraggingForFoods() {
-    document.querySelectorAll(".food").forEach(img => {
-      img.addEventListener("mousedown", e => {
-        e.preventDefault();
-        dragged = img;
-        dragged.classList.add("dragging");
-
-        const rect = img.getBoundingClientRect();
-        const stageRect = stage.getBoundingClientRect();
-        originalX = rect.left - stageRect.left;
-        originalY = rect.top - stageRect.top;
-
-        offsetX = e.clientX - rect.left;
-        offsetY = e.clientY - rect.top;
-
-        // stage 하위로 옮겨서 절대좌표로 취급
-        stage.appendChild(img);
-        img.style.left = originalX + "px";
-        img.style.top = originalY + "px";
-
-        document.addEventListener("mousemove", onMouseMove);
-        document.addEventListener("mouseup", onMouseUp);
-      });
-    });
-  }
-
-  function onMouseMove(e) {
-    if (!dragged) return;
-    const pos = clientToStagePos(e.clientX, e.clientY);
-    dragged.style.left = `${pos.x - offsetX}px`;
-    dragged.style.top = `${pos.y - offsetY}px`;
-    // === circle 범위 제한 ===
-const stageRect2 = stage.getBoundingClientRect();
-const circleRect2 = circle.getBoundingClientRect();
-
-const imgRect = dragged.getBoundingClientRect();
-const w = imgRect.width;
-const h = imgRect.height;
-
-// 이미지 중심 좌표 (stage 기준)
-const centerXstage = imgRect.left - stageRect2.left + w / 2;
-const centerYstage = imgRect.top - stageRect2.top + h / 2;
-
-// 원 중심 좌표 (stage 기준)
-const circleCenterXstage = (circleRect2.left - stageRect2.left) + circleRect2.width / 2;
-const circleCenterYstage = (circleRect2.top - stageRect2.top) + circleRect2.height / 2;
-
-// 중심과 원 중심 거리
-const dx = centerXstage - circleCenterXstage;
-const dy = centerYstage - circleCenterYstage;
-const distance = Math.sqrt(dx*dx + dy*dy);
-
-// 원 경계밖으로 나갔으면 들어오도록 보정
-const maxHalf = Math.max(w, h) / 2;
-const allowedRadius = circleRadius - maxHalf;
-
-if (distance > allowedRadius) {
-  const ratio = allowedRadius / distance;
-  const newCenterX = circleCenterXstage + dx * ratio;
-  const newCenterY = circleCenterYstage + dy * ratio;
-
-  dragged.style.left = `${newCenterX - w / 2}px`;
-  dragged.style.top = `${newCenterY - h / 2}px`;
 }
 
+// ✅ 초기 원 내부 중복 없이 배치
+foods.forEach(food => {
+  const img = document.createElement("img");
+  img.src = `img/food/${food.name}.png`;
+  img.className = "food";
+  
+  const [w, h] = food.size;
+  img.style.width = `${w}px`;
+  img.style.height = `${h}px`;
+
+  let x=0, y=0, tries=0;
+  const maxTries=800;
+  while(tries < maxTries){
+    const angle = Math.random()*2*Math.PI;
+    const r = Math.random()*(circleRadius - Math.max(w,h)/2);
+    const cx = circleRadius + Math.cos(angle)*r;
+    const cy = circleRadius + Math.sin(angle)*r;
+
+    x = cx - w/2;
+    y = cy - h/2;
+
+    // 원 밖이면 취소
+    if(!insideCircleAllCorners(x,y,w,h,circleRadius)){ tries++; continue; }
+
+    // 기존 음식과 충돌 여부
+    let overlap = false;
+    for(const p of placedFoods){
+      const dx = (x+w/2) - (p.x+p.w/2);
+      const dy = (y+h/2) - (p.y+p.h/2);
+      if(Math.sqrt(dx*dx+dy*dy) < (Math.max(w,p.w))){
+        overlap = true;
+        break;
+      }
+    }
+    if(!overlap) break;
+    tries++;
   }
 
-  const GAP = 2; // 박스내 간격
+  img.style.left = `${x}px`;
+  img.style.top = `${y}px`;
+  img.dataset.originalLeft = x;
+  img.dataset.originalTop = y;
+  img.dataset.inBox = "false";
 
+  placedFoods.push({ x,y,w,h });
+  circle.appendChild(img);
+});
+
+// 🔹 드래그 관련 변수
+let dragged = null;
+let offsetX = 0, offsetY = 0;
+let originalX = 0, originalY = 0;
+
+// 좌표 변환 Stage 기준
+function clientToStagePos(clientX, clientY) {
+  const rect = stage.getBoundingClientRect();
+  return {
+    x: clientX - rect.left,
+    y: clientY - rect.top
+  };
+}
+
+// ✅ 드래그 활성화
+function enableDraggingForFoods() {
+  document.querySelectorAll(".food").forEach(img => {
+    img.addEventListener("mousedown", e => {
+      e.preventDefault();
+      dragged = img;
+      dragged.classList.add("dragging");
+
+      const rect = img.getBoundingClientRect();
+      const stageRect = stage.getBoundingClientRect();
+
+      originalX = rect.left - stageRect.left;
+      originalY = rect.top - stageRect.top;
+
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+
+      stage.appendChild(img); // stage 기준 절대 위치
+      img.style.left = `${originalX}px`;
+      img.style.top = `${originalY}px`;
+
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+    });
+  });
+}
+
+function onMouseMove(e) {
+  if (!dragged) return;
+  const pos = clientToStagePos(e.clientX, e.clientY);
+  dragged.style.left = `${pos.x - offsetX}px`;
+  dragged.style.top = `${pos.y - offsetY}px`;
+}
+
+// ✅ 박스 정렬
+const GAP = 2;
 function updateBoxLayout() {
   const boxRect = box.getBoundingClientRect();
   const stageRect = stage.getBoundingClientRect();
@@ -244,126 +215,88 @@ function updateBoxLayout() {
 
     const centerX = (boxRect.left - stageRect.left) + (boxRect.width - w) / 2;
     item.style.left = `${centerX}px`;
-
     item.style.top = `${yCursor}px`;
+
     yCursor += h + GAP;
   });
 }
 
-  // 마우스 업 핸들러 (updateBoxLayout와는 별도)
-function onMouseUp(e) {
+// ✅ 마우스 떼기 처리 (핵심 수정 완료)
+function onMouseUp() {
   if (!dragged) return;
 
   const img = dragged;
   const rect = img.getBoundingClientRect();
   const stageRect = stage.getBoundingClientRect();
   const boxRect = box.getBoundingClientRect();
-  const circleRect = circle.getBoundingClientRect();
 
-  // 드래그한 요소의 중심점 (client coords)
-  const centerX = rect.left + rect.width / 2;
-  const centerY = rect.top + rect.height / 2;
+  const x = rect.left - stageRect.left;
+  const y = rect.top - stageRect.top;
 
-  // 박스 안에 '중심점'이 들어왔는지로 판정 (더 직관적이고 안정적)
-  const droppedInBox = (
-    centerX >= boxRect.left &&
-    centerX <= boxRect.right &&
-    centerY >= boxRect.top &&
-    centerY <= boxRect.bottom
+  const insideBox = (
+    rect.right > boxRect.left &&
+    rect.left < boxRect.right &&
+    rect.bottom > boxRect.top &&
+    rect.top < boxRect.bottom
   );
 
-  // 디버그 (필요하면 콘솔 확인)
-  // console.log('center', centerX, centerY, 'box', boxRect.left, boxRect.top, droppedInBox);
-
-  if (droppedInBox) {
+  if (insideBox) {
+    // ✅ 박스로 이동
     img.dataset.inBox = "true";
 
-    // 기존에 boxItems에 있으면 제거
     const oldIndex = boxItems.indexOf(img);
     if (oldIndex !== -1) boxItems.splice(oldIndex, 1);
 
-    // 새로운 인덱스는 중심점의 Y와 다른 아이템들의 중심 Y를 비교해서 결정
+    const middleY = rect.top + rect.height / 2;
     let newIndex = boxItems.findIndex(el => {
       const r = el.getBoundingClientRect();
-      const elCenterY = r.top + r.height / 2;
-      return centerY < elCenterY;
+      return middleY < r.top + r.height / 2;
     });
     if (newIndex === -1) newIndex = boxItems.length;
-    boxItems.splice(newIndex, 0, img);
 
-    // 박스 내부에서 보여주기 위해 position을 강제 재배치
+    boxItems.splice(newIndex, 0, img);
     updateBoxLayout();
 
   } else {
-    // 박스 밖에 드롭된 경우 (원으로 돌려보낼 수 있는지 검사)
+    // ✅ 박스 밖 → circle 이동 처리 추가
     img.dataset.inBox = "false";
 
-   // === 원 내부 완전 포함 검사 (stage 기준) ===
+    const circleRect = circle.getBoundingClientRect();
+    const newLeft = rect.left - circleRect.left;
+    const newTop = rect.top - circleRect.top;
 
-// 1) 이미지 위치를 stage 좌표로 변환
-const imgStageLeft = rect.left - stageRect.left;
-const imgStageTop  = rect.top - stageRect.top;
-const imgStageRight = rect.right - stageRect.left;
-const imgStageBottom = rect.bottom - stageRect.top;
+    const inside = insideCircleAllCorners(
+      newLeft, newTop,
+      img.offsetWidth, img.offsetHeight,
+      circleRadius
+    );
 
-// 2) 원의 중심을 stage 좌표로 계산
-const circleStageLeft = circleRect.left - stageRect.left;
-const circleStageTop  = circleRect.top - stageRect.top;
-const circleCenterX = circleStageLeft + circleRect.width / 2;
-const circleCenterY = circleStageTop + circleRect.height / 2;
-
-// 3) 꼭짓점 좌표(stage 기준)
-const cornersStage = [
-  [imgStageLeft, imgStageTop],
-  [imgStageRight, imgStageTop],
-  [imgStageLeft, imgStageBottom],
-  [imgStageRight, imgStageBottom]
-];
-
-// 4) 사각형 전체가 원 안에 완전히 들어갔는지 체크
-const insideWholeCircle = cornersStage.every(([px, py]) => {
-  const dx = px - circleCenterX;
-  const dy = py - circleCenterY;
-  const maxHalf = Math.max(rect.width, rect.height) / 2;
-return Math.sqrt(dx*dx + dy*dy) <= (circleRadius - maxHalf);
-});
-
-
-
-    if (insideWholeCircle) {
-      // 화면(클라이언트) 좌표 -> stage 좌표로 변환
-      const newX = rect.left - stageRect.left;
-      const newY = rect.top - stageRect.top;
-      img.style.left = `${newX}px`;
-      img.style.top = `${newY}px`;
-
-      // 원에서의 '기억 좌표' 갱신
-      img.dataset.originalLeft = newX;
-      img.dataset.originalTop = newY;
+    if (inside) {
+      // ✅ 새 위치에 circle로 귀환
+      img.style.left = `${newLeft}px`;
+      img.style.top = `${newTop}px`;
+      circle.appendChild(img);
     } else {
-      // 원 내부에도 아니면 원래 저장된 좌표로 복귀
-      img.style.left = `${img.dataset.originalLeft}px`;
-      img.style.top = `${img.dataset.originalTop}px`;
+      // ❌ 원 밖이면 원래 자리로
+      img.style.left = `${originalX}px`;
+      img.style.top = `${originalY}px`;
+      circle.appendChild(img);
     }
 
-    // boxItems에서 제거(존재하면)
     const idx = boxItems.indexOf(img);
     if (idx >= 0) boxItems.splice(idx, 1);
-
-    // 박스 레이아웃이 바뀌었을 수 있으니 재계산
-    updateBoxLayout();
   }
 
-  // 정리
   img.classList.remove("dragging");
   dragged = null;
+
   document.removeEventListener("mousemove", onMouseMove);
   document.removeEventListener("mouseup", onMouseUp);
 }
 
+// ⭐ 초기 드래그 활성화
+enableDraggingForFoods();
 
-  // 초기 활성화
-  enableDraggingForFoods();
 </script>
 
 </body>
