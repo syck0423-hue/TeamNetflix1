@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>원형 내부 음식 배치 (겹침 허용, 원 안에 완전 포함)</title>
+<title>원형 내부 음식 배치 (절대 잘림 방지)</title>
 <style>
   body {
     margin: 0;
@@ -28,7 +28,7 @@
     background: rgba(255, 150, 150, 0.25);
     top: 126px;
     left: 83px;
-    overflow: visible; /* 잘리지 않게 */
+    overflow: visible;
   }
 
   .box {
@@ -73,7 +73,22 @@
 
   const circleRadius = 342 / 2;
   const placedFoods = [];
-  const buffer = 10; // 살짝 겹침 허용 범위
+  const buffer = 5; // 겹침 허용 정도 (값 높일수록 더 떨어짐)
+
+  function insideCircleAllCorners(x, y, w, h, radius) {
+    const cx = radius, cy = radius;
+    const corners = [
+      [x, y],
+      [x + w, y],
+      [x, y + h],
+      [x + w, y + h]
+    ];
+    return corners.every(([px, py]) => {
+      const dx = px - cx;
+      const dy = py - cy;
+      return Math.sqrt(dx * dx + dy * dy) <= radius;
+    });
+  }
 
   foods.forEach(food => {
     const img = document.createElement("img");
@@ -84,57 +99,43 @@
     img.style.width = `${w}px`;
     img.style.height = `${h}px`;
 
-    let x, y, distance;
+    let x, y;
     let tries = 0;
-    const maxTries = 500;
+    const maxTries = 1000;
 
-    do {
-      // 원 중심 기준으로 좌표 생성
+    while (tries < maxTries) {
       const angle = Math.random() * 2 * Math.PI;
-      const radius = Math.random() * (circleRadius - Math.max(w, h) / 2);
-      const centerX = circleRadius + Math.cos(angle) * radius;
-      const centerY = circleRadius + Math.sin(angle) * radius;
+      const r = Math.random() * (circleRadius - Math.max(w, h) / 2);
+      const cx = circleRadius + Math.cos(angle) * r;
+      const cy = circleRadius + Math.sin(angle) * r;
 
-      x = centerX - w / 2;
-      y = centerY - h / 2;
+      x = cx - w / 2;
+      y = cy - h / 2;
 
-      // 원 밖 여부 확인 (이미지 전체 포함되도록)
-      const corners = [
-        [x, y],
-        [x + w, y],
-        [x, y + h],
-        [x + w, y + h]
-      ];
-      const inside = corners.every(([cx, cy]) => {
-        const dx = cx - circleRadius;
-        const dy = cy - circleRadius;
-        return Math.sqrt(dx * dx + dy * dy) <= circleRadius;
-      });
+      if (!insideCircleAllCorners(x, y, w, h, circleRadius)) {
+        tries++;
+        continue; // 모서리 하나라도 원 밖이면 다시
+      }
 
-      // 겹침 검사
       let overlap = false;
-      for (const placed of placedFoods) {
-        const dx = (x + w / 2) - (placed.x + placed.w / 2);
-        const dy = (y + h / 2) - (placed.y + placed.h / 2);
+      for (const p of placedFoods) {
+        const dx = (x + w / 2) - (p.x + p.w / 2);
+        const dy = (y + h / 2) - (p.y + p.h / 2);
         const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < (Math.max(w, placed.w) / 2) - buffer) {
+        if (dist < (Math.max(w, p.w) / 2) - buffer) {
           overlap = true;
           break;
         }
       }
 
-      if (inside && !overlap) break;
+      if (!overlap) break;
       tries++;
-    } while (tries < maxTries);
+    }
 
-    // 혹시라도 못 넣었을 경우 강제 배치
+    // 혹시 못 놓으면 중앙 근처로라도 배치
     if (tries >= maxTries) {
-      const angle = Math.random() * 2 * Math.PI;
-      const radius = circleRadius - Math.max(w, h) / 2 - 2;
-      const centerX = circleRadius + Math.cos(angle) * radius;
-      const centerY = circleRadius + Math.sin(angle) * radius;
-      x = centerX - w / 2;
-      y = centerY - h / 2;
+      x = circleRadius - w / 2;
+      y = circleRadius - h / 2;
     }
 
     img.style.left = `${x}px`;
