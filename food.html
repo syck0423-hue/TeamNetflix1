@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>배경 기준 좌표 배치</title>
+<title>원형 내부 랜덤 음식 배치</title>
 <style>
   body {
     margin: 0;
@@ -22,34 +22,86 @@
     border: 1px solid #999;
   }
 
-  /* 왼쪽 원형 div */
   .circle {
     position: absolute;
     width: 342px;
     height: 342px;
     border-radius: 50%;
-    background: rgba(255, 150, 150, 0.6);
-    top: 126px;   /* 배경 기준 Y좌표 */
-    left: 83px;  /* 배경 기준 X좌표 */
+    background: rgba(255, 150, 150, 0.3);
+    top: 126px;
+    left: 83px;
+    overflow: hidden; /* ✅ 원 밖으로 안 나가게 */
   }
 
-  /* 오른쪽 직사각형 div */
   .box {
     position: absolute;
     width: 333px;
     height: 431px;
-    background: rgba(150, 150, 255, 0.6);
-    top: 71px;   /* 배경 기준 Y좌표 */
-    right: 76px; /* 배경 기준 X좌표 */
+    background: rgba(150, 150, 255, 0.3);
+    top: 71px;
+    right: 76px;
+  }
+
+  .food {
+    position: absolute;
+    user-select: none;
+    pointer-events: none; /* 나중에 드래그 넣을 땐 제거 */
   }
 </style>
 </head>
 <body>
 
 <div class="stage">
-  <div class="circle"></div>
+  <div class="circle" id="circle"></div>
   <div class="box"></div>
 </div>
+
+<script>
+  const circle = document.getElementById("circle");
+
+  // 음식 크기 목록 (width, height)
+  const foodSizes = [
+    [135, 47],
+    [121, 45],
+    [55, 48],
+    [130, 43],
+    [106, 32],
+    [58, 44],
+    [137, 36],
+    [121, 43],
+    [88, 36],
+    [143, 46]
+  ];
+
+  const circleRadius = 342 / 2;
+
+  for (let i = 0; i < 10; i++) {
+    const img = document.createElement("img");
+    img.src = `img/food/${i + 1}.png`;
+    img.className = "food";
+
+    const [w, h] = foodSizes[i];
+    img.style.width = `${w}px`;
+    img.style.height = `${h}px`;
+
+    // 랜덤 위치 계산 (원 안에 들어오도록)
+    let x, y;
+    do {
+      x = Math.random() * (circleRadius * 2 - w);
+      y = Math.random() * (circleRadius * 2 - h);
+
+      // 원 중심 기준으로 거리 계산
+      const dx = x + w / 2 - circleRadius;
+      const dy = y + h / 2 - circleRadius;
+      var distance = Math.sqrt(dx * dx + dy * dy);
+    } while (distance > circleRadius - Math.max(w, h) / 2);
+
+    img.style.left = `${x}px`;
+    img.style.top = `${y}px`;
+
+    circle.appendChild(img);
+  }
+</script>
 
 </body>
 </html>
