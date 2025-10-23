@@ -230,25 +230,24 @@ function updateBoxLayout(droppedImg) {
     item.style.left = `${centerX}px`;
   });
 
-  // 6. 박스 범위 초과 시 전체 이동
-  const minTop = boxRect.top - stageRect.top;
-  const maxBottom = boxRect.bottom - stageRect.top;
+// ✅ 박스 범위 초과 방지 (drop 이미지만 처리)
+const minTop = boxRect.top - stageRect.top;
+const maxBottom = boxRect.bottom - stageRect.top - droppedImg.offsetHeight;
 
-  const topMost = Math.min(...boxItems.map(i => i.offsetTop));
-  const bottomMost = Math.max(...boxItems.map(i => i.offsetTop + i.offsetHeight));
+let currentTop = droppedImg.offsetTop;
 
-  let shift = 0;
-  if (topMost < minTop) shift = minTop - topMost;
-  if (bottomMost > maxBottom) shift = maxBottom - bottomMost;
-
-  if (shift !== 0) {
-    boxItems.forEach(i => {
-      i.style.top = `${i.offsetTop + shift}px`;
-    });
-  }
+// 위로 넘어가면 맨 위에서 멈춤
+if (currentTop < minTop) {
+  droppedImg.style.top = `${minTop}px`;
+  currentTop = minTop;
 }
 
-
+// 아래로 넘어가면 맨 아래에서 멈춤
+if (currentTop > maxBottom) {
+  droppedImg.style.top = `${maxBottom}px`;
+  currentTop = maxBottom;
+}
+  
   function onMouseUp() {
   if (!dragged) return;
 
