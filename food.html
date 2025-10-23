@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>원형 내부 랜덤 음식 배치 (비겹침)</title>
+<title>원 내부 음식 랜덤 배치 (겹침 방지 + 경계 유지)</title>
 <style>
   body {
     margin: 0;
@@ -20,7 +20,6 @@
     background-size: contain;
   }
 
-  /* 왼쪽 원형 div */
   .circle {
     position: absolute;
     width: 342px;
@@ -32,7 +31,6 @@
     overflow: hidden;
   }
 
-  /* 오른쪽 직사각형 div */
   .box {
     position: absolute;
     width: 333px;
@@ -42,7 +40,6 @@
     right: 76px;
   }
 
-  /* 음식 이미지 */
   .food {
     position: absolute;
     user-select: none;
@@ -60,7 +57,6 @@
 <script>
   const circle = document.getElementById("circle");
 
-  // 파일 이름과 크기 매칭
   const foods = [
     { name: "BREATHE", size: [135, 47] },
     { name: "CORRECT", size: [121, 45] },
@@ -75,19 +71,18 @@
   ];
 
   const circleRadius = 342 / 2;
-  const placed = []; // 배치된 이미지 좌표 저장용
+  const placed = []; // 배치된 이미지 정보 저장
+  const buffer = 8; // 이미지 간 최소 간격
 
   function isOverlapping(x, y, w, h) {
-    // 다른 이미지들과의 충돌 검사
     for (const p of placed) {
-      const buffer = 8; // 최소 간격
       if (
         x < p.x + p.w + buffer &&
-        x + w + buffer > p.x &&
+        x + w > p.x - buffer &&
         y < p.y + p.h + buffer &&
-        y + h + buffer > p.y
+        y + h > p.y - buffer
       ) {
-        return true; // 겹침
+        return true;
       }
     }
     return false;
@@ -102,29 +97,46 @@
     img.style.width = `${w}px`;
     img.style.height = `${h}px`;
 
-    let x, y, distance, tries = 0;
-    const maxTries = 500; // 무한 루프 방지
+    let x, y, tries = 0;
+    const maxTries = 1000;
 
+    // 원 내부 & 겹침 없는 좌표 찾기
     do {
-      x = Math.random() * (circleRadius * 2 - w);
-      y = Math.random() * (circleRadius * 2 - h);
+      const angle = Math.random() * 2 * Math.PI;
+      const radius = Math.random() * (circleRadius - Math.max(w, h) / 2);
+      const centerX = circleRadius + Math.cos(angle) * radius;
+      const centerY = circleRadius + Math.sin(angle) * radius;
 
-      const dx = x + w / 2 - circleRadius;
-      const dy = y + h / 2 - circleRadius;
-      distance = Math.sqrt(dx * dx + dy * dy);
+      x = centerX - w / 2;
+      y = centerY - h / 2;
 
       tries++;
-      if (tries > maxTries) break; // 위치 찾기 실패 시 중단
-    } while (
-      distance > circleRadius - Math.max(w, h) / 2 ||
-      isOverlapping(x, y, w, h)
-    );
+      if (tries > maxTries) break;
 
-    img.style.left = `${x}px`;
-    img.style.top = `${y}px`;
+      // 원 경계 체크
+      const corners = [
+        [x, y],
+        [x + w, y],
+        [x, y + h],
+        [x + w, y + h]
+      ];
 
-    placed.push({ x, y, w, h });
-    circle.appendChild(img);
+      const insideCircle = corners.every(([cx, cy]) => {
+        const dx = cx - circleRadius;
+        const dy = cy - circleRadius;
+        return Math.sqrt(dx * dx + dy * dy) <= circleRadius;
+      });
+
+      if (!insideCircle) continue;
+      if (isOverlapping(x, y, w, h)) continue;
+
+      // 조건 만족 시 배치 확정
+      img.style.left = `${x}px`;
+      img.style.top = `${y}px`;
+      placed.push({ x, y, w, h });
+      circle.appendChild(img);
+      break;
+    } while (true);
   });
 </script>
 
