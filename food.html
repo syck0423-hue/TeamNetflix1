@@ -1,64 +1,63 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>★</title>
+<meta charset="UTF-8">
+<title>원형 내부 음식 배치 + 드래그 이동 (수정 완성본)</title>
 
-  <style>
-    html, body {
-      cursor: url("/TeamNetflix1/img/cur/basic_cur.png"), auto;
-    }
-    button, a, [role="button"] {
-      cursor: url("/TeamNetflix1/img/cur/click_cur.png"), pointer;
-    }
-    body {
-      margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .stage {
-      position: relative;
-      width: 926px;
-      height: 574px;
-      background: url('img/food/bg.png') no-repeat center center;
-      background-size: contain;
-    }
-    .circle {
-      position: absolute;
-      width: 342px;
-      height: 342px;
-      border-radius: 50%;
-      top: 126px;
-      left: 83px;
-    }
-    .box {
-      position: absolute;
-      width: 333px;
-      height: 431px;
-      top: 71px;
-      right: 76px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      overflow-y: auto;
-    }
-    .food {
-      position: absolute;
-      user-select: none;
-      cursor: url("/TeamNetflix1/img/cur/click_cur.png"), pointer;
-      transition: transform 0.15s ease;
-      will-change: transform, left, top;
-    }
-    .food.dragging {
-      opacity: 0.9;
-      transform: scale(1.06);
-      transition: none;
-      z-index: 999;
-    }
-  </style>
+<style>
+html, body {
+  cursor: url("/TeamNetflix1/img/cur/basic_cur.png"), auto;
+}
+button, a, [role="button"] {
+  cursor: url("/TeamNetflix1/img/cur/click_cur.png"), pointer;
+}
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+.stage {
+  position: relative;
+  width: 926px;
+  height: 574px;
+  background: url('img/food/bg.png') no-repeat center center;
+  background-size: contain;
+}
+.circle {
+  position: absolute;
+  width: 342px;
+  height: 342px;
+  border-radius: 50%;
+  top: 126px;
+  left: 83px;
+}
+.box {
+  position: absolute;
+  width: 333px;
+  height: 431px;
+  top: 71px;
+  right: 76px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.food {
+  position: absolute;
+  user-select: none;
+  cursor: url("/TeamNetflix1/img/cur/click_cur.png"), pointer;
+  transition: transform 0.15s ease;
+  will-change: transform, left, top;
+}
+.food.dragging {
+  opacity: 0.9;
+  transform: scale(1.06);
+  transition: none;
+  z-index: 999;
+}
+</style>
+
 </head>
 <body>
 
@@ -204,27 +203,25 @@ function onMouseMove(e) {
 
 // ✅ 박스 정렬
 const GAP = 2;
-// ✅ 박스 레이아웃 갱신 (수정된 버전)
 function updateBoxLayout() {
   let yCursor = GAP;
 
-  boxItems.forEach(item => {
-    const w = item.offsetWidth;
-    const h = item.offsetHeight;
+boxItems.forEach(item => {
+  const w = item.offsetWidth;
+  const h = item.offsetHeight;
 
-    const centerX = (box.clientWidth - w) / 2;
-    item.style.left = `${centerX}px`;
-    item.style.top = `${yCursor}px`;
+  const centerX = (box.clientWidth - w) / 2;
+  item.style.left = `${centerX}px`;
+  item.style.top = `${yCursor}px`;
 
-    // ✅ DOM 계층을 확실히 박스 안으로 이동
-    box.appendChild(item);
+  // ✅ DOM 계층을 확실히 박스 안으로 이동
+  box.appendChild(item);
 
-    yCursor += h + GAP;
-  });
+  yCursor += h + GAP;
+});
+
 }
 
-
-// ✅ 마우스 떼기 처리 (핵심 수정 완료)
 // ✅ 마우스 떼기 처리 (핵심 수정 완료)
 function onMouseUp() {
   if (!dragged) return;
@@ -260,11 +257,9 @@ function onMouseUp() {
 
     boxItems.splice(newIndex, 0, img);
     box.appendChild(img);
+updateBoxLayout();
 
-    // ✅ 박스 레이아웃 갱신
-    updateBoxLayout();
-
-  } else {
+  }  else {
     // ✅ 박스 밖 → 원래 자리로 복귀
     img.dataset.inBox = "false";
 
@@ -273,13 +268,9 @@ function onMouseUp() {
     circle.appendChild(img);
 
     const idx = boxItems.indexOf(img);
-    if (idx >= 0) {
-      boxItems.splice(idx, 1);
-    }
+    if (idx >= 0) boxItems.splice(idx, 1);
+}
 
-    // 남은 요소들 위로 올리기
-    updateBoxLayout();
-  }
 
   img.classList.remove("dragging");
   dragged = null;
