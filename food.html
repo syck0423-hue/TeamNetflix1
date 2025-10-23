@@ -204,21 +204,22 @@ function onMouseMove(e) {
 // ✅ 박스 정렬
 const GAP = 2;
 function updateBoxLayout() {
-  const boxRect = box.getBoundingClientRect();
-  const stageRect = stage.getBoundingClientRect();
+  let yCursor = GAP;
 
-  let yCursor = (boxRect.top - stageRect.top) + GAP;
+boxItems.forEach(item => {
+  const w = item.offsetWidth;
+  const h = item.offsetHeight;
 
-  boxItems.forEach(item => {
-    const w = item.offsetWidth;
-    const h = item.offsetHeight;
+  const centerX = (box.clientWidth - w) / 2;
+  item.style.left = `${centerX}px`;
+  item.style.top = `${yCursor}px`;
 
-    const centerX = (boxRect.left - stageRect.left) + (boxRect.width - w) / 2;
-    item.style.left = `${centerX}px`;
-    item.style.top = `${yCursor}px`;
+  // ✅ DOM 계층을 확실히 박스 안으로 이동
+  box.appendChild(item);
 
-    yCursor += h + GAP;
-  });
+  yCursor += h + GAP;
+});
+
 }
 
 // ✅ 마우스 떼기 처리 (핵심 수정 완료)
@@ -255,7 +256,8 @@ function onMouseUp() {
     if (newIndex === -1) newIndex = boxItems.length;
 
     boxItems.splice(newIndex, 0, img);
-    updateBoxLayout();
+    box.appendChild(img);
+updateBoxLayout();
 
   } else {
     // ✅ 박스 밖 → circle 이동 처리 추가
