@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>원형 내부 음식 배치 + 드래그 이동</title>
+<title>원형 내부 음식 배치 + 드래그 이동 (수정본)</title>
 <style>
   body {
     margin: 0;
@@ -25,6 +25,7 @@
     width: 342px;
     height: 342px;
     border-radius: 50%;
+    background: rgba(255, 150, 150, 0.25);
     top: 126px;
     left: 83px;
     overflow: visible;
@@ -34,6 +35,7 @@
     position: absolute;
     width: 333px;
     height: 431px;
+    background: rgba(150, 150, 255, 0.25);
     top: 71px;
     right: 76px;
     display: flex;
@@ -45,25 +47,28 @@
     position: absolute;
     user-select: none;
     cursor: grab;
-    transition: transform 0.2s ease;
+    transition: transform 0.15s ease;
+    will-change: transform, left, top;
   }
 
   .food.dragging {
-    opacity: 0.7;
+    opacity: 0.9;
     cursor: grabbing;
-    z-index: 10;
-    transform: scale(1.1);
+    z-index: 999;
+    transform: scale(1.06);
+    transition: none;
   }
 </style>
 </head>
 <body>
 
-<div class="stage">
+<div class="stage" id="stage">
   <div class="circle" id="circle"></div>
   <div class="box" id="box"></div>
 </div>
 
 <script>
+  const stage = document.getElementById('stage');
   const circle = document.getElementById("circle");
   const box = document.getElementById("box");
 
@@ -82,7 +87,7 @@
 
   const circleRadius = 342 / 2;
   const placedFoods = [];
-  const buffer = 10;
+  const buffer = 5;
 
   function insideCircleAllCorners(x, y, w, h, radius) {
     const cx = radius, cy = radius;
@@ -99,6 +104,7 @@
     });
   }
 
+  // 1) 이미지들 circle 안에 배치 (좌표는 circle 내부 기준)
   foods.forEach(food => {
     const img = document.createElement("img");
     img.src = `img/food/${food.name}.png`;
@@ -146,105 +152,139 @@
       y = circleRadius - h / 2;
     }
 
+    // 위치는 circle 내부 좌표 (circle의 좌상단이 0,0)
     img.style.left = `${x}px`;
     img.style.top = `${y}px`;
 
-    img.dataset.originalX = x;
-    img.dataset.originalY = y;
+    // 원래 위치를 circle 기준으로 저장 (숫자)
+    img.dataset.originalLeft = x;
+    img.dataset.originalTop = y;
+    img.dataset.inBox = "false";
 
     placedFoods.push({ x, y, w, h });
     circle.appendChild(img);
   });
 
-  // === 🎯 드래그 앤 드롭 로직 ===
+  // === 드래그 로직 (핵심 수정) ===
   let dragged = null;
   let offsetX = 0, offsetY = 0;
+  let initialParent = null;
+  let initialLeftPx = 0, initialTopPx = 0;
 
-  document.querySelectorAll(".food").forEach(img => {
-    img.addEventListener("mousedown", e => {
-      dragged = img;
-      dragged.classList.add("dragging");
+  // helper: 화면상 rect -> px left/top relative to stage
+  function clientToStagePos(clientX, clientY) {
+    const stageRect = stage.getBoundingClientRect();
+    return {
+      x: clientX - stageRect.left,
+      y: clientY - stageRect.top
+    };
+  }
 
-      const rect = dragged.getBoundingClientRect();
-      offsetX = e.clientX - rect.left;
-      offsetY = e.clientY - rect.top;
+  // attach listeners to dynamically created .food elements
+  function enableDraggingForFoods() {
+    document.querySelectorAll(".food").forEach(img => {
+      img.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        dragged = img;
+        dragged.classList.add("dragging");
 
-      document.addEventListener("mousemove", onMouseMove);
-      document.addEventListener("mouseup", onMouseUp);
+        // compute current absolute (stage-based) left/top of the img
+        const imgRect = dragged.getBoundingClientRect();
+        const stageRect = stage.getBoundingClientRect();
+        initialLeftPx = imgRect.left - stageRect.left;
+        initialTopPx = imgRect.top - stageRect.top;
+
+        // keep track of parent so we can restore if needed
+        initialParent = dragged.parentElement;
+
+        // offset between mouse and top-left of image (client coords)
+        offsetX = e.clientX - imgRect.left;
+        offsetY = e.clientY - imgRect.top;
+
+        // move the element to be direct child of stage (so all coords are stage-based)
+        // but maintain same visual position: set left/top to initialLeftPx/Top
+        stage.appendChild(dragged);
+        dragged.style.left = initialLeftPx + "px";
+        dragged.style.top = initialTopPx + "px";
+
+        document.addEventListener("mousemove", onMouseMove);
+        document.addEventListener("mouseup", onMouseUp);
+      });
     });
-  });
+  }
 
   function onMouseMove(e) {
     if (!dragged) return;
+    const pos = clientToStagePos(e.clientX, e.clientY);
+    let x = pos.x - offsetX;
+    let y = pos.y - offsetY;
 
-    const stageRect = document.querySelector(".stage").getBoundingClientRect();
-    dragged.style.left = `${e.clientX - stageRect.left - offsetX}px`;
-    dragged.style.top = `${e.clientY - stageRect.top - offsetY}px`;
+    // clamp within stage
+    x = Math.max(0, Math.min(x, stage.clientWidth - dragged.offsetWidth));
+    y = Math.max(0, Math.min(y, stage.clientHeight - dragged.offsetHeight));
+
+    dragged.style.left = x + "px";
+    dragged.style.top = y + "px";
   }
 
   function onMouseUp(e) {
-  if (!dragged) return;
+    if (!dragged) return;
 
-  const boxRect = box.getBoundingClientRect();
-  const stageRect = document.querySelector(".stage").getBoundingClientRect();
-  const imgRect = dragged.getBoundingClientRect();
+    const imgRect = dragged.getBoundingClientRect();
+    const boxRect = box.getBoundingClientRect();
+    const stageRect = stage.getBoundingClientRect();
 
-  const isInside =
-    imgRect.right > boxRect.left &&
-    imgRect.left < boxRect.right &&
-    imgRect.bottom > boxRect.top &&
-    imgRect.top < boxRect.bottom;
+    const isInsideBox =
+      imgRect.right > boxRect.left &&
+      imgRect.left < boxRect.right &&
+      imgRect.bottom > boxRect.top &&
+      imgRect.top < boxRect.bottom;
 
-  if (isInside) {
-    dragged.dataset.inBox = "true";
+    if (isInsideBox) {
+      // 중앙 정렬 (박스 내부에서 중앙)
+      const centerX = (boxRect.left - stageRect.left) + (boxRect.width - imgRect.width) / 2;
+      const centerY = (boxRect.top - stageRect.top) + (boxRect.height - imgRect.height) / 2;
 
-    // ✅ 유저가 드래그한 Y값 유지
-    let y = imgRect.top - stageRect.top;
+      dragged.style.left = `${centerX}px`;
+      dragged.style.top = `${centerY}px`;
+      dragged.dataset.inBox = "true";
+    } else {
+      // 원래 자리(원 내부)로 복귀: 원 내부 좌표로 다시 옮겨야 함.
+      // 원 내부 좌표를 저장해둔 dataset.originalLeft/Top (circle 기준)
+      const origLeft = parseFloat(dragged.dataset.originalLeft);
+      const origTop = parseFloat(dragged.dataset.originalTop);
 
-    // ✅ 박스 오른쪽 안쪽에 붙이기
-    let x = (boxRect.left - stageRect.left) + (boxRect.width / 2) - (imgRect.width / 2);
+      // circle의 stage 기준 좌표
+      const circleRect = circle.getBoundingClientRect();
+      const stageRect2 = stage.getBoundingClientRect();
+      const circleLeftStage = circleRect.left - stageRect2.left;
+      const circleTopStage = circleRect.top - stageRect2.top;
 
-    // ✅ 박스 내부로 제한
-    x = Math.max(
-      (boxRect.left - stageRect.left),
-      Math.min(
-        (boxRect.right - stageRect.left) - imgRect.width,
-        x
-      )
-    );
+      // set back to circle as parent and position in circle coords
+      dragged.style.left = `${circleLeftStage + origLeft}px`;
+      dragged.style.top = `${circleTopStage + origTop}px`;
 
-    dragged.style.left = `${x}px`;
-    dragged.style.top = `${y}px`;
+      // move back under circle in DOM so its position becomes relative to stage visually,
+      // but to keep consistent keep it as child of stage (we keep everything in stage while simpler).
+      // If you prefer to return it as child of circle, uncomment the block below and adjust coordinates.
+      // circle.appendChild(dragged);
+      // dragged.style.left = `${origLeft}px`;
+      // dragged.style.top = `${origTop}px`;
+      dragged.dataset.inBox = "false";
+    }
 
-    resolveOverlap(dragged);
-  } else {
-    dragged.dataset.inBox = "false";
+    // keep draggable even inside box (we leave element as child of stage)
+    dragged.classList.remove("dragging");
+    dragged = null;
+
+    document.removeEventListener("mousemove", onMouseMove);
+    document.removeEventListener("mouseup", onMouseUp);
   }
 
-  dragged.classList.remove("dragging");
-  dragged = null;
+  // 초기 세팅
+  enableDraggingForFoods();
 
-  document.removeEventListener("mousemove", onMouseMove);
-  document.removeEventListener("mouseup", onMouseUp);
-}
-
-
-  // === 🍱 겹침 방지 함수 ===
-  function resolveOverlap(target) {
-    const targetRect = target.getBoundingClientRect();
-    const foodsInBox = [...document.querySelectorAll(".food")]
-      .filter(img => img !== target && img.dataset.inBox === "true");
-
-    foodsInBox.forEach(other => {
-      const r = other.getBoundingClientRect();
-      const overlapY = !(targetRect.bottom < r.top || targetRect.top > r.bottom);
-
-      if (overlapY) {
-        const newTop = parseFloat(other.style.top) + r.height + 4;
-        other.style.top = `${newTop}px`;
-      }
-    });
-  }
+  // 만약 이후에 음식이 동적으로 추가되면 enableDraggingForFoods() 다시 호출하면 됨.
 </script>
 
 </body>
