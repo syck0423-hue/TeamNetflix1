@@ -206,51 +206,91 @@
     dragged.style.top = `${pos.y - offsetY}px`;
   }
 
-  function onMouseUp() {
-    if (!dragged) return;
+  let boxItems = [];
+const GAP = 2; // 간격 좁게
 
-    const img = dragged;
-    const rect = img.getBoundingClientRect();
-    const stageRect = stage.getBoundingClientRect();
-    const boxRect = box.getBoundingClientRect();
+function updateBoxLayout(targetImg) {
+  const boxRect = box.getBoundingClientRect();
+  const stageRect = stage.getBoundingClientRect();
 
-    const centerOfItem = rect.top + rect.height / 2;
+  // box 안에서의 상대 좌표
+  function clampInsideBox(y, img) {
+    const minY = boxRect.top - stageRect.top;
+    const maxY = minY + boxRect.height - img.offsetHeight;
+    return Math.max(minY, Math.min(y, maxY));
+  }
 
-    const inside =
-      rect.right > boxRect.left &&
-      rect.left < boxRect.right &&
-      rect.bottom > boxRect.top &&
-      rect.top < boxRect.bottom;
+  // 새 요소 위치 기준으로 재정렬
+  boxItems.sort((a, b) => {
+    if (a === targetImg) return -1;
+    if (b === targetImg) return 1;
+    return (a.offsetTop - b.offsetTop);
+  });
 
-    if (inside) {
-      img.dataset.inBox = "true";
+  // 충돌 방지 재배치
+  let curY = clampInsideBox(targetImg.offsetTop, targetImg);
+  targetImg.style.top = curY + "px";
 
-      const filtered = boxItems.filter(it => it !== img);
-      let idx = filtered.findIndex(it => {
-        const r = it.getBoundingClientRect();
-        return centerOfItem < (r.top + r.height / 2);
-      });
-      if (idx === -1) idx = filtered.length;
+  for (const img of boxItems) {
+    if (img === targetImg) continue;
 
-      filtered.splice(idx, 0, img);
-      boxItems.length = 0;
-      boxItems.push(...filtered);
-
-      reorderBoxItems();
+    if (img.offsetTop < curY) {
+      // 위쪽 아이템 → 차곡 정렬
+      curY = img.offsetTop + img.offsetHeight + GAP;
     } else {
-      img.dataset.inBox = "false";
-      img.style.left = `${originalX}px`;
-      img.style.top = `${originalY}px`;
-      const index = boxItems.indexOf(img);
-      if (index >= 0) boxItems.splice(index, 1);
-      reorderBoxItems();
+      // 아래쪽 아이템 → 밀리면서 정렬
+      img.style.top = (curY + targetImg.offsetHeight + GAP) + "px";
+      curY = img.offsetTop + img.offsetHeight + GAP;
     }
 
-    img.classList.remove("dragging");
-    dragged = null;
-    document.removeEventListener("mousemove", onMouseMove);
-    document.removeEventListener("mouseup", onMouseUp);
+    img.style.left = (boxRect.left - stageRect.left + 10) + "px";
   }
+}
+
+  function onMouseUp() {
+  if (!dragged) return;
+
+  const img = dragged;
+  const rect = img.getBoundingClientRect();
+  const stageRect = stage.getBoundingClientRect();
+  const boxRect = box.getBoundingClientRect();
+
+  const x = rect.left - stageRect.left;
+  const y = rect.top - stageRect.top;
+
+  const inside =
+    rect.right > boxRect.left &&
+    rect.left < boxRect.right &&
+    rect.bottom > boxRect.top &&
+    rect.top < boxRect.bottom;
+
+  if (inside) {
+    img.dataset.inBox = "true";
+
+    const nx = boxRect.left - stageRect.left + 10;
+    const ny = y;
+
+    img.style.left = nx + "px";
+    img.style.top = ny + "px";
+
+    if (!boxItems.includes(img)) boxItems.push(img);
+
+    updateBoxLayout(img);
+  } else {
+    img.dataset.inBox = "false";
+    img.style.left = originalX + "px";
+    img.style.top = originalY + "px";
+
+    const idx = boxItems.indexOf(img);
+    if (idx >= 0) boxItems.splice(idx, 1);
+  }
+
+  img.classList.remove("dragging");
+  dragged = null;
+
+  document.removeEventListener("mousemove", onMouseMove);
+  document.removeEventListener("mouseup", onMouseUp);
+}
 
   enableDraggingForFoods();
 </script>
