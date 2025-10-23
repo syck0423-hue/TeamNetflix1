@@ -259,35 +259,18 @@ function onMouseUp() {
     box.appendChild(img);
 updateBoxLayout();
 
-  } else {
-    // ✅ 박스 밖 → circle 이동 처리 추가
+  }  else {
+    // ✅ 박스 밖 → 원래 자리로 복귀
     img.dataset.inBox = "false";
 
-    const circleRect = circle.getBoundingClientRect();
-    const newLeft = rect.left - circleRect.left;
-    const newTop = rect.top - circleRect.top;
-
-    const inside = insideCircleAllCorners(
-      newLeft, newTop,
-      img.offsetWidth, img.offsetHeight,
-      circleRadius
-    );
-
-    if (inside) {
-      // ✅ 새 위치에 circle로 귀환
-      img.style.left = `${newLeft}px`;
-      img.style.top = `${newTop}px`;
-      circle.appendChild(img);
-    } else {
-      // ❌ 원 밖이면 원래 자리로
-      img.style.left = `${originalX}px`;
-      img.style.top = `${originalY}px`;
-      circle.appendChild(img);
-    }
+    img.style.left = `${img.dataset.originalLeft}px`;
+    img.style.top = `${img.dataset.originalTop}px`;
+    circle.appendChild(img);
 
     const idx = boxItems.indexOf(img);
     if (idx >= 0) boxItems.splice(idx, 1);
-  }
+}
+
 
   img.classList.remove("dragging");
   dragged = null;
