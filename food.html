@@ -189,47 +189,44 @@
     dragged.style.top = `${pos.y - offsetY}px`;
   }
 
-const GAP = 2; // 간격 좁게
+const GAP = 2;
 
-function updateBoxLayout(targetImg) {
+function updateBoxLayout(droppedImg) {
   const boxRect = box.getBoundingClientRect();
   const stageRect = stage.getBoundingClientRect();
 
-  // ✅ 박스 중앙 X 한 번만 계산하고 통일
-  boxItems.forEach(item => {
-    const w = item.offsetWidth || parseInt(item.style.width);
-    const centerX = (boxRect.left - stageRect.left) + (boxRect.width - w) / 2;
-    item.style.left = `${centerX}px`;
-  });
-
-  // ✅ 드롭된 Y 기준으로 정렬하도록 우선 sort
+  // ✅ droppedImg 기준 정렬 우선
   boxItems.sort((a, b) => a.offsetTop - b.offsetTop);
 
-  // ✅ 겹치지 않게 위→아래 자연스럽게 재배치
-  for (let i = 1; i < boxItems.length; i++) {
-    const prev = boxItems[i - 1];
-    const cur = boxItems[i];
+  // ✅ droppedImg의 "들어오길 원하는 위치" 유지하면서
+  // 앞뒤로 자연스럽게 밀어내기
+  let prevBottom = boxRect.top - stageRect.top;
 
-    const minY = prev.offsetTop + prev.offsetHeight + GAP;
-    if (cur.offsetTop < minY) {
-      cur.style.top = `${minY}px`;
-    }
-  }
+  boxItems.forEach(item => {
+    const idealY = Math.max(item.offsetTop, prevBottom);
+    item.style.top = `${idealY}px`;
 
-  // ✅ 아래 요소도 박스를 넘으면 올라오게
-  const maxBottom = (boxRect.bottom - stageRect.top);
+    // ✅ 박스 중앙 정렬 (전부 동일하게)
+    const w = item.offsetWidth;
+    const centerX = (boxRect.left - stageRect.left) + (boxRect.width - w) / 2;
+    item.style.left = `${centerX}px`;
 
-  for (let i = boxItems.length - 1; i >= 0; i--) {
-    const item = boxItems[i];
-    const bottom = item.offsetTop + item.offsetHeight;
-    if (bottom > maxBottom) {
-      item.style.top = `${maxBottom - item.offsetHeight}px`;
-    }
+    prevBottom = idealY + item.offsetHeight + GAP;
+  });
+
+  // ✅ 박스 아래쪽 넘김 방지 (모두 위로 재정렬)
+  const maxBottom = boxRect.bottom - stageRect.top;
+  const last = boxItems[boxItems.length - 1];
+  if (!last) return;
+
+  const bottom = last.offsetTop + last.offsetHeight;
+  if (bottom > maxBottom) {
+    const diff = bottom - maxBottom;
+    boxItems.forEach(i => {
+      i.style.top = `${i.offsetTop - diff}px`;
+    });
   }
 }
-
-
-
 
   function onMouseUp() {
   if (!dragged) return;
@@ -248,26 +245,23 @@ function updateBoxLayout(targetImg) {
     rect.bottom > boxRect.top &&
     rect.top < boxRect.bottom;
 
-  if (inside) {
-    img.dataset.inBox = "true";
+if (inside) {
+  img.dataset.inBox = "true";
 
-    const nx = boxRect.left - stageRect.left + 10;
-    const ny = y;
+  // ✅ Y만 적용
+  img.style.top = y + "px";
 
-    img.style.left = nx + "px";
-    img.style.top = ny + "px";
+  if (!boxItems.includes(img)) boxItems.push(img);
 
-    if (!boxItems.includes(img)) boxItems.push(img);
+  updateBoxLayout(img);
+} else {
+  img.dataset.inBox = "false";
+  img.style.left = originalX + "px";
+  img.style.top = originalY + "px";
 
-    updateBoxLayout(img);
-  } else {
-    img.dataset.inBox = "false";
-    img.style.left = originalX + "px";
-    img.style.top = originalY + "px";
-
-    const idx = boxItems.indexOf(img);
-    if (idx >= 0) boxItems.splice(idx, 1);
-  }
+  const idx = boxItems.indexOf(img);
+  if (idx >= 0) boxItems.splice(idx, 1);
+}
 
   img.classList.remove("dragging");
   dragged = null;
