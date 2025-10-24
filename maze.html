@@ -341,9 +341,18 @@ function drawLine(x, y, dir) {
 // 🟡 알파벳 수집 함수
 function collectLetter(x, y) {
     const letter = letters.find(l => l.x === x && l.y === y);
-    if (letter && !collectedLetters.includes(letter.char)) {
-        collectedLetters.push(letter.char);
-        collectedDisplay.textContent = 'Collected: ' + collectedLetters.join(' ');
+    if (!letter) return;
+
+    // 이미 해당 좌표에서 수집한 적이 있는지 검사
+    const alreadyCollected = collectedLetters.some(
+        collected => collected.x === x && collected.y === y
+    );
+
+    if (!alreadyCollected) {
+        collectedLetters.push({ x, y, char: letter.char });
+        // 표시용으로 글자만 추출
+        const chars = collectedLetters.map(l => l.char);
+        collectedDisplay.textContent = 'Collected: ' + chars.join(' ');
     }
 }
 
