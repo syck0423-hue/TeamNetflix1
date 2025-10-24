@@ -1,14 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Overlay</title>
+    <title>미로 게임</title>
     <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #d3d3d3;
+        }
         .container {
             position: relative;
-            width: 926px; /* Adjust based on image size */
-            height: 574px; /* Adjust based on image size */
+            width: 926px;
+            height: 574px;
         }
         .bg-image {
             position: absolute;
@@ -24,6 +32,13 @@
             width: 100%;
             height: 100%;
         }
+        .character {
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background-image: url('/mnt/data/mouse.png');
+            background-size: cover;
+        }
     </style>
 </head>
 <body>
@@ -31,7 +46,53 @@
 <div class="container">
     <img src="img/maze/bg.png" class="bg-image">
     <img src="img/maze/wall.png" class="overlay-image">
+    <div class="character" id="character"></div>
 </div>
+
+<script>
+    const character = document.getElementById('character');
+    const container = document.querySelector('.container');
+    const walls = document.querySelector('.overlay-image');
+
+    let characterPos = { x: 0, y: 0 };
+
+    // 캐릭터의 위치 설정
+    function setPosition(x, y) {
+        character.style.left = `${x}px`;
+        character.style.top = `${y}px`;
+        characterPos = { x, y };
+    }
+
+    // 키 입력에 따라 캐릭터 이동
+    function moveCharacter(e) {
+        const step = 22; // 캐릭터 이동 크기 (한 칸의 크기)
+        let newX = characterPos.x;
+        let newY = characterPos.y;
+
+        if (e.key === 'w') newY -= step;
+        if (e.key === 's') newY += step;
+        if (e.key === 'a') newX -= step;
+        if (e.key === 'd') newX += step;
+
+        // 새로운 위치가 벽에 닿지 않는지 체크
+        if (isValidMove(newX, newY)) {
+            setPosition(newX, newY);
+        }
+    }
+
+    // 새로운 위치가 벽과 충돌하는지 체크
+    function isValidMove(x, y) {
+        // 벽과 충돌하는지 확인하는 로직을 구현해야 합니다.
+        // 간단히 벽을 체크할 수 있도록 할 수 있습니다.
+        return true;
+    }
+
+    // 키보드 이벤트 리스너 추가
+    window.addEventListener('keydown', moveCharacter);
+
+    // 게임 시작 시 캐릭터 초기 위치 설정
+    setPosition(0, 0);
+</script>
 
 </body>
 </html>
