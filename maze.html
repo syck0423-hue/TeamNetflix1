@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>지금수정4</title>
+    <title>미로 게임</title>
     <style>
         body {
             margin: 0;
@@ -66,8 +66,8 @@
         ctx.drawImage(wallImage, 0, 0);
         // 게임 시작 시 초기 위치 설정
         const startX = (canvas.width - 22) / 2;  // canvas 크기에서 캐릭터 크기를 빼고 중앙으로 배치
-const startY = 128;
-setPosition(startX, startY);
+        const startY = 128;  // 상단 중앙에서 약간 내려와서 시작
+        setPosition(startX, startY);
     }
 
     // 캐릭터 위치 설정 함수
@@ -79,10 +79,23 @@ setPosition(startX, startY);
 
     // 벽과 충돌하는지 확인하는 함수
     function isValidMove(x, y) {
-        // 픽셀 데이터를 가져옴
-        const pixel = ctx.getImageData(x, y, 1, 1).data;
-        // 벽은 검정색(0, 0, 0)으로 가정
-        return pixel[0] !== 0 || pixel[1] !== 0 || pixel[2] !== 0;
+        const startX = x;
+        const startY = y;
+        const width = step; // 캐릭터 크기
+        const height = step;
+
+        // 캐릭터 영역 내 모든 픽셀을 검사
+        const imageData = ctx.getImageData(startX, startY, width, height);
+        const data = imageData.data;
+
+        // 이미지의 각 픽셀을 검사
+        for (let i = 0; i < data.length; i += 4) {
+            // 픽셀의 R, G, B 값이 모두 0이라면 벽이라고 간주 (검정색)
+            if (data[i] === 0 && data[i + 1] === 0 && data[i + 2] === 0) {
+                return false;  // 벽에 닿은 경우
+            }
+        }
+        return true;  // 벽에 닿지 않은 경우
     }
 
     // 캐릭터 이동 함수
