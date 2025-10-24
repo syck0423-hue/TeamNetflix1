@@ -28,7 +28,7 @@
         }
         .grid {
             position: absolute;
-            top: 115px;
+            top: 114px;
             left: 258px;
             display: grid;
             grid-template-columns: repeat(10, 41px); /* 10 칸, 각 칸은 41px */
@@ -122,38 +122,40 @@
     ];
 
     // 그리드 생성 함수
-    function generateGrid() {
-        maze.forEach(row => {
-            row.forEach(cell => {
-                const cellDiv = document.createElement('div');
-                cellDiv.classList.add('cell');
+    // ✅ 이 부분부터 전부 교체!
+function generateGrid() {
+    maze.forEach((row, y) => {
+        row.forEach((cell, x) => {
+            const cellDiv = document.createElement('div');
+            cellDiv.classList.add('cell');
 
-                // 벽에 따라 각 방향의 벽을 추가
-                if (cell[0] === 1) {
-                    const topWall = document.createElement('div');
-                    topWall.classList.add('wall', 'top-wall');
-                    cellDiv.appendChild(topWall);
-                }
-                if (cell[1] === 1) {
-                    const rightWall = document.createElement('div');
-                    rightWall.classList.add('wall', 'right-wall');
-                    cellDiv.appendChild(rightWall);
-                }
-                if (cell[2] === 1) {
-                    const bottomWall = document.createElement('div');
-                    bottomWall.classList.add('wall', 'bottom-wall');
-                    cellDiv.appendChild(bottomWall);
-                }
-                if (cell[3] === 1) {
-                    const leftWall = document.createElement('div');
-                    leftWall.classList.add('wall', 'left-wall');
-                    cellDiv.appendChild(leftWall);
-                }
+            // 중앙 4칸 막기
+            if (
+                (x === 4 && y === 4) ||
+                (x === 5 && y === 4) ||
+                (x === 4 && y === 5) ||
+                (x === 5 && y === 5)
+            ) {
+                cellDiv.style.backgroundColor = "black";
+                cellDiv.style.pointerEvents = "none";
+            }
 
-                gridContainer.appendChild(cellDiv);
-            });
+            if (cell[0] === 1) addWall(cellDiv, 'top-wall');
+            if (cell[1] === 1) addWall(cellDiv, 'right-wall');
+            if (cell[2] === 1) addWall(cellDiv, 'bottom-wall');
+            if (cell[3] === 1) addWall(cellDiv, 'left-wall');
+
+            gridContainer.appendChild(cellDiv);
         });
-    }
+    });
+}
+
+function addWall(cellDiv, direction) {
+    const wall = document.createElement('div');
+    wall.classList.add('wall', direction);
+    cellDiv.appendChild(wall);
+}
+
 
     // 그리드 생성
     generateGrid();
