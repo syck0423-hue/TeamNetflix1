@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Overlay</title>
+    <title>미로</title>
     <style>
         body {
             margin: 0;
@@ -11,20 +11,39 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #f0f0f0; /* 배경색 추가 */
+            background-color: #f0f0f0;
         }
         .container {
             position: relative;
-            width: 926px; /* 이미지 크기에 맞게 조정 */
-            height: 574px; /* 이미지 크기에 맞게 조정 */
+            width: 412px; /* 미로 크기 */
+            height: 412px; /* 미로 크기 */
         }
         .bg-image {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%); /* 이미지를 중앙으로 정렬 */
-            width: 100%; /* 이미지가 부모 크기에 맞게 조정됨 */
-            height: 100%; /* 이미지가 부모 크기에 맞게 조정됨 */
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+        }
+        .grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: grid;
+            grid-template-columns: repeat(41, 10px); /* 41 칸 */
+            grid-template-rows: repeat(41, 10px); /* 41 칸 */
+            gap: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .cell {
+            width: 10px;
+            height: 10px;
+            background-color: white; /* 기본적으로 빈 공간 */
+        }
+        .wall {
+            background-color: black; /* 벽 */
         }
     </style>
 </head>
@@ -32,7 +51,45 @@
 
 <div class="container">
     <img src="img/maze/back.png" class="bg-image">
+    <div class="grid" id="grid"></div>
 </div>
+
+<script>
+    const gridContainer = document.getElementById('grid');
+    
+    // 미로 그리드 정의 (1: 벽, 0: 빈 공간)
+    const maze = [
+        // 예시로 벽과 빈 공간을 배열로 정의 (1: 벽, 0: 빈 공간)
+        // 실제 미로는 배열을 통해 정의
+        // 예시로 5x5 미로
+        // 벽과 빈 공간을 여기서 설정할 수 있습니다
+        // 각 값은 0 (빈 공간) 또는 1 (벽) 입니다
+        // 미로의 크기를 41x41로 확장할 수 있습니다.
+        Array(41).fill(0), // 첫 번째 줄은 빈 공간
+        Array(41).fill(1), // 두 번째 줄은 벽
+        Array(41).fill(0), // 세 번째 줄은 빈 공간
+        Array(41).fill(1), // 네 번째 줄은 벽
+        Array(41).fill(0), // 다섯 번째 줄은 빈 공간
+        // 미로의 나머지 배열을 추가로 생성해야 합니다.
+    ];
+
+    // 그리드 생성 함수
+    function generateGrid() {
+        maze.forEach(row => {
+            row.forEach(cell => {
+                const cellDiv = document.createElement('div');
+                cellDiv.classList.add('cell');
+                if (cell === 1) {
+                    cellDiv.classList.add('wall'); // 벽은 wall 클래스 추가
+                }
+                gridContainer.appendChild(cellDiv);
+            });
+        });
+    }
+
+    // 그리드 생성
+    generateGrid();
+</script>
 
 </body>
 </html>
