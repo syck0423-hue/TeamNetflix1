@@ -32,18 +32,25 @@
             left: 50%;
             transform: translateX(-50%); /* 정확히 중앙에 위치 */
             display: grid;
-            grid-template-columns: repeat(11, 37px); /* 11 칸, 각 칸은 37px */
-            grid-template-rows: repeat(11, 37px); /* 11 칸, 각 칸은 37px */
+            grid-template-columns: repeat(21, 30px); /* 21 칸, 각 칸은 30px */
+            grid-template-rows: repeat(21, 30px); /* 21 칸, 각 칸은 30px */
             gap: 0;
-            width: 412px; /* 미로판 크기 (11 * 37px) */
-            height: 412px; /* 미로판 크기 (11 * 37px) */
+            width: 630px; /* 미로판 크기 (21 * 30px) */
+            height: 630px; /* 미로판 크기 (21 * 30px) */
         }
         .cell {
-            width: 37px;
-            height: 37px;
+            width: 30px;
+            height: 30px;
             background-color: white; /* 기본적으로 빈 공간 */
         }
-        .wall {
+        .vertical-wall {
+            width: 10px; /* 세로 벽 */
+            height: 41px;
+            background-color: black; /* 벽 */
+        }
+        .horizontal-wall {
+            width: 41px; /* 가로 벽 */
+            height: 10px;
             background-color: black; /* 벽 */
         }
     </style>
@@ -58,19 +65,19 @@
 <script>
     const gridContainer = document.getElementById('grid');
     
-    // 미로 그리드 정의 (1: 벽, 0: 빈 공간)
+    // 미로 그리드 정의 (1: 세로 벽, 2: 가로 벽, 0: 빈 공간)
     const maze = [
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1],
-        [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-        [1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1],
-        [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-        [1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1],
-        [1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1],
-        [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1],
-        [1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1],
-        [1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        [2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 2, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1],
+        [1, 0, 0, 2, 0, 2, 0, 1, 0, 0, 2, 0, 2, 0, 0, 0, 1, 0, 0, 1, 2],
+        [1, 0, 1, 1, 0, 2, 0, 1, 1, 0, 1, 0, 2, 1, 1, 1, 1, 0, 1, 0, 1],
+        [1, 0, 1, 0, 2, 2, 1, 0, 1, 0, 1, 0, 1, 2, 1, 0, 2, 0, 0, 1, 1],
+        [1, 0, 1, 2, 0, 1, 0, 1, 1, 0, 1, 0, 1, 2, 1, 1, 1, 1, 0, 1, 1],
+        [1, 0, 0, 1, 0, 2, 0, 1, 0, 1, 2, 0, 1, 0, 0, 1, 2, 0, 1, 0, 1],
+        [1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 2, 1, 1, 1, 0, 1, 1, 0, 1],
+        [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 2, 0, 0, 1, 0, 0, 1, 2, 0, 1],
+        [1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 2, 1, 0, 0, 1],
+        [1, 0, 0, 1, 0, 2, 0, 0, 1, 0, 0, 2, 0, 1, 1, 1, 1, 0, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
     ];
 
     // 그리드 생성 함수
@@ -79,9 +86,13 @@
             row.forEach(cell => {
                 const cellDiv = document.createElement('div');
                 cellDiv.classList.add('cell');
+                
                 if (cell === 1) {
-                    cellDiv.classList.add('wall'); // 벽은 wall 클래스 추가
+                    cellDiv.classList.add('vertical-wall'); // 세로 벽
+                } else if (cell === 2) {
+                    cellDiv.classList.add('horizontal-wall'); // 가로 벽
                 }
+                
                 gridContainer.appendChild(cellDiv);
             });
         });
