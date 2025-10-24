@@ -221,18 +221,20 @@ function canMove(newX, newY, dir) {
 document.addEventListener('keydown', (e) => {
   let nx = mouseX;
   let ny = mouseY;
+  let dir = null;
 
-  if (e.key === 'ArrowUp' || e.key === 'w') ny--;
-  if (e.key === 'ArrowDown' || e.key === 's') ny++;
-  if (e.key === 'ArrowLeft' || e.key === 'a') nx--;
-  if (e.key === 'ArrowRight' || e.key === 'd') nx++;
+  if (e.key === 'ArrowUp' || e.key === 'w') { ny--; dir = 'up'; }
+  if (e.key === 'ArrowDown' || e.key === 's') { ny++; dir = 'down'; }
+  if (e.key === 'ArrowLeft' || e.key === 'a') { nx--; dir = 'left'; }
+  if (e.key === 'ArrowRight' || e.key === 'd') { nx++; dir = 'right'; }
 
-  if (canMove(nx, ny)) {
+  if (dir && canMove(nx, ny, dir)) {
     mouseX = nx;
     mouseY = ny;
     updateMousePosition();
   }
 });
+
 
     // 그리드 생성
     generateGrid();
