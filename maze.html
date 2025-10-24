@@ -92,9 +92,12 @@
             position: absolute;
             top: 15px;
             right: 25px;
-            font-size: 28px;
+            width : 340px;
+            height : 100px;
+            font-size: 20px;
             color: #2b2b2b;
             font-family: 'PixelFont';
+            text-align : center;
         }
     </style>
 </head>
@@ -103,7 +106,7 @@
 <div class="container">
     <img src="img/maze/bg.gif" class="bg-image">
     <div class="grid" id="grid"></div>
-    <div class="collected" id="collected">Collected: </div>
+    <div class="collected" id="collected"></div>
 </div>
 
 <script>
@@ -352,7 +355,7 @@ function collectLetter(x, y) {
         collectedLetters.push({ x, y, char: letter.char });
         // 표시용으로 글자만 추출
         const chars = collectedLetters.map(l => l.char);
-        collectedDisplay.textContent = 'Collected: ' + chars.join(' ');
+        collectedDisplay.textContent = chars.join(' ');
     }
 }
 
