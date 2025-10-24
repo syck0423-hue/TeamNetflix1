@@ -112,6 +112,18 @@
             z-index:12;
             pointer-events:none;
         }
+        .retry-button{
+            position : absolute;
+            bottom : 20px;
+            right : 20px;
+            width : 160px;
+            height : 132px;
+            cursor : pointer;
+            z-index : 20;
+        }
+        .retry-button:hover{
+            content: url('img/maze/RETRY_PRESS1.png');
+        }
     </style>
 </head>
 <body>
@@ -119,8 +131,9 @@
 <div class="container">
     <img src="img/maze/background.gif" class="bg-image">
     <div class="grid" id="grid"></div>
-    <img src = "img/maze/maze.png" class="maze-overlay">
+    <img src="img/maze/maze.png" class="maze-overlay">
     <div class="collected" id="collected"></div>
+    <img src="img/maze/RETRY_ORI1.png" class="retry-button" id="retryButton">
 </div>
 
 <script>
@@ -375,6 +388,23 @@ function collectLetter(x, y) {
 
 // 그리드 생성
 generateGrid();
+    const retryButton = document.getElementById('retryButton');
+
+retryButton.addEventListener('click', () => {
+    // 1. 모든 path-line 제거
+    document.querySelectorAll('.path-line').forEach(line => line.remove());
+
+    // 2. 마우스 위치 초기화
+    mouseX = 4;
+    mouseY = 0;
+    updateMousePosition();
+
+    // 3. 수집된 알파벳 초기화
+    collectedLetters = [];
+    collectedDisplay.textContent = "";
+
+    // (선택) 효과음이나 시각적 피드백을 주고 싶다면 여기 추가 가능
+});
 </script>
 
 </body>
