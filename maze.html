@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>미로</title>
     <style>
+        @font-face {
+            font-family: 'PixelFont';
+            src: url('font/2DAMHAE pixel NEW.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
         body {
             margin: 0;
             height: 100vh;
@@ -207,19 +213,22 @@
             if (cell[3] === 1) addWall(cellDiv, 'left-wall');
 
             // 🔠 알파벳 추가
-            const letter = letters.find(l => l.x === x && l.y === y);
-            if (letter) {
-                const span = document.createElement('span');
-                span.textContent = letter.char;
-                span.style.position = 'absolute';
-                span.style.top = '50%';
-                span.style.left = '50%';
-                span.style.transform = 'translate(-50%, -50%)';
-                span.style.fontWeight = 'bold';
-                span.style.fontSize = '18px';
-                span.style.color = '#333';
-                cellDiv.appendChild(span);
-            }
+            // 알파벳 추가
+const letter = letters.find(l => l.x === x && l.y === y);
+if (letter) {
+    const span = document.createElement('span');
+    span.textContent = letter.char;
+    span.style.position = 'absolute';
+    span.style.top = '50%';
+    span.style.left = '50%';
+    span.style.transform = 'translate(-50%, -50%)';
+    span.style.fontWeight = 'bold';
+    span.style.fontSize = '24px';
+    span.style.color = '#FFC900';
+    span.style.fontFamily = 'PixelFont'; // 👈 커스텀 폰트 적용
+    cellDiv.appendChild(span);
+}
+
 
             gridContainer.appendChild(cellDiv);
         });
