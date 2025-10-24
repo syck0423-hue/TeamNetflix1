@@ -171,7 +171,7 @@ mouse.classList.add('mouse');
 gridContainer.appendChild(mouse);
 
 // 시작 위치 (칸 기준)
-let mouseX = 0; // 0열
+let mouseX = 4; // 0열
 let mouseY = 0; // 0행
 
 // 한 칸 크기
@@ -187,12 +187,14 @@ function updateMousePosition() {
 updateMousePosition();
 
 // 이동 가능 여부 (벽 체크)
-function canMove(newX, newY) {
+function canMove(newX, newY, dir) {
+
+  // 범위 체크
   if (newX < 0 || newY < 0 || newY >= maze.length || newX >= maze[0].length) {
     return false;
   }
 
-  // 중앙 4칸은 막힘 처리
+  // 중앙 블록 체크
   if (
     (newX === 4 && newY === 4) ||
     (newX === 5 && newY === 4) ||
@@ -202,8 +204,18 @@ function canMove(newX, newY) {
     return false;
   }
 
-  return true; // 길이면 이동
+  const curCell = maze[mouseY][mouseX]; // 현재 위치
+  const nextCell = maze[newY][newX];    // 이동할 위치
+
+  // 방향별 벽 체크
+  if (dir === 'up')    return curCell[0] === 0 && nextCell[2] === 0;
+  if (dir === 'right') return curCell[1] === 0 && nextCell[3] === 0;
+  if (dir === 'down')  return curCell[2] === 0 && nextCell[0] === 0;
+  if (dir === 'left')  return curCell[3] === 0 && nextCell[1] === 0;
+
+  return false;
 }
+
 
 // 키보드 이동
 document.addEventListener('keydown', (e) => {
