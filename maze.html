@@ -71,6 +71,14 @@
             top: 0;
             right: 0;
         }
+        .mouse {
+            width: 22px;
+            height: 22px;
+            position: absolute;
+            z-index: 10;
+            pointer-events: none;
+        }
+
     </style>
 </head>
 <body>
@@ -156,6 +164,63 @@ function addWall(cellDiv, direction) {
     cellDiv.appendChild(wall);
 }
 
+    // 캐릭터 이미지 생성
+const mouse = document.createElement('img');
+mouse.src = 'img/maze/mouse.png';
+mouse.classList.add('mouse');
+gridContainer.appendChild(mouse);
+
+// 시작 위치 (칸 기준)
+let mouseX = 0; // 0열
+let mouseY = 0; // 0행
+
+// 한 칸 크기
+const CELL_SIZE = 41;
+
+// 마우스 위치 화면에 반영
+function updateMousePosition() {
+  // 중앙 정렬 → (41 - 22) / 2 = 9.5px
+  mouse.style.left = (mouseX * CELL_SIZE + 9.5) + 'px';
+  mouse.style.top = (mouseY * CELL_SIZE + 9.5) + 'px';
+}
+
+updateMousePosition();
+
+// 이동 가능 여부 (벽 체크)
+function canMove(newX, newY) {
+  if (newX < 0 || newY < 0 || newY >= maze.length || newX >= maze[0].length) {
+    return false;
+  }
+
+  // 중앙 4칸은 막힘 처리
+  if (
+    (newX === 4 && newY === 4) ||
+    (newX === 5 && newY === 4) ||
+    (newX === 4 && newY === 5) ||
+    (newX === 5 && newY === 5)
+  ) {
+    return false;
+  }
+
+  return true; // 길이면 이동
+}
+
+// 키보드 이동
+document.addEventListener('keydown', (e) => {
+  let nx = mouseX;
+  let ny = mouseY;
+
+  if (e.key === 'ArrowUp' || e.key === 'w') ny--;
+  if (e.key === 'ArrowDown' || e.key === 's') ny++;
+  if (e.key === 'ArrowLeft' || e.key === 'a') nx--;
+  if (e.key === 'ArrowRight' || e.key === 'd') nx++;
+
+  if (canMove(nx, ny)) {
+    mouseX = nx;
+    mouseY = ny;
+    updateMousePosition();
+  }
+});
 
     // 그리드 생성
     generateGrid();
