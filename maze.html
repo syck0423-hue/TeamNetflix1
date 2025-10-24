@@ -28,7 +28,7 @@
         }
         .grid {
             position: absolute;
-            top: 120px;
+            top: 130px;
             left: 255px;
             display: grid;
             grid-template-columns: repeat(10, 41px); /* 10 칸, 각 칸은 41px */
@@ -82,6 +82,7 @@
             position: absolute;
             background-color: #DF9696;
             z-index: 5;
+            border-radius: 5px; /* 둥글게 설정 */
         }
 
     </style>
@@ -98,10 +99,6 @@
     
     // 미로 그리드 정의 (1: 벽, 0: 빈 공간)
     const maze = [
-        // 각 칸에 대해 테두리 벽을 설정 (테두리 방향을 배열로 설정)
-        // 예시: [위, 오른쪽, 아래, 왼쪽] 순으로 벽을 설정
-        // 1 = 벽, 0 = 빈 공간
-        // 각 칸마다 벽을 설정 (상, 우, 하, 좌)
         [
             [1, 0, 0, 1], [1, 0, 0, 0], [1, 0, 1, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 1, 0, 0], [1, 0, 0, 0], [1, 0, 1, 0], [1, 1, 0, 0]
         ],
@@ -134,149 +131,143 @@
         ]
     ];
 
+    // 선 두께 설정 (한 번만 설정)
+    const LINE_THICKNESS = 6; // 원하는 두께 설정
+
     // 그리드 생성 함수
-    // ✅ 이 부분부터 전부 교체!
-function generateGrid() {
-    maze.forEach((row, y) => {
-        row.forEach((cell, x) => {
-            const cellDiv = document.createElement('div');
-            cellDiv.classList.add('cell');
+    function generateGrid() {
+        maze.forEach((row, y) => {
+            row.forEach((cell, x) => {
+                const cellDiv = document.createElement('div');
+                cellDiv.classList.add('cell');
 
-            // 중앙 4칸 막기
-            if (
-                (x === 4 && y === 4) ||
-                (x === 5 && y === 4) ||
-                (x === 4 && y === 5) ||
-                (x === 5 && y === 5)
-            ) {
-                cellDiv.style.backgroundColor = "black";
-                cellDiv.style.pointerEvents = "none";
-            }
+                // 중앙 4칸 막기
+                if (
+                    (x === 4 && y === 4) ||
+                    (x === 5 && y === 4) ||
+                    (x === 4 && y === 5) ||
+                    (x === 5 && y === 5)
+                ) {
+                    cellDiv.style.backgroundColor = "black";
+                    cellDiv.style.pointerEvents = "none";
+                }
 
-            if (cell[0] === 1) addWall(cellDiv, 'top-wall');
-            if (cell[1] === 1) addWall(cellDiv, 'right-wall');
-            if (cell[2] === 1) addWall(cellDiv, 'bottom-wall');
-            if (cell[3] === 1) addWall(cellDiv, 'left-wall');
+                if (cell[0] === 1) addWall(cellDiv, 'top-wall');
+                if (cell[1] === 1) addWall(cellDiv, 'right-wall');
+                if (cell[2] === 1) addWall(cellDiv, 'bottom-wall');
+                if (cell[3] === 1) addWall(cellDiv, 'left-wall');
 
-            gridContainer.appendChild(cellDiv);
+                gridContainer.appendChild(cellDiv);
+            });
         });
-    });
-}
+    }
 
-function addWall(cellDiv, direction) {
-    const wall = document.createElement('div');
-    wall.classList.add('wall', direction);
-    cellDiv.appendChild(wall);
-}
+    function addWall(cellDiv, direction) {
+        const wall = document.createElement('div');
+        wall.classList.add('wall', direction);
+        cellDiv.appendChild(wall);
+    }
 
     // 캐릭터 이미지 생성
-const mouse = document.createElement('img');
-mouse.src = 'img/maze/mouse.png';
-mouse.classList.add('mouse');
-gridContainer.appendChild(mouse);
+    const mouse = document.createElement('img');
+    mouse.src = 'img/maze/mouse.png';
+    mouse.classList.add('mouse');
+    gridContainer.appendChild(mouse);
 
-// 시작 위치 (칸 기준)
-let mouseX = 4; // 0열
-let mouseY = 0; // 0행
+    // 시작 위치 (칸 기준)
+    let mouseX = 4; // 0열
+    let mouseY = 0; // 0행
 
-// 한 칸 크기
-const CELL_SIZE = 41;
+    // 한 칸 크기
+    const CELL_SIZE = 41;
 
-// 마우스 위치 화면에 반영
-function updateMousePosition() {
-  // 중앙 정렬 → (41 - 22) / 2 = 9.5px
-  mouse.style.left = (mouseX * CELL_SIZE + 9.5) + 'px';
-  mouse.style.top = (mouseY * CELL_SIZE + 9.5) + 'px';
-}
+    // 마우스 위치 화면에 반영
+    function updateMousePosition() {
+        mouse.style.left = (mouseX * CELL_SIZE + 9.5) + 'px';
+        mouse.style.top = (mouseY * CELL_SIZE + 9.5) + 'px';
+    }
 
-updateMousePosition();
-
-// 이동 가능 여부 (벽 체크)
-function canMove(newX, newY, dir) {
-
-  // 범위 체크
-  if (newX < 0 || newY < 0 || newY >= maze.length || newX >= maze[0].length) {
-    return false;
-  }
-
-  // 중앙 블록 체크
-  if (
-    (newX === 4 && newY === 4) ||
-    (newX === 5 && newY === 4) ||
-    (newX === 4 && newY === 5) ||
-    (newX === 5 && newY === 5)
-  ) {
-    return false;
-  }
-
-  const curCell = maze[mouseY][mouseX]; // 현재 위치
-  const nextCell = maze[newY][newX];    // 이동할 위치
-
-  // 방향별 벽 체크
-  if (dir === 'up')    return curCell[0] === 0 && nextCell[2] === 0;
-  if (dir === 'right') return curCell[1] === 0 && nextCell[3] === 0;
-  if (dir === 'down')  return curCell[2] === 0 && nextCell[0] === 0;
-  if (dir === 'left')  return curCell[3] === 0 && nextCell[1] === 0;
-
-  return false;
-}
-
-
-// 키보드 이동
-document.addEventListener('keydown', (e) => {
-  let nx = mouseX;
-  let ny = mouseY;
-  let dir = null;
-
-  if (e.key === 'ArrowUp' || e.key === 'w') { ny--; dir = 'up'; }
-  if (e.key === 'ArrowDown' || e.key === 's') { ny++; dir = 'down'; }
-  if (e.key === 'ArrowLeft' || e.key === 'a') { nx--; dir = 'left'; }
-  if (e.key === 'ArrowRight' || e.key === 'd') { nx++; dir = 'right'; }
-
-  if (dir && canMove(nx, ny, dir)) {
-    drawLine(mouseX, mouseY, dir); // ✅ 이동 전에 실행!
-    mouseX = nx;
-    mouseY = ny;
     updateMousePosition();
-}
 
-});
+    // 이동 가능 여부 (벽 체크)
+    function canMove(newX, newY, dir) {
+        if (newX < 0 || newY < 0 || newY >= maze.length || newX >= maze[0].length) {
+            return false;
+        }
 
-function drawLine(x, y, dir) {
-    const line = document.createElement('div');
-    line.classList.add('path-line');
+        if (
+            (newX === 4 && newY === 4) ||
+            (newX === 5 && newY === 4) ||
+            (newX === 4 && newY === 5) ||
+            (newX === 5 && newY === 5)
+        ) {
+            return false;
+        }
 
-    const startX = x * CELL_SIZE + 19.5; // ✅ 현재 칸 중앙 X
-    const startY = y * CELL_SIZE + 19.5; // ✅ 현재 칸 중앙 Y
+        const curCell = maze[mouseY][mouseX]; // 현재 위치
+        const nextCell = maze[newY][newX];    // 이동할 위치
 
-    if (dir === 'up') {
-        line.style.width = "2px";
-        line.style.height = CELL_SIZE + "px";
-        line.style.left = startX + "px";
-        line.style.top = (startY - CELL_SIZE) + "px";
-    }
-    if (dir === 'down') {
-        line.style.width = "2px";
-        line.style.height = CELL_SIZE + "px";
-        line.style.left = startX + "px";
-        line.style.top = startY + "px";
-    }
-    if (dir === 'left') {
-        line.style.width = CELL_SIZE + "px";
-        line.style.height = "2px";
-        line.style.left = (startX - CELL_SIZE) + "px";
-        line.style.top = startY + "px";
-    }
-    if (dir === 'right') {
-        line.style.width = CELL_SIZE + "px";
-        line.style.height = "2px";
-        line.style.left = startX + "px";
-        line.style.top = startY + "px";
+        if (dir === 'up')    return curCell[0] === 0 && nextCell[2] === 0;
+        if (dir === 'right') return curCell[1] === 0 && nextCell[3] === 0;
+        if (dir === 'down')  return curCell[2] === 0 && nextCell[0] === 0;
+        if (dir === 'left')  return curCell[3] === 0 && nextCell[1] === 0;
+
+        return false;
     }
 
-    gridContainer.appendChild(line);
-}
+    // 키보드 이동
+    document.addEventListener('keydown', (e) => {
+        let nx = mouseX;
+        let ny = mouseY;
+        let dir = null;
 
+        if (e.key === 'ArrowUp' || e.key === 'w') { ny--; dir = 'up'; }
+        if (e.key === 'ArrowDown' || e.key === 's') { ny++; dir = 'down'; }
+        if (e.key === 'ArrowLeft' || e.key === 'a') { nx--; dir = 'left'; }
+        if (e.key === 'ArrowRight' || e.key === 'd') { nx++; dir = 'right'; }
+
+        if (dir && canMove(nx, ny, dir)) {
+            drawLine(mouseX, mouseY, dir);
+            mouseX = nx;
+            mouseY = ny;
+            updateMousePosition();
+        }
+    });
+
+    function drawLine(x, y, dir) {
+        const line = document.createElement('div');
+        line.classList.add('path-line');
+
+        const startX = x * CELL_SIZE + 19.5; // 현재 칸 중앙 X
+        const startY = y * CELL_SIZE + 19.5; // 현재 칸 중앙 Y
+
+        if (dir === 'up') {
+            line.style.width = LINE_THICKNESS + "px";
+            line.style.height = CELL_SIZE + "px";
+            line.style.left = startX + "px";
+            line.style.top = (startY - CELL_SIZE) + "px";
+        }
+        if (dir === 'down') {
+            line.style.width = LINE_THICKNESS + "px";
+            line.style.height = CELL_SIZE + "px";
+            line.style.left = startX + "px";
+            line.style.top = startY + "px";
+        }
+        if (dir === 'left') {
+            line.style.width = CELL_SIZE + "px";
+            line.style.height = LINE_THICKNESS + "px";
+            line.style.left = (startX - CELL_SIZE) + "px";
+            line.style.top = startY + "px";
+        }
+        if (dir === 'right') {
+            line.style.width = CELL_SIZE + "px";
+            line.style.height = LINE_THICKNESS + "px";
+            line.style.left = startX + "px";
+            line.style.top = startY + "px";
+        }
+
+        gridContainer.appendChild(line);
+    }
 
     // 그리드 생성
     generateGrid();
