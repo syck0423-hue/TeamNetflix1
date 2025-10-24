@@ -133,33 +133,99 @@
     // 선 두께 설정 (한 번만 설정)
     const LINE_THICKNESS = 6; // 원하는 두께 설정
 
+    const letters = [
+    { x: 0, y: 1, char: "C" },
+    { x: 0, y: 2, char: "A" },
+    { x: 0, y: 3, char: "T" },
+    { x: 0, y: 6, char: "H" },
+    { x: 0, y: 7, char: "O" },
+    { x: 0, y: 8, char: "T" },
+    { x: 1, y: 7, char: "K" },
+    { x: 2, y: 0, char: "B" },
+    { x: 2, y: 1, char: "E" },
+    { x: 2, y: 3, char: "H" },
+    { x: 2, y: 4, char: "E" },
+    { x: 2, y: 5, char: "A" },
+    { x: 2, y: 6, char: "T" },
+    { x: 2, y: 8, char: "N" },
+    { x: 2, y: 9, char: "O" },
+    { x: 3, y: 2, char: "Q" },
+    { x: 3, y: 5, char: "G" },
+    { x: 3, y: 7, char: "J" },
+    { x: 4, y: 6, char: "O" },
+    { x: 4, y: 7, char: "V" },
+    { x: 4, y: 9, char: "E" },
+    { x: 5, y: 0, char: "C" },
+    { x: 5, y: 1, char: "L" },
+    { x: 5, y: 3, char: "A" },
+    { x: 5, y: 6, char: "R" },
+    { x: 5, y: 8, char: "I" },
+    { x: 5, y: 9, char: "T" },
+    { x: 6, y: 2, char: "W" },
+    { x: 6, y: 5, char: "D" },
+    { x: 6, y: 8, char: "F" },
+    { x: 7, y: 0, char: "N" },
+    { x: 7, y: 2, char: "E" },
+    { x: 7, y: 4, char: "V" },
+    { x: 7, y: 7, char: "E" },
+    { x: 7, y: 9, char: "R" },
+    { x: 8, y: 1, char: "P" },
+    { x: 8, y: 2, char: "O" },
+    { x: 8, y: 4, char: "I" },
+    { x: 8, y: 5, char: "S" },
+    { x: 8, y: 7, char: "O" },
+    { x: 8, y: 9, char: "N" },
+    { x: 9, y: 1, char: "B" },
+    { x: 9, y: 2, char: "A" },
+    { x: 9, y: 3, char: "B" },
+    { x: 9, y: 6, char: "Y" },
+    { x: 9, y: 8, char: "Z" }
+    ];
+
     // 그리드 생성 함수
     function generateGrid() {
-        maze.forEach((row, y) => {
-            row.forEach((cell, x) => {
-                const cellDiv = document.createElement('div');
-                cellDiv.classList.add('cell');
+    maze.forEach((row, y) => {
+        row.forEach((cell, x) => {
+            const cellDiv = document.createElement('div');
+            cellDiv.classList.add('cell');
 
-                // 중앙 4칸 막기
-                if (
-                    (x === 4 && y === 4) ||
-                    (x === 5 && y === 4) ||
-                    (x === 4 && y === 5) ||
-                    (x === 5 && y === 5)
-                ) {
-                    cellDiv.style.backgroundColor = "black";
-                    cellDiv.style.pointerEvents = "none";
-                }
+            // 중앙 4칸 막기
+            if (
+                (x === 4 && y === 4) ||
+                (x === 5 && y === 4) ||
+                (x === 4 && y === 5) ||
+                (x === 5 && y === 5)
+            ) {
+                cellDiv.style.backgroundColor = "black";
+                cellDiv.style.pointerEvents = "none";
+            }
 
-                if (cell[0] === 1) addWall(cellDiv, 'top-wall');
-                if (cell[1] === 1) addWall(cellDiv, 'right-wall');
-                if (cell[2] === 1) addWall(cellDiv, 'bottom-wall');
-                if (cell[3] === 1) addWall(cellDiv, 'left-wall');
+            // 벽 생성
+            if (cell[0] === 1) addWall(cellDiv, 'top-wall');
+            if (cell[1] === 1) addWall(cellDiv, 'right-wall');
+            if (cell[2] === 1) addWall(cellDiv, 'bottom-wall');
+            if (cell[3] === 1) addWall(cellDiv, 'left-wall');
 
-                gridContainer.appendChild(cellDiv);
-            });
+            // 🔠 알파벳 추가
+            const letter = letters.find(l => l.x === x && l.y === y);
+            if (letter) {
+                const span = document.createElement('span');
+                span.textContent = letter.char;
+                span.style.position = 'absolute';
+                span.style.top = '50%';
+                span.style.left = '50%';
+                span.style.transform = 'translate(-50%, -50%)';
+                span.style.fontWeight = 'bold';
+                span.style.fontSize = '18px';
+                span.style.color = '#333';
+                cellDiv.appendChild(span);
+            }
+
+            gridContainer.appendChild(cellDiv);
         });
-    }
+    });
+}
+
 
     function addWall(cellDiv, direction) {
         const wall = document.createElement('div');
