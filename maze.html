@@ -78,6 +78,11 @@
             z-index: 10;
             pointer-events: none;
         }
+        .path-line {
+            position: absolute;
+            background-color: #DF9696;
+            z-index: 5;
+        }
 
     </style>
 </head>
@@ -232,9 +237,41 @@ document.addEventListener('keydown', (e) => {
     mouseX = nx;
     mouseY = ny;
     updateMousePosition();
+    drawLine(mouseX, mouseY, dir);
   }
 });
 
+function drawLine(x, y, dir) {
+    const line = document.createElement('div');
+    line.classList.add('path-line');
+
+    if (dir === 'up') {
+        line.style.width = "2px";
+        line.style.height = CELL_SIZE + "px";
+        line.style.left = (x * CELL_SIZE + 19.5) + "px";
+        line.style.top = ((y + 1) * CELL_SIZE + 9.5) + "px";
+    }
+    if (dir === 'down') {
+        line.style.width = "2px";
+        line.style.height = CELL_SIZE + "px";
+        line.style.left = (x * CELL_SIZE + 19.5) + "px";
+        line.style.top = (y * CELL_SIZE + 9.5) + "px";
+    }
+    if (dir === 'left') {
+        line.style.width = CELL_SIZE + "px";
+        line.style.height = "2px";
+        line.style.left = ((x + 1) * CELL_SIZE + 9.5) + "px";
+        line.style.top = (y * CELL_SIZE + 19.5) + "px";
+    }
+    if (dir === 'right') {
+        line.style.width = CELL_SIZE + "px";
+        line.style.height = "2px";
+        line.style.left = (x * CELL_SIZE + 9.5) + "px";
+        line.style.top = (y * CELL_SIZE + 19.5) + "px";
+    }
+
+    gridContainer.appendChild(line);
+}
 
     // 그리드 생성
     generateGrid();
