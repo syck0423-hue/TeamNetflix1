@@ -234,11 +234,12 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowRight' || e.key === 'd') { nx++; dir = 'right'; }
 
   if (dir && canMove(nx, ny, dir)) {
+    drawLine(mouseX, mouseY, dir); // ✅ 이동 전에 실행!
     mouseX = nx;
     mouseY = ny;
     updateMousePosition();
-    drawLine(mouseX, mouseY, dir);
-  }
+}
+
 });
 
 function drawLine(x, y, dir) {
