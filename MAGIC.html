@@ -44,14 +44,13 @@
     transform: translateX(-50%) translateY(-160px) scale(1);
   }
 
-  /* 모자 (앞면 이미지) */
+  /* 모자 */
   .hat {
     position: absolute;
     bottom: 8px;
     left: 150px;
     width: 324px;
     height: 256px;
-    transform: none;
     z-index: 2;
     cursor: url("/TeamNetflix1/img/cur/magic.png"), auto;
     transition: filter 0.2s;
@@ -61,7 +60,7 @@
     filter: brightness(0.8);
   }
 
-  /* 모자 진동 애니메이션 */
+  /* 모자 흔들기 애니메이션 */
   @keyframes shake {
     0% { transform: translate(0, 0) rotate(0deg); }
     20% { transform: translate(-5px, 0) rotate(-2deg); }
@@ -84,24 +83,34 @@
 </div>
 
 <script>
+  // 등장 순서: 1 → 3 → 6 → 2 → 7 → 4 → 5 → 8
   const items = [
-    { src: "img/magic/1.png", prob: 12.5 },
-    { src: "img/magic/2.png", prob: 12.5 },
-    { src: "img/magic/3.png", prob: 12.5 },
-    { src: "img/magic/4.png", prob: 12.5 },
-    { src: "img/magic/5.png", prob: 12.5 },
-    { src: "img/magic/6.png", prob: 12.5 },
-    { src: "img/magic/7.png", prob: 12.5 },
-    { src: "img/magic/8.png", prob: 12.5 },
+    "img/magic/1.png",
+    "img/magic/3.png",
+    "img/magic/6.png",
+    "img/magic/2.png",
+    "img/magic/7.png",
+    "img/magic/4.png",
+    "img/magic/5.png",
+    "img/magic/8.png"
   ];
 
   const hat = document.getElementById("magic-hat");
   const item = document.getElementById("magic-item");
 
   let isAnimating = false;
+  let currentIndex = 0; // 현재 아이템 인덱스 (0~7)
 
   hat.addEventListener("click", () => {
     if (isAnimating) {
+      // 이미 애니메이션 중이면 흔들기만
+      hat.classList.add("shake");
+      setTimeout(() => hat.classList.remove("shake"), 400);
+      return;
+    }
+
+    // 이미 모든 아이템을 다 뽑았다면 흔들기만
+    if (currentIndex >= items.length) {
       hat.classList.add("shake");
       setTimeout(() => hat.classList.remove("shake"), 400);
       return;
@@ -109,37 +118,24 @@
 
     isAnimating = true;
 
-    // 랜덤 아이템 선택
-    const rand = Math.random() * 100;
-    let cumulative = 0;
-    let selected = items[0];
+    // 순서대로 아이템 등장
+    const selectedSrc = items[currentIndex];
+    currentIndex++;
 
-    for (let i = 0; i < items.length; i++) {
-      cumulative += items[i].prob;
-      if (rand <= cumulative) {
-        selected = items[i];
-        break;
-      }
-    }
-
-    // 아이템 등장
-    item.src = selected.src;
+    item.src = selectedSrc;
     item.classList.remove("show");
     void item.offsetWidth; // transition 재적용
     item.classList.add("show");
 
-    // 🕒 애니메이션 타이밍 제어
-    // 2초 동안 등장 후 사라지는 애니메이션을 기다린 다음 다시 클릭 가능하게 함
+    // 2초 후 아이템 사라짐
     setTimeout(() => {
       item.classList.remove("show");
-      // 아이템이 완전히 사라진 뒤 클릭 가능
       setTimeout(() => {
         isAnimating = false;
       }, 500); // 사라지는 트랜지션 시간
-    }, 2000); // 보여지는 시간
+    }, 2000);
   });
 </script>
-
 
 </body>
 </html>
