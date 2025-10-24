@@ -246,33 +246,37 @@ function drawLine(x, y, dir) {
     const line = document.createElement('div');
     line.classList.add('path-line');
 
+    const startX = x * CELL_SIZE + 19.5; // ✅ 현재 칸 중앙 X
+    const startY = y * CELL_SIZE + 19.5; // ✅ 현재 칸 중앙 Y
+
     if (dir === 'up') {
         line.style.width = "2px";
         line.style.height = CELL_SIZE + "px";
-        line.style.left = (x * CELL_SIZE + 19.5) + "px";
-        line.style.top = ((y + 1) * CELL_SIZE + 9.5) + "px";
+        line.style.left = startX + "px";
+        line.style.top = (startY - CELL_SIZE) + "px";
     }
     if (dir === 'down') {
         line.style.width = "2px";
         line.style.height = CELL_SIZE + "px";
-        line.style.left = (x * CELL_SIZE + 19.5) + "px";
-        line.style.top = (y * CELL_SIZE + 9.5) + "px";
+        line.style.left = startX + "px";
+        line.style.top = startY + "px";
     }
     if (dir === 'left') {
         line.style.width = CELL_SIZE + "px";
         line.style.height = "2px";
-        line.style.left = ((x + 1) * CELL_SIZE + 9.5) + "px";
-        line.style.top = (y * CELL_SIZE + 19.5) + "px";
+        line.style.left = (startX - CELL_SIZE) + "px";
+        line.style.top = startY + "px";
     }
     if (dir === 'right') {
         line.style.width = CELL_SIZE + "px";
         line.style.height = "2px";
-        line.style.left = (x * CELL_SIZE + 9.5) + "px";
-        line.style.top = (y * CELL_SIZE + 19.5) + "px";
+        line.style.left = startX + "px";
+        line.style.top = startY + "px";
     }
 
     gridContainer.appendChild(line);
 }
+
 
     // 그리드 생성
     generateGrid();
