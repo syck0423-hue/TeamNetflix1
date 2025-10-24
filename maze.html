@@ -15,8 +15,8 @@
         }
         .container {
             position: relative;
-            width: 412px; /* 미로 크기 */
-            height: 412px; /* 미로 크기 */
+            width: 926px; /* 배경 이미지 크기 */
+            height: 574px; /* 배경 이미지 크기 */
         }
         .bg-image {
             position: absolute;
@@ -28,18 +28,19 @@
         }
         .grid {
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 50%; /* 중앙 정렬 */
+            left: 50%; /* 중앙 정렬 */
+            transform: translate(-50%, -50%); /* 정확히 중앙에 위치 */
             display: grid;
-            grid-template-columns: repeat(41, 10px); /* 41 칸 */
-            grid-template-rows: repeat(41, 10px); /* 41 칸 */
+            grid-template-columns: repeat(10, 41px); /* 10 칸, 각 칸은 41px */
+            grid-template-rows: repeat(10, 41px); /* 10 칸, 각 칸은 41px */
             gap: 0;
-            width: 100%;
-            height: 100%;
+            width: 412px; /* 미로판 크기 */
+            height: 412px; /* 미로판 크기 */
         }
         .cell {
-            width: 10px;
-            height: 10px;
+            width: 41px;
+            height: 41px;
             background-color: white; /* 기본적으로 빈 공간 */
         }
         .wall {
@@ -59,18 +60,18 @@
     
     // 미로 그리드 정의 (1: 벽, 0: 빈 공간)
     const maze = [
-        // 예시로 벽과 빈 공간을 배열로 정의 (1: 벽, 0: 빈 공간)
+        // 예시로 10x10 미로 배열을 정의 (1: 벽, 0: 빈 공간)
         // 실제 미로는 배열을 통해 정의
-        // 예시로 5x5 미로
-        // 벽과 빈 공간을 여기서 설정할 수 있습니다
-        // 각 값은 0 (빈 공간) 또는 1 (벽) 입니다
-        // 미로의 크기를 41x41로 확장할 수 있습니다.
-        Array(41).fill(0), // 첫 번째 줄은 빈 공간
-        Array(41).fill(1), // 두 번째 줄은 벽
-        Array(41).fill(0), // 세 번째 줄은 빈 공간
-        Array(41).fill(1), // 네 번째 줄은 벽
-        Array(41).fill(0), // 다섯 번째 줄은 빈 공간
-        // 미로의 나머지 배열을 추가로 생성해야 합니다.
+        [1, 0, 0, 1, 0, 1, 0, 1, 0, 1],
+        [0, 1, 1, 0, 1, 0, 1, 0, 1, 0],
+        [1, 0, 0, 1, 0, 1, 0, 1, 0, 1],
+        [0, 1, 1, 0, 1, 0, 1, 0, 1, 0],
+        [1, 0, 0, 1, 0, 1, 0, 1, 0, 1],
+        [0, 1, 1, 0, 1, 0, 1, 0, 1, 0],
+        [1, 0, 0, 1, 0, 1, 0, 1, 0, 1],
+        [0, 1, 1, 0, 1, 0, 1, 0, 1, 0],
+        [1, 0, 0, 1, 0, 1, 0, 1, 0, 1],
+        [0, 1, 1, 0, 1, 0, 1, 0, 1, 0]
     ];
 
     // 그리드 생성 함수
