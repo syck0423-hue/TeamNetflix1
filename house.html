@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>PNG 요소로 배경 뚫기 (선명한 원형)</title>
+<title>PNG 요소로 배경 뚫기 (1 먼저 로딩)</title>
 <style>
   body {
     margin: 0;
@@ -18,20 +18,33 @@
     position: relative;
     width: 926px;
     height: 574px;
-    background: url('img/house/house.png') no-repeat center/cover;
     overflow: hidden;
   }
 
+  /* 배경 (2.png) */
+  .bg-image {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0; left: 0;
+    background: url('img/house/2.png') no-repeat center/cover;
+    opacity: 0; /* 처음엔 숨김 */
+    transition: opacity 0.4s ease;
+    z-index: 1;
+  }
+
+  /* 덮개 (1.png) */
   .mask {
     position: absolute;
     top: 0; left: 0;
     width: 926px;
     height: 574px;
-    background: url('img/house/housecover.png') no-repeat center/cover;
+    background: url('img/house/1.png') no-repeat center/cover;
     pointer-events: none;
     z-index: 2;
   }
 
+  /* 마우스를 따라다니는 이미지 */
   #light {
     position: absolute;
     width: 80px;
@@ -44,18 +57,39 @@
 </head>
 <body>
   <div class="background" id="bg">
+    <div class="bg-image" id="bgImage"></div>
     <div class="mask" id="mask"></div>
-    <img id="light" src="img/cur/magic.png" alt="light">
+    <img id="light" src="img/house/stick.png" alt="light">
   </div>
 
   <script>
     const bg = document.getElementById('bg');
     const mask = document.getElementById('mask');
     const light = document.getElementById('light');
+    const bgImage = document.getElementById('bgImage');
 
     const offsetX = 50;
     const offsetY = 50;
 
+    // 1️⃣ 1.png 먼저 로드
+    const preloadMask = new Image();
+    preloadMask.src = 'img/house/1.png';
+
+    preloadMask.onload = () => {
+      console.log('1.png loaded');
+
+      // 2️⃣ 1.png 로드 완료 후 2.png 로드 시작
+      const preloadBg = new Image();
+      preloadBg.src = 'img/house/2.png';
+
+      preloadBg.onload = () => {
+        console.log('2.png loaded');
+        // 3️⃣ 실제 배경 표시
+        bgImage.style.opacity = 1;
+      };
+    };
+
+    // 마우스 이동 이벤트
     bg.addEventListener('mousemove', e => {
       const rect = bg.getBoundingClientRect();
       const mouseX = e.clientX - rect.left;
@@ -68,7 +102,7 @@
       light.style.left = `${mouseX + offsetX}px`;
       light.style.top = `${mouseY + offsetY}px`;
 
-      // 딱딱한 원형 구멍
+      // 원형 구멍
       mask.style.maskImage = `
         radial-gradient(circle ${radius}px at ${mouseX}px ${mouseY}px,
           transparent 0,
