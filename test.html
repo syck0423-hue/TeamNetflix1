@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>배경 노출 원 효과</title>
+<title>색감 있는 배경 노출 원 효과</title>
 <style>
   body {
     margin: 0;
@@ -23,6 +23,21 @@
     height: 100%;
     background: white;
     pointer-events: none;
+    --x: 50px;
+    --y: 50px;
+    --r: 120px;
+    mask-image: radial-gradient(circle var(--r) at var(--x) var(--y), transparent 0%, black 100%);
+    -webkit-mask-image: radial-gradient(circle var(--r) at var(--x) var(--y), transparent 0%, black 100%);
+  }
+
+  /* 빛 색감 (가상요소) */
+  .mask::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: radial-gradient(circle var(--r) at var(--x) var(--y), rgba(255, 255, 180, 0.3), transparent 80%);
+    pointer-events: none;
   }
 </style>
 </head>
@@ -33,15 +48,12 @@
 
   <script>
     const mask = document.getElementById('mask');
-    let radius = 100; // 구멍 반지름(px)
+    const radius = 120; // 구멍 반지름(px)
 
     document.addEventListener('mousemove', e => {
-      const x = e.clientX;
-      const y = e.clientY;
-
-      // 원형 부분만 투명하게
-      mask.style.maskImage = `radial-gradient(circle ${radius}px at ${x}px ${y}px, transparent 0%, black 100%)`;
-      mask.style.webkitMaskImage = `radial-gradient(circle ${radius}px at ${x}px ${y}px, transparent 0%, black 100%)`;
+      mask.style.setProperty('--x', `${e.clientX}px`);
+      mask.style.setProperty('--y', `${e.clientY}px`);
+      mask.style.setProperty('--r', `${radius}px`);
     });
   </script>
 </body>
