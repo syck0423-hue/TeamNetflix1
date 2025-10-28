@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>색감 있는 배경 노출 원 효과</title>
+<title>색감 추가된 배경 노출 원 효과</title>
 <style>
   body {
     margin: 0;
@@ -16,6 +16,7 @@
     background: url('img/maze/back.gif') no-repeat center/cover;
   }
 
+  /* 배경을 흰색으로 덮는 레이어 */
   .mask {
     position: absolute;
     top: 0; left: 0;
@@ -23,37 +24,45 @@
     height: 100%;
     background: white;
     pointer-events: none;
-    --x: 50px;
-    --y: 50px;
-    --r: 120px;
-    mask-image: radial-gradient(circle var(--r) at var(--x) var(--y), transparent 0%, black 100%);
-    -webkit-mask-image: radial-gradient(circle var(--r) at var(--x) var(--y), transparent 0%, black 100%);
+    z-index: 1;
   }
 
-  /* 빛 색감 (가상요소) */
-  .mask::after {
-    content: "";
+  /* 색감(빛) 효과 레이어 — mask 위에 별도로 존재 */
+  .colorlight {
     position: absolute;
     top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: radial-gradient(circle var(--r) at var(--x) var(--y), rgba(255, 255, 180, 0.3), transparent 80%);
+    width: 100%;
+    height: 100%;
     pointer-events: none;
+    z-index: 2;
+    mix-blend-mode: lighten;
   }
 </style>
 </head>
 <body>
   <div class="background">
     <div class="mask" id="mask"></div>
+    <div class="colorlight" id="colorlight"></div>
   </div>
 
   <script>
     const mask = document.getElementById('mask');
+    const colorlight = document.getElementById('colorlight');
     const radius = 120; // 구멍 반지름(px)
 
     document.addEventListener('mousemove', e => {
-      mask.style.setProperty('--x', `${e.clientX}px`);
-      mask.style.setProperty('--y', `${e.clientY}px`);
-      mask.style.setProperty('--r', `${radius}px`);
+      const x = e.clientX;
+      const y = e.clientY;
+
+      // 마스크 부분 (배경 가리기)
+      mask.style.maskImage = `radial-gradient(circle ${radius}px at ${x}px ${y}px, transparent 0%, black 100%)`;
+      mask.style.webkitMaskImage = `radial-gradient(circle ${radius}px at ${x}px ${y}px, transparent 0%, black 100%)`;
+
+      // 색감 부분 (빛 효과)
+      colorlight.style.background = `radial-gradient(circle ${radius}px at ${x}px ${y}px,
+                                  rgba(255, 255, 160, 0.5),
+                                  rgba(255, 255, 120, 0.25),
+                                  transparent 80%)`;
     });
   </script>
 </body>
