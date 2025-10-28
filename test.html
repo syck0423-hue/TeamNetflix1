@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>배경 노출 원 효과</title>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .background {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background: url('img/maze/back.gif') no-repeat center/cover;
+  }
+
+  .mask {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    transition: clip-path 0.05s;
+  }
+</style>
+</head>
+<body>
+  <div class="background">
+    <div class="mask"></div>
+  </div>
+
+  <script>
+    const mask = document.querySelector('.mask');
+    const radius = 100; // 구멍 반지름(px)
+
+    document.addEventListener('mousemove', e => {
+      const x = e.clientX;
+      const y = e.clientY;
+
+      // clip-path로 원형 구멍 만들기
+      mask.style.clipPath = `circle(${radius}px at ${x}px ${y}px)`;
+    });
+  </script>
+</body>
+</html>
