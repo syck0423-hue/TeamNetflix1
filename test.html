@@ -2,11 +2,12 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>뚫린 원 내부만 노란빛 효과</title>
+<title>부드러운 손전등형 노란빛 효과</title>
 <style>
   body {
     margin: 0;
     overflow: hidden;
+    background: black;
   }
 
   .background {
@@ -16,7 +17,7 @@
     background: url('img/maze/back.gif') no-repeat center/cover;
   }
 
-  /* 배경을 덮는 흰색 레이어 */
+  /* 흰색 덮개 */
   .mask {
     position: absolute;
     top: 0; left: 0;
@@ -27,7 +28,7 @@
     z-index: 2;
   }
 
-  /* 뚫린 원 안에만 노란빛 */
+  /* 부드러운 노란빛 */
   .colorlight {
     position: absolute;
     top: 0; left: 0;
@@ -35,7 +36,7 @@
     height: 100%;
     pointer-events: none;
     z-index: 3;
-    mix-blend-mode: normal; /* 단순히 덧입히기 */
+    mix-blend-mode: screen; /* 빛처럼 섞이게 */
   }
 </style>
 </head>
@@ -48,22 +49,30 @@
   <script>
     const mask = document.getElementById('mask');
     const colorlight = document.getElementById('colorlight');
-    const radius = 150; // 뚫린 원 반지름(px)
+    const radius = 150; // 중심 밝기 반경(px)
+    const fade = 200;   // 빛이 퍼지는 거리(px)
 
     document.addEventListener('mousemove', e => {
       const x = e.clientX;
       const y = e.clientY;
 
-      // 1️⃣ 흰색 덮개에 구멍 뚫기
-      mask.style.maskImage = `radial-gradient(circle ${radius}px at ${x}px ${y}px, transparent 0%, black 100%)`;
-      mask.style.webkitMaskImage = `radial-gradient(circle ${radius}px at ${x}px ${y}px, transparent 0%, black 100%)`;
+      // 1️⃣ 흰색 덮개에 부드러운 구멍 뚫기 (가장자리 fade)
+      mask.style.maskImage = `
+        radial-gradient(circle ${radius + fade}px at ${x}px ${y}px,
+          transparent 0%,
+          transparent ${radius}px,
+          black ${radius + fade}px)
+      `;
+      mask.style.webkitMaskImage = mask.style.maskImage;
 
-      // 2️⃣ 노란빛도 같은 영역에 표시
-      colorlight.style.background = `radial-gradient(circle ${radius}px at ${x}px ${y}px,
-                                  rgba(255, 255, 120, 0.8) 0%,
-                                  rgba(255, 255, 120, 0.8) 100%)`;
-      colorlight.style.maskImage = `radial-gradient(circle ${radius}px at ${x}px ${y}px, white 0%, transparent 100%)`;
-      colorlight.style.webkitMaskImage = `radial-gradient(circle ${radius}px at ${x}px ${y}px, white 0%, transparent 100%)`;
+      // 2️⃣ 노란빛: 중심 밝고, 가장자리는 투명하게 fade-out
+      colorlight.style.background = `
+        radial-gradient(circle ${radius + fade}px at ${x}px ${y}px,
+          rgba(255, 255, 180, 0.9) 0%,
+          rgba(255, 255, 140, 0.5) ${radius * 0.7}px,
+          rgba(255, 255, 100, 0.2) ${radius}px,
+          rgba(255, 255, 80, 0) ${radius + fade}px)
+      `;
     });
   </script>
 </body>
