@@ -43,6 +43,11 @@
             gap: 0;
             width: 412px;
             height: 412px;
+            opacity: 0; /* 처음엔 숨김 */
+            transition: opacity 0.3s;
+        }
+        .grid.show {
+            opacity: 1;
         }
         .cell {
             width: 41px;
@@ -137,6 +142,14 @@
 </div>
 
 <script>
+  const mazeOverlay = document.querySelector('.maze-overlay');
+  const grid = document.querySelector('.grid');
+
+  // 이미지 로드 완료 시 .grid 표시
+  mazeOverlay.onload = () => {
+    grid.classList.add('show');
+  };
+    
 const gridContainer = document.getElementById('grid');
 const collectedDisplay = document.getElementById('collected');
 
