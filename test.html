@@ -19,9 +19,8 @@
     position: relative;
     width: 926px;
     height: 574px;
-    background: url('img/maze/back.gif') no-repeat center/cover;
+    background: url('img/house/house.png') no-repeat center/cover;
     overflow: hidden; /* 내부만 표시 */
-    border: 2px solid #000; /* 영역 확인용, 나중에 삭제 가능 */
   }
 
   /* 흰색 덮개 (배경과 동일한 크기) */
@@ -30,7 +29,7 @@
     top: 0; left: 0;
     width: 926px;
     height: 574px;
-    background: white;
+    background: url('img/house/housecover.png') no-repeat center/cover;
     pointer-events: none;
     z-index: 2;
   }
@@ -57,8 +56,8 @@
     const mask = document.getElementById('mask');
     const light = document.getElementById('light');
 
-    const offsetX = 40; // 이미지 오른쪽 이동량
-    const offsetY = 40; // 이미지 아래 이동량
+    const offsetX = 50; // 이미지 오른쪽 이동량
+    const offsetY = 50; // 이미지 아래 이동량
 
     // 배경 영역 내 마우스 위치 기준
     bg.addEventListener('mousemove', e => {
