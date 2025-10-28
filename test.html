@@ -2,28 +2,26 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>PNG 요소로 배경 뚫기 (926×574 영역)</title>
+<title>PNG 요소로 배경 뚫기 (선명한 원형)</title>
 <style>
   body {
     margin: 0;
     overflow: hidden;
-    background: #ccc; /* 외부 배경 회색, 영역 확인용 */
+    background: #ccc;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
   }
 
-  /* 배경 박스 (926×574) */
   .background {
     position: relative;
     width: 926px;
     height: 574px;
     background: url('img/house/house.png') no-repeat center/cover;
-    overflow: hidden; /* 내부만 표시 */
+    overflow: hidden;
   }
 
-  /* 흰색 덮개 (배경과 동일한 크기) */
   .mask {
     position: absolute;
     top: 0; left: 0;
@@ -34,10 +32,9 @@
     z-index: 2;
   }
 
-  /* PNG 이미지 (빛, 렌즈 등) */
   #light {
     position: absolute;
-    width: 100px;  /* PNG 크기 */
+    width: 100px;
     height: 100px;
     transform: translate(-50%, -50%);
     pointer-events: none;
@@ -56,26 +53,27 @@
     const mask = document.getElementById('mask');
     const light = document.getElementById('light');
 
-    const offsetX = 50; // 이미지 오른쪽 이동량
-    const offsetY = 50; // 이미지 아래 이동량
+    const offsetX = 50;
+    const offsetY = 50;
 
-    // 배경 영역 내 마우스 위치 기준
     bg.addEventListener('mousemove', e => {
       const rect = bg.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left; // 배경 내부 기준 좌표
+      const mouseX = e.clientX - rect.left;
       const mouseY = e.clientY - rect.top;
 
       const lightRect = light.getBoundingClientRect();
       const radius = lightRect.width / 2;
 
-      // 이미지 이동 (배경 내부 좌표 사용)
+      // 이미지 이동
       light.style.left = `${mouseX + offsetX}px`;
       light.style.top = `${mouseY + offsetY}px`;
 
-      // 마스크(덮개) 구멍 갱신
+      // 딱딱한 원형 구멍
       mask.style.maskImage = `
         radial-gradient(circle ${radius}px at ${mouseX}px ${mouseY}px,
-          transparent 0%, black 100%)
+          transparent 0,
+          transparent ${radius - 1}px,
+          black ${radius}px)
       `;
       mask.style.webkitMaskImage = mask.style.maskImage;
     });
