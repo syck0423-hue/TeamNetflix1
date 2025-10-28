@@ -27,18 +27,18 @@
     position: absolute;
     bottom: 130px;
     left: 310px;
-    width: 100px;
-    height: 100px;
+    width: 140px; /* 👈 아이템 기본 크기 증가 */
+    height: 140px;
     transform: translateX(-50%) scale(0.2);
     opacity: 0;
-    transition: transform 1s ease-out, opacity 0.5s ease-out;
+    transition: transform 1.2s ease-out, opacity 0.8s ease-out;
     z-index: 1;
     pointer-events: none;
   }
 
   .item.show {
     opacity: 1;
-    transform: translateX(-50%) translateY(-160px) scale(1);
+    transform: translateX(-50%) translateY(-200px) scale(1.2); /* 👈 좀 더 크게, 위로 더 높이 */
   }
 
   /* 모자 */
@@ -100,13 +100,11 @@
 
   hat.addEventListener("click", () => {
     if (isAnimating) {
-      // 이미 애니메이션 중이면 흔들기만
       hat.classList.add("shake");
       setTimeout(() => hat.classList.remove("shake"), 400);
       return;
     }
 
-    // 이미 모든 아이템을 다 뽑았다면 흔들기만
     if (currentIndex >= items.length) {
       hat.classList.add("shake");
       setTimeout(() => hat.classList.remove("shake"), 400);
@@ -115,7 +113,6 @@
 
     isAnimating = true;
 
-    // 순서대로 아이템 등장
     const selectedSrc = items[currentIndex];
     currentIndex++;
 
@@ -124,13 +121,13 @@
     void item.offsetWidth; // transition 재적용
     item.classList.add("show");
 
-    // 2초 후 아이템 사라짐
+    // 아이템이 화면에 남는 시간 늘림 (기존 2000 → 3500)
     setTimeout(() => {
       item.classList.remove("show");
       setTimeout(() => {
         isAnimating = false;
-      }, 500); // 사라지는 트랜지션 시간
-    }, 2000);
+      }, 800); // 사라지는 트랜지션 시간
+    }, 3500);
   });
 </script>
 
