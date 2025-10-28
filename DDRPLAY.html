@@ -319,7 +319,7 @@ function dropArrows() {
   if (currentIndex >= sequence.length || gameOver) return;
   const next = sequence[currentIndex++];
   if (next === "gap") {
-    setTimeout(dropArrows, noteInterval * 2.5);
+    setTimeout(dropArrows, noteInterval * 3);
     return;
   }
   createArrow(next);
