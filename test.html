@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>전체 노란빛 + 중심 손전등 효과</title>
+<title>뚫린 원 내부만 노란빛 효과</title>
 <style>
   body {
     margin: 0;
@@ -16,7 +16,7 @@
     background: url('img/maze/back.gif') no-repeat center/cover;
   }
 
-  /* 전체 흰 덮개 */
+  /* 배경을 덮는 흰색 레이어 */
   .mask {
     position: absolute;
     top: 0; left: 0;
@@ -24,20 +24,18 @@
     height: 100%;
     background: white;
     pointer-events: none;
-    z-index: 1;
+    z-index: 2;
   }
 
-  /* 전체 노란색 톤 + 중심 빛 */
+  /* 뚫린 원 안에만 노란빛 */
   .colorlight {
     position: absolute;
     top: 0; left: 0;
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 2;
-    mix-blend-mode: lighten;
-    background: radial-gradient(circle 200px at 50% 50%, rgba(255, 255, 180, 0.4), transparent 80%), 
-                rgba(255, 255, 150, 0.2); /* 전체 노란빛 */
+    z-index: 3;
+    mix-blend-mode: normal; /* 단순히 덧입히기 */
   }
 </style>
 </head>
@@ -50,22 +48,22 @@
   <script>
     const mask = document.getElementById('mask');
     const colorlight = document.getElementById('colorlight');
-    const radius = 150; // 구멍 반지름(px)
+    const radius = 150; // 뚫린 원 반지름(px)
 
     document.addEventListener('mousemove', e => {
       const x = e.clientX;
       const y = e.clientY;
 
-      // 배경을 흰색으로 가리고 마우스 부분만 뚫기
+      // 1️⃣ 흰색 덮개에 구멍 뚫기
       mask.style.maskImage = `radial-gradient(circle ${radius}px at ${x}px ${y}px, transparent 0%, black 100%)`;
       mask.style.webkitMaskImage = `radial-gradient(circle ${radius}px at ${x}px ${y}px, transparent 0%, black 100%)`;
 
-      // 전체 노란빛 + 중심 밝은 빛
-      colorlight.style.background = `
-        radial-gradient(circle ${radius * 1.5}px at ${x}px ${y}px, 
-                        rgba(255, 255, 180, 0.6), 
-                        rgba(255, 255, 150, 0.2) 80%), 
-        rgba(255, 255, 150, 0.25)`;
+      // 2️⃣ 노란빛도 같은 영역에 표시
+      colorlight.style.background = `radial-gradient(circle ${radius}px at ${x}px ${y}px,
+                                  rgba(255, 255, 120, 0.8) 0%,
+                                  rgba(255, 255, 120, 0.8) 100%)`;
+      colorlight.style.maskImage = `radial-gradient(circle ${radius}px at ${x}px ${y}px, white 0%, transparent 100%)`;
+      colorlight.style.webkitMaskImage = `radial-gradient(circle ${radius}px at ${x}px ${y}px, white 0%, transparent 100%)`;
     });
   </script>
 </body>
