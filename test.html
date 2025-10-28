@@ -22,6 +22,7 @@
     width: 100%;
     height: 100%;
     background: white;
+    pointer-events: none;
     transition: clip-path 0.05s;
   }
 </style>
@@ -39,8 +40,9 @@
       const x = e.clientX;
       const y = e.clientY;
 
-      // clip-path로 원형 구멍 만들기
-      mask.style.clipPath = `circle(${radius}px at ${x}px ${y}px)`;
+      // 사각형 전체에서 원 부분을 뺀 형태로 clip-path 설정
+      mask.style.clipPath = `path('M0,0H100vwV100vhH0Z M${x} ${y} m -${radius},0 a ${radius},${radius} 0 1,0 ${radius*2},0 a ${radius},${radius} 0 1,0 -${radius*2},0 Z')`;
+      mask.style.clipRule = 'evenodd';
     });
   </script>
 </body>
