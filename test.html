@@ -2,27 +2,34 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>PNG 요소로 배경 뚫기 효과</title>
+<title>PNG 요소로 배경 뚫기 (926×574 영역)</title>
 <style>
   body {
     margin: 0;
     overflow: hidden;
+    background: #ccc; /* 외부 배경 회색, 영역 확인용 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
   }
 
-  /* 배경 */
+  /* 배경 박스 (926×574) */
   .background {
     position: relative;
-    width: 100vw;
-    height: 100vh;
+    width: 926px;
+    height: 574px;
     background: url('img/maze/back.gif') no-repeat center/cover;
+    overflow: hidden; /* 내부만 표시 */
+    border: 2px solid #000; /* 영역 확인용, 나중에 삭제 가능 */
   }
 
-  /* 흰색 덮개 */
+  /* 흰색 덮개 (배경과 동일한 크기) */
   .mask {
     position: absolute;
     top: 0; left: 0;
-    width: 100%;
-    height: 100%;
+    width: 926px;
+    height: 574px;
     background: white;
     pointer-events: none;
     z-index: 2;
@@ -31,7 +38,7 @@
   /* PNG 이미지 (빛, 렌즈 등) */
   #light {
     position: absolute;
-    width: 100px; /* PNG 크기 */
+    width: 100px;  /* PNG 크기 */
     height: 100px;
     transform: translate(-50%, -50%);
     pointer-events: none;
@@ -40,32 +47,35 @@
 </style>
 </head>
 <body>
-  <div class="background">
+  <div class="background" id="bg">
     <div class="mask" id="mask"></div>
-
-    <!-- 👇 네가 준비한 PNG 이미지 -->
     <img id="light" src="img/cur/magic.png" alt="light">
   </div>
 
   <script>
+    const bg = document.getElementById('bg');
     const mask = document.getElementById('mask');
     const light = document.getElementById('light');
-    const offsetX = 50; // 오른쪽 이동
-    const offsetY = 50; // 아래쪽 이동
 
-    document.addEventListener('mousemove', e => {
-      const rect = light.getBoundingClientRect();
-      const radius = rect.width / 2;
-      const x = e.clientX;
-      const y = e.clientY;
+    const offsetX = 40; // 이미지 오른쪽 이동량
+    const offsetY = 40; // 이미지 아래 이동량
 
-      // 이미지 이동 (마우스 따라다니게)
-      light.style.left = `${x + offsetX}px`;
-      light.style.top = `${y + offsetY}px`;
+    // 배경 영역 내 마우스 위치 기준
+    bg.addEventListener('mousemove', e => {
+      const rect = bg.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left; // 배경 내부 기준 좌표
+      const mouseY = e.clientY - rect.top;
 
-      // 이미지 크기만큼 배경 보이기
+      const lightRect = light.getBoundingClientRect();
+      const radius = lightRect.width / 2;
+
+      // 이미지 이동 (배경 내부 좌표 사용)
+      light.style.left = `${mouseX + offsetX}px`;
+      light.style.top = `${mouseY + offsetY}px`;
+
+      // 마스크(덮개) 구멍 갱신
       mask.style.maskImage = `
-        radial-gradient(circle ${radius}px at ${x}px ${y}px,
+        radial-gradient(circle ${radius}px at ${mouseX}px ${mouseY}px,
           transparent 0%, black 100%)
       `;
       mask.style.webkitMaskImage = mask.style.maskImage;
