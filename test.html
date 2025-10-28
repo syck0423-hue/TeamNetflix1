@@ -23,26 +23,25 @@
     height: 100%;
     background: white;
     pointer-events: none;
-    transition: clip-path 0.05s;
   }
 </style>
 </head>
 <body>
   <div class="background">
-    <div class="mask"></div>
+    <div class="mask" id="mask"></div>
   </div>
 
   <script>
-    const mask = document.querySelector('.mask');
-    const radius = 100; // 구멍 반지름(px)
+    const mask = document.getElementById('mask');
+    let radius = 100; // 구멍 반지름(px)
 
     document.addEventListener('mousemove', e => {
       const x = e.clientX;
       const y = e.clientY;
 
-      // 사각형 전체에서 원 부분을 뺀 형태로 clip-path 설정
-      mask.style.clipPath = `path('M0,0H100vwV100vhH0Z M${x} ${y} m -${radius},0 a ${radius},${radius} 0 1,0 ${radius*2},0 a ${radius},${radius} 0 1,0 -${radius*2},0 Z')`;
-      mask.style.clipRule = 'evenodd';
+      // 원형 부분만 투명하게
+      mask.style.maskImage = `radial-gradient(circle ${radius}px at ${x}px ${y}px, transparent 0%, black 100%)`;
+      mask.style.webkitMaskImage = `radial-gradient(circle ${radius}px at ${x}px ${y}px, transparent 0%, black 100%)`;
     });
   </script>
 </body>
