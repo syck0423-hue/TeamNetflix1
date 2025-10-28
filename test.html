@@ -2,13 +2,14 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>노란빛 손전등 효과 (원 영역만 배경 보임)</title>
+<title>PNG 요소로 배경 뚫기 효과</title>
 <style>
   body {
     margin: 0;
     overflow: hidden;
   }
 
+  /* 배경 */
   .background {
     position: relative;
     width: 100vw;
@@ -27,48 +28,45 @@
     z-index: 2;
   }
 
-  /* 노란빛 (원 영역) */
-  .colorlight {
+  /* PNG 이미지 (빛, 렌즈 등) */
+  #light {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100px; /* PNG 크기 */
+    height: 100px;
+    transform: translate(-50%, -50%);
     pointer-events: none;
     z-index: 3;
-    mix-blend-mode: screen; /* 빛처럼 섞이게 */
   }
 </style>
 </head>
 <body>
   <div class="background">
     <div class="mask" id="mask"></div>
-    <div class="colorlight" id="colorlight"></div>
+
+    <!-- 👇 네가 준비한 PNG 이미지 -->
+    <img id="light" src="img/magic/1.png" alt="light">
   </div>
 
   <script>
     const mask = document.getElementById('mask');
-    const colorlight = document.getElementById('colorlight');
-    const radius = 150; // 손전등 밝기 반경(px)
+    const light = document.getElementById('light');
 
     document.addEventListener('mousemove', e => {
+      const rect = light.getBoundingClientRect();
+      const radius = rect.width / 2;
       const x = e.clientX;
       const y = e.clientY;
 
-      // 1️⃣ 흰색 덮개에서 원 부분만 투명하게 뚫기 (부드러운 경계)
+      // 이미지 이동 (마우스 따라다니게)
+      light.style.left = `${x}px`;
+      light.style.top = `${y}px`;
+
+      // 이미지 크기만큼 배경 보이기
       mask.style.maskImage = `
         radial-gradient(circle ${radius}px at ${x}px ${y}px,
-          transparent 0%,
-          black 100%)
+          transparent 0%, black 100%)
       `;
       mask.style.webkitMaskImage = mask.style.maskImage;
-
-      // 2️⃣ 노란빛 (원 내부만 보임)
-      colorlight.style.background = `
-        radial-gradient(circle ${radius}px at ${x}px ${y}px,
-          rgba(255, 255, 180, 0.8) 0%,
-          rgba(255, 255, 150, 0.5) 70%,
-          rgba(255, 255, 100, 0) 100%)
-      `;
     });
   </script>
 </body>
