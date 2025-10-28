@@ -50,6 +50,8 @@
   <script>
     const mask = document.getElementById('mask');
     const light = document.getElementById('light');
+    const offsetX = 50; // 오른쪽 이동
+    const offsetY = 50; // 아래쪽 이동
 
     document.addEventListener('mousemove', e => {
       const rect = light.getBoundingClientRect();
@@ -58,8 +60,8 @@
       const y = e.clientY;
 
       // 이미지 이동 (마우스 따라다니게)
-      light.style.left = `${x}px`;
-      light.style.top = `${y}px`;
+      light.style.left = `${x + offsetX}px`;
+      light.style.top = `${y + offsetY}px`;
 
       // 이미지 크기만큼 배경 보이기
       mask.style.maskImage = `
