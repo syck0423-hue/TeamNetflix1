@@ -27,7 +27,7 @@
     width: 100%;
     height: 100%;
     top: 0; left: 0;
-    background: url('img/house/2.png') no-repeat center/cover;
+    background: url('img/house/11.png') no-repeat center/cover;
     opacity: 0; /* 처음엔 숨김 */
     transition: opacity 0.4s ease;
     z-index: 1;
@@ -39,7 +39,7 @@
     top: 0; left: 0;
     width: 926px;
     height: 574px;
-    background: url('img/house/1.png') no-repeat center/cover;
+    background: url('img/house/22.png') no-repeat center/cover;
     pointer-events: none;
     z-index: 2;
   }
@@ -73,17 +73,17 @@
 
     // 1️⃣ 1.png 먼저 로드
     const preloadMask = new Image();
-    preloadMask.src = 'img/house/1.png';
+    preloadMask.src = 'img/house/22.png';
 
     preloadMask.onload = () => {
-      console.log('1.png loaded');
+      console.log('22.png loaded');
 
       // 2️⃣ 1.png 로드 완료 후 2.png 로드 시작
       const preloadBg = new Image();
-      preloadBg.src = 'img/house/2.png';
+      preloadBg.src = 'img/house/11.png';
 
       preloadBg.onload = () => {
-        console.log('2.png loaded');
+        console.log('11.png loaded');
         // 3️⃣ 실제 배경 표시
         bgImage.style.opacity = 1;
       };
