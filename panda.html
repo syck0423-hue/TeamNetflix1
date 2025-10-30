@@ -75,6 +75,7 @@
     const leftBtn = document.getElementById("leftBtn");
     const rightBtn = document.getElementById("rightBtn");
 
+    // 🎵 음표 표시
     function showNote() {
       if (gameEnded) return;
       canClick = true;
@@ -94,24 +95,32 @@
       }, 1000);
     }
 
+    // 🎮 클릭 처리
     leftBtn.addEventListener("click", () => handlePress("left", leftBtn));
     rightBtn.addEventListener("click", () => handlePress("right", rightBtn));
 
     function handlePress(dir, btn) {
+      // 🔒 음표가 뜨지 않았거나 게임 종료 상태면 반응 안 함
       if (gameEnded || !canClick) return;
+
+      // 클릭 가능 상태만 true
       canClick = false;
 
+      // 음표 제거
       noteL.classList.remove("show");
       noteR.classList.remove("show");
 
+      // 손 올리기
       btn.classList.add("clicked");
 
-      // 👇 손이 일정 시간 후 내려가게
+      // 손이 일정 시간 후 내려가게
       setTimeout(() => btn.classList.remove("clicked"), 2000);
 
+      // 판정 실행
       handleInput(dir);
     }
 
+    // ✅ 입력 판정
     function handleInput(dir) {
       if (dir === sequence[currentRound]) {
         showGood();
@@ -128,6 +137,7 @@
         currentRound = 0;
         clearImg.src = "img/panda/c_0.png";
         textImg.src = "img/panda/text.gif";
+
         setTimeout(() => {
           pandaImg.src = "img/panda/basic.gif";
           showNote();
@@ -138,23 +148,25 @@
     function showGood() { pandaImg.src = "img/panda/good.gif"; }
     function showBad() { pandaImg.src = "img/panda/bad.gif"; }
 
+    // 🎉 최종 클리어
     function showFinalClear() {
-  gameEnded = true;
-  clearImg.src = "img/panda/c_4.png";
-  pandaImg.src = "img/panda/good.gif";
+      gameEnded = true;
+      clearImg.src = "img/panda/c_4.png";
+      pandaImg.src = "img/panda/good.gif";
 
-  // 1️⃣ 손이 내려감 (2초 뒤)
-  setTimeout(() => {
-    leftBtn.classList.remove("clicked");
-    rightBtn.classList.remove("clicked");
-  }, 2000);
+      // 1️⃣ 손 내려감
+      setTimeout(() => {
+        leftBtn.classList.remove("clicked");
+        rightBtn.classList.remove("clicked");
+      }, 2000);
 
-  // 2️⃣ 손 내려간 후 약간의 텀(0.8초 뒤) 후 result 등장
-  setTimeout(() => {
-    textImg.src = "img/panda/result.gif";
-  }, 2800);
-}
+      // 2️⃣ 0.8초 후 result 표시
+      setTimeout(() => {
+        textImg.src = "img/panda/result.gif";
+      }, 2800);
+    }
 
+    // 🚀 페이지 로드 후 0.8초 뒤 첫 음표 표시
     window.addEventListener("load", () => {
       setTimeout(showNote, 800);
     });
