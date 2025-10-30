@@ -29,17 +29,9 @@
   .item4 { right: 57px; top: 433px; width: 239px; height: 307px; transition: transform 1s ease; cursor: pointer; }
   .item5 { right: 74px; top: 74px; width: 236px; height: 87px; }
 
-  /* hover 시 살짝 올라오기 */
-  .item3:hover, .item4:hover {
-    transform: translateY(-30px);
-  }
+  .item3:hover, .item4:hover { transform: translateY(-30px); }
+  .item3.clicked, .item4.clicked { transform: translateY(-160px); }
 
-  /* 클릭 시 좀 더 크게 올라오기 */
-  .item3.clicked, .item4.clicked {
-    transform: translateY(-160px);
-  }
-
-  /* 음표 표시 */
   .note {
     position: absolute;
     top: 50%;
@@ -58,21 +50,11 @@
 </head>
 <body>
   <div class="stage">
-    <div class="item item1">
-      <img id="pandaImg" src="img/panda/basic.gif">
-    </div>
-    <div class="item item2">
-      <img id="textImg" src="img/panda/text.gif">
-    </div>
-    <div class="item item3" id="leftBtn">
-      <img src="img/panda/left.gif">
-    </div>
-    <div class="item item4" id="rightBtn">
-      <img src="img/panda/right.gif">
-    </div>
-    <div class="item item5">
-      <img id="clearImg" src="img/panda/clear_0.png">
-    </div>
+    <div class="item item1"><img id="pandaImg" src="img/panda/basic.gif"></div>
+    <div class="item item2"><img id="textImg" src="img/panda/text.gif"></div>
+    <div class="item item3" id="leftBtn"><img src="img/panda/left.gif"></div>
+    <div class="item item4" id="rightBtn"><img src="img/panda/right.gif"></div>
+    <div class="item item5"><img id="clearImg" src="img/panda/clear_0.png"></div>
 
     <!-- 🎵 음표 표시 -->
     <img id="noteL" class="note" src="img/panda/soundL.gif" alt="왼쪽 음표">
@@ -83,7 +65,8 @@
     const sequence = ["left", "left", "right", "left"];
     let currentRound = 0;
     const totalRounds = sequence.length;
-    let gameEnded = false; // ✅ 게임 종료 상태
+    let gameEnded = false;
+    let canClick = false; // 🎯 클릭 가능 여부
 
     const noteL = document.getElementById("noteL");
     const noteR = document.getElementById("noteR");
@@ -93,8 +76,10 @@
     const leftBtn = document.getElementById("leftBtn");
     const rightBtn = document.getElementById("rightBtn");
 
+    // 🎵 음표 표시
     function showNote() {
-      if (gameEnded) return; // ✅ 클리어 후엔 음표 표시 안 함
+      if (gameEnded) return;
+      canClick = true; // ✅ 클릭 허용
 
       noteL.classList.remove("show");
       noteR.classList.remove("show");
@@ -103,28 +88,38 @@
       if (current === "left") noteL.classList.add("show");
       else if (current === "right") noteR.classList.add("show");
 
+      // 2초 뒤 자동 사라짐 (클릭 안 했을 때만)
       setTimeout(() => {
-        noteL.classList.remove("show");
-        noteR.classList.remove("show");
-      }, 2000); // 
+        if (canClick) {
+          noteL.classList.remove("show");
+          noteR.classList.remove("show");
+          canClick = false;
+        }
+      }, 2000);
     }
 
     // 🎮 클릭 처리
-    leftBtn.addEventListener("click", () => {
-      if (gameEnded) return; // 클리어 후 클릭 막기
-      raiseSmoothly(leftBtn);
-      handleInput("left");
-    });
-    rightBtn.addEventListener("click", () => {
-      if (gameEnded) return;
-      raiseSmoothly(rightBtn);
-      handleInput("right");
-    });
+    leftBtn.addEventListener("click", () => handlePress("left", leftBtn));
+    rightBtn.addEventListener("click", () => handlePress("right", rightBtn));
 
-    // 클릭 시 천천히 올라갔다 내려오기
-    function raiseSmoothly(el) {
+    function handlePress(dir, btn) {
+      if (gameEnded || !canClick) return; // ❌ 음표 없을 때 클릭 무효
+      canClick = false; // 즉시 클릭 비활성화
+
+      // 클릭 시 음표 즉시 사라짐
+      noteL.classList.remove("show");
+      noteR.classList.remove("show");
+
+      raiseSmoothly(btn, () => handleInput(dir)); // 손이 내려갈 때 판정
+    }
+
+    // 클릭 시 천천히 올라갔다 내려오기 + 콜백 실행
+    function raiseSmoothly(el, callback) {
       el.classList.add("clicked");
-      setTimeout(() => el.classList.remove("clicked"), 1000);
+      setTimeout(() => {
+        el.classList.remove("clicked");
+        if (callback) callback(); // 내려온 후 실행
+      }, 1000);
     }
 
     // 입력 판정
@@ -135,7 +130,7 @@
         clearImg.src = `img/panda/clear_${currentRound}.png`;
 
         if (currentRound < totalRounds) {
-          setTimeout(showNote, 1000);
+          setTimeout(showNote, 500); // 손 내려온 후 약간의 텀 후 다음 음표
         } else {
           showFinalClear();
         }
@@ -162,7 +157,7 @@
 
     // 🎉 4라운드 클리어
     function showFinalClear() {
-      gameEnded = true; // ✅ 게임 종료 상태 고정
+      gameEnded = true;
       clearImg.src = "img/panda/clear_4.png";
       pandaImg.src = "img/panda/good.gif";
       textImg.src = "img/panda/result.gif";
