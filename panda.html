@@ -107,7 +107,7 @@
       btn.classList.add("clicked");
 
       // 👇 손이 일정 시간 후 내려가게
-      setTimeout(() => btn.classList.remove("clicked"), 800);
+      setTimeout(() => btn.classList.remove("clicked"), 1500);
 
       handleInput(dir);
     }
@@ -142,13 +142,12 @@
       gameEnded = true;
       clearImg.src = "img/panda/clear_4.png";
       pandaImg.src = "img/panda/good.gif";
-
-      // 👇 손이 올라가 있다가 0.8초 후 내려가며 result 표시
+      
       setTimeout(() => {
         leftBtn.classList.remove("clicked");
         rightBtn.classList.remove("clicked");
         textImg.src = "img/panda/result.gif";
-      }, 800);
+      }, 1500);
     }
 
     window.addEventListener("load", () => {
