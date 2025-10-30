@@ -89,12 +89,12 @@
       noteL.classList.remove("show");
       noteR.classList.remove("show");
 
-      // 2️⃣ 0.3초 후 음표 표시
+      // 2️⃣ 1초 후 음표 표시
       setTimeout(() => {
         const current = sequence[currentRound];
         if (current === "left") noteL.classList.add("show");
         else if (current === "right") noteR.classList.add("show");
-      }, 300);
+      }, 1000);
     }
 
     leftBtn.addEventListener("click", () => handlePress("left", leftBtn));
