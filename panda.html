@@ -21,19 +21,22 @@
     overflow: hidden;
   }
 
-  .item {
-    position: absolute;
-  }
+  .item { position: absolute; }
 
   .item1 { left: 343px; bottom: 152px; width: 259px; height: 343px; }
   .item2 { left: 96px; top: 45px; width: 239px; height: 307px; }
-  .item3 { left: 57px; top: 433px; width: 237px; height: 304px; transition: transform 0.3s ease; cursor: pointer; }
-  .item4 { right: 57px; top: 433px; width: 239px; height: 307px; transition: transform 0.3s ease; cursor: pointer; }
+  .item3 { left: 57px; top: 433px; width: 237px; height: 304px; transition: transform 0.6s ease; cursor: pointer; }
+  .item4 { right: 57px; top: 433px; width: 239px; height: 307px; transition: transform 0.6s ease; cursor: pointer; }
   .item5 { right: 74px; top: 74px; width: 236px; height: 87px; }
 
   /* hover 시 살짝 올라오기 */
   .item3:hover, .item4:hover {
     transform: translateY(-30px);
+  }
+
+  /* 클릭 시 좀 더 크게 올라오기 */
+  .item3.clicked, .item4.clicked {
+    transform: translateY(-60px); /* hover보다 더 위로 */
   }
 
   /* 음표 표시 */
@@ -50,26 +53,15 @@
   #noteL { left: 200px; }
   #noteR { right: 200px; }
   .show { opacity: 1; }
-
 </style>
 </head>
 <body>
   <div class="stage">
-    <div class="item item1">
-      <img src="img/panda/basic.gif">
-    </div>
-    <div class="item item2">
-      <img src="img/panda/text.gif">
-    </div>
-    <div class="item item3" id="leftBtn">
-      <img src="img/panda/left.gif">
-    </div>
-    <div class="item item4" id="rightBtn">
-      <img src="img/panda/right.gif">
-    </div>
-    <div class="item item5">
-      <img id="clearImg" src="img/panda/clear_0.png">
-    </div>
+    <div class="item item1"><img src="img/panda/basic.gif"></div>
+    <div class="item item2"><img src="img/panda/text.gif"></div>
+    <div class="item item3" id="leftBtn"><img src="img/panda/left.gif"></div>
+    <div class="item item4" id="rightBtn"><img src="img/panda/right.gif"></div>
+    <div class="item item5"><img id="clearImg" src="img/panda/clear_0.png"></div>
 
     <!-- 🎵 음표 표시 -->
     <img id="noteL" class="note" src="img/panda/soundL.png" alt="왼쪽 음표">
@@ -77,7 +69,7 @@
   </div>
 
   <script>
-    const sequence = ["left", "left", "right", "left"]; // 정답 순서
+    const sequence = ["left", "left", "right", "left"];
     let currentStep = 0;
 
     const noteL = document.getElementById("noteL");
@@ -90,23 +82,34 @@
     function showNote() {
       noteL.classList.remove("show");
       noteR.classList.remove("show");
-
       const current = sequence[currentStep];
-      if (current === "left") {
-        noteL.classList.add("show");
-      } else if (current === "right") {
-        noteR.classList.add("show");
-      }
+      if (current === "left") noteL.classList.add("show");
+      else if (current === "right") noteR.classList.add("show");
     }
 
-    // 클릭으로 입력 처리
-    leftBtn.addEventListener("click", () => handleInput("left"));
-    rightBtn.addEventListener("click", () => handleInput("right"));
+    // 클릭 처리
+    leftBtn.addEventListener("click", () => {
+      raiseSmoothly(leftBtn);
+      handleInput("left");
+    });
 
+    rightBtn.addEventListener("click", () => {
+      raiseSmoothly(rightBtn);
+      handleInput("right");
+    });
+
+    // 클릭 시 천천히 올라갔다 내려오기
+    function raiseSmoothly(el) {
+      el.classList.add("clicked");
+      setTimeout(() => {
+        el.classList.remove("clicked");
+      }, 600); // 0.6초 후 원래 자리로 복귀
+    }
+
+    // 정답 판정
     function handleInput(dir) {
       if (dir === sequence[currentStep]) {
         currentStep++;
-
         if (currentStep < sequence.length) {
           showNote();
         } else {
@@ -118,7 +121,7 @@
           currentStep = 0;
           setTimeout(() => {
             clearImg.src = "img/panda/clear_0.png";
-            showNote(); // 다시 시작
+            showNote();
           }, 1500);
         }
       } else {
@@ -129,13 +132,12 @@
       }
     }
 
-    // 실패 시 화면 깜빡
+    // 시각 피드백
     function flashError() {
       document.body.style.backgroundColor = "#552222";
       setTimeout(() => (document.body.style.backgroundColor = "#222"), 200);
     }
 
-    // 성공 시 살짝 반짝
     function flashSuccess() {
       document.body.style.backgroundColor = "#226622";
       setTimeout(() => (document.body.style.backgroundColor = "#222"), 200);
