@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>배경 위 요소 배치</title>
+<title>판다 클릭 리듬게임</title>
 <style>
   body {
     margin: 0;
@@ -13,7 +13,6 @@
     height: 100vh;
   }
 
-  /* 배경 영역 */
   .stage {
     position: relative;
     width: 926px;
@@ -22,50 +21,36 @@
     overflow: hidden;
   }
 
-  /* 공통 요소 스타일 */
   .item {
     position: absolute;
   }
 
-  /* 예시로 색상 지정 (나중에 이미지로 대체 가능) */
-  .item1 { 
-    left: 343px; 
-    bottom: 152px; 
-    width: 259px;
-    height: 343px;
-  }
-  .item2 { 
-    left: 96px; 
-    top: 45px; 
-    width: 239px;
-    height: 307px;
-  }
-  .item3 { 
-    left: 57px; 
-    top: 433px; 
-    width: 237px;
-    height: 304px;
-  }  
-  .item4 { 
-    right: 57px; 
-    top: 433px; 
-    width: 239px;
-    height: 307px;
-  } 
-  .item3, .item4 {
-    transition: transform 0.4s ease, opacity 0.4s ease;
+  .item1 { left: 343px; bottom: 152px; width: 259px; height: 343px; }
+  .item2 { left: 96px; top: 45px; width: 239px; height: 307px; }
+  .item3 { left: 57px; top: 433px; width: 237px; height: 304px; transition: transform 0.3s ease; cursor: pointer; }
+  .item4 { right: 57px; top: 433px; width: 239px; height: 307px; transition: transform 0.3s ease; cursor: pointer; }
+  .item5 { right: 74px; top: 74px; width: 236px; height: 87px; }
+
+  /* hover 시 살짝 올라오기 */
+  .item3:hover, .item4:hover {
+    transform: translateY(-30px);
   }
 
-/* hover 시 위로 살짝 올라오고 투명도 적용 */
-  .item3:hover, .item4:hover {
-    transform: translateY(-40px); /* 위로 이동 */
+  /* 음표 표시 */
+  .note {
+    position: absolute;
+    top: 220px;
+    width: 100px;
+    height: 100px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: 10;
   }
-  .item5 { 
-    right: 74px; 
-    top: 74px; 
-    width: 236px;
-    height: 87px;
-  }
+
+  #noteL { left: 200px; }
+  #noteR { right: 200px; }
+  .show { opacity: 1; }
+
 </style>
 </head>
 <body>
@@ -76,15 +61,88 @@
     <div class="item item2">
       <img src="img/panda/text.gif">
     </div>
-    <div class="item item3">
+    <div class="item item3" id="leftBtn">
       <img src="img/panda/left.gif">
     </div>
-    <div class="item item4">
+    <div class="item item4" id="rightBtn">
       <img src="img/panda/right.gif">
     </div>
     <div class="item item5">
-      <img src="img/panda/clear_0.png">
+      <img id="clearImg" src="img/panda/clear_0.png">
     </div>
+
+    <!-- 🎵 음표 표시 -->
+    <img id="noteL" class="note" src="img/panda/soundL.png" alt="왼쪽 음표">
+    <img id="noteR" class="note" src="img/panda/soundR.png" alt="오른쪽 음표">
   </div>
+
+  <script>
+    const sequence = ["left", "left", "right", "left"]; // 정답 순서
+    let currentStep = 0;
+
+    const noteL = document.getElementById("noteL");
+    const noteR = document.getElementById("noteR");
+    const clearImg = document.getElementById("clearImg");
+    const leftBtn = document.getElementById("leftBtn");
+    const rightBtn = document.getElementById("rightBtn");
+
+    // 현재 단계의 음표 표시
+    function showNote() {
+      noteL.classList.remove("show");
+      noteR.classList.remove("show");
+
+      const current = sequence[currentStep];
+      if (current === "left") {
+        noteL.classList.add("show");
+      } else if (current === "right") {
+        noteR.classList.add("show");
+      }
+    }
+
+    // 클릭으로 입력 처리
+    leftBtn.addEventListener("click", () => handleInput("left"));
+    rightBtn.addEventListener("click", () => handleInput("right"));
+
+    function handleInput(dir) {
+      if (dir === sequence[currentStep]) {
+        currentStep++;
+
+        if (currentStep < sequence.length) {
+          showNote();
+        } else {
+          // ✅ 클리어
+          noteL.classList.remove("show");
+          noteR.classList.remove("show");
+          clearImg.src = "img/panda/clear_1.png";
+          flashSuccess();
+          currentStep = 0;
+          setTimeout(() => {
+            clearImg.src = "img/panda/clear_0.png";
+            showNote(); // 다시 시작
+          }, 1500);
+        }
+      } else {
+        // ❌ 실패
+        currentStep = 0;
+        flashError();
+        showNote();
+      }
+    }
+
+    // 실패 시 화면 깜빡
+    function flashError() {
+      document.body.style.backgroundColor = "#552222";
+      setTimeout(() => (document.body.style.backgroundColor = "#222"), 200);
+    }
+
+    // 성공 시 살짝 반짝
+    function flashSuccess() {
+      document.body.style.backgroundColor = "#226622";
+      setTimeout(() => (document.body.style.backgroundColor = "#222"), 200);
+    }
+
+    // 시작 시 첫 음표 표시
+    showNote();
+  </script>
 </body>
 </html>
