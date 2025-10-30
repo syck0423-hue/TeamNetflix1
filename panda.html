@@ -66,7 +66,7 @@
     let currentRound = 0;
     const totalRounds = sequence.length;
     let gameEnded = false;
-    let canClick = false; // 🎯 클릭 가능 여부
+    let canClick = false;
 
     const noteL = document.getElementById("noteL");
     const noteR = document.getElementById("noteR");
@@ -79,7 +79,7 @@
     // 🎵 음표 표시
     function showNote() {
       if (gameEnded) return;
-      canClick = true; // ✅ 클릭 허용
+      canClick = true;
 
       noteL.classList.remove("show");
       noteR.classList.remove("show");
@@ -87,15 +87,6 @@
       const current = sequence[currentRound];
       if (current === "left") noteL.classList.add("show");
       else if (current === "right") noteR.classList.add("show");
-
-      // 2초 뒤 자동 사라짐 (클릭 안 했을 때만)
-      setTimeout(() => {
-        if (canClick) {
-          noteL.classList.remove("show");
-          noteR.classList.remove("show");
-          canClick = false;
-        }
-      }, 2000);
     }
 
     // 🎮 클릭 처리
@@ -103,23 +94,22 @@
     rightBtn.addEventListener("click", () => handlePress("right", rightBtn));
 
     function handlePress(dir, btn) {
-      if (gameEnded || !canClick) return; // ❌ 음표 없을 때 클릭 무효
-      canClick = false; // 즉시 클릭 비활성화
+      if (gameEnded || !canClick) return;
+      canClick = false;
 
       // 클릭 시 음표 즉시 사라짐
       noteL.classList.remove("show");
       noteR.classList.remove("show");
 
-      raiseSmoothly(btn, () => handleInput(dir)); // 손이 내려갈 때 판정
+      raiseSmoothly(btn, () => handleInput(dir));
     }
 
-    // 클릭 시 천천히 올라갔다 내려오기 + 콜백 실행
     function raiseSmoothly(el, callback) {
       el.classList.add("clicked");
       setTimeout(() => {
         el.classList.remove("clicked");
-        if (callback) callback(); // 내려온 후 실행
-      }, 1000);
+        if (callback) callback();
+      }, 1000); // 손 내려올 때 판정 실행
     }
 
     // 입력 판정
@@ -130,7 +120,7 @@
         clearImg.src = `img/panda/clear_${currentRound}.png`;
 
         if (currentRound < totalRounds) {
-          setTimeout(showNote, 500); // 손 내려온 후 약간의 텀 후 다음 음표
+          setTimeout(showNote, 1000); // 1초 뒤 다음 라운드
         } else {
           showFinalClear();
         }
@@ -146,13 +136,13 @@
     // ✅ GOOD 반응
     function showGood() {
       pandaImg.src = "img/panda/good.gif";
-      setTimeout(() => (pandaImg.src = "img/panda/basic.gif"), 1000);
+      setTimeout(() => (pandaImg.src = "img/panda/basic.gif"), 2000);
     }
 
     // ❌ BAD 반응
     function showBad() {
       pandaImg.src = "img/panda/bad.gif";
-      setTimeout(() => (pandaImg.src = "img/panda/basic.gif"), 1000);
+      setTimeout(() => (pandaImg.src = "img/panda/basic.gif"), 2000);
     }
 
     // 🎉 4라운드 클리어
