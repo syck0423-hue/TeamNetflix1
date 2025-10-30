@@ -75,21 +75,18 @@
     const leftBtn = document.getElementById("leftBtn");
     const rightBtn = document.getElementById("rightBtn");
 
-    // 🎵 음표 표시
     function showNote() {
       if (gameEnded) return;
       canClick = true;
 
       pandaImg.src = "img/panda/basic.gif";
 
-      // 1️⃣ 손 내려가기
       leftBtn.classList.remove("clicked");
       rightBtn.classList.remove("clicked");
 
       noteL.classList.remove("show");
       noteR.classList.remove("show");
 
-      // 2️⃣ 1초 후 음표 표시
       setTimeout(() => {
         const current = sequence[currentRound];
         if (current === "left") noteL.classList.add("show");
@@ -108,6 +105,10 @@
       noteR.classList.remove("show");
 
       btn.classList.add("clicked");
+
+      // 👇 손이 일정 시간 후 내려가게
+      setTimeout(() => btn.classList.remove("clicked"), 800);
+
       handleInput(dir);
     }
 
@@ -127,7 +128,6 @@
         currentRound = 0;
         clearImg.src = "img/panda/clear_0.png";
         textImg.src = "img/panda/text.gif";
-
         setTimeout(() => {
           pandaImg.src = "img/panda/basic.gif";
           showNote();
@@ -142,9 +142,13 @@
       gameEnded = true;
       clearImg.src = "img/panda/clear_4.png";
       pandaImg.src = "img/panda/good.gif";
-      textImg.src = "img/panda/result.gif";
-      leftBtn.classList.remove("clicked");
-      rightBtn.classList.remove("clicked");
+
+      // 👇 손이 올라가 있다가 0.8초 후 내려가며 result 표시
+      setTimeout(() => {
+        leftBtn.classList.remove("clicked");
+        rightBtn.classList.remove("clicked");
+        textImg.src = "img/panda/result.gif";
+      }, 800);
     }
 
     window.addEventListener("load", () => {
