@@ -95,7 +95,7 @@
         else if (current === "right") noteR.classList.add("show");
 
         // ✅ 음표가 실제로 나타난 직후 클릭 허용
-        setTimeout(() => { canClick = true; }, 300); // 0.3초 뒤부터 클릭 가능
+        setTimeout(() => { canClick = true; }, 300);
       }, 1000);
     }
 
@@ -148,20 +148,23 @@
     function showBad() { pandaImg.src = "img/panda/bad.gif"; }
 
     // 🎉 최종 클리어
-    function showFinalClear() {
-      gameEnded = true;
-      clearImg.src = "img/panda/c_4.png";
-      pandaImg.src = "img/panda/good.gif";
+function showFinalClear() {
+  gameEnded = true;
+  clearImg.src = "img/panda/c_4.png";
+  pandaImg.src = "img/panda/good.gif";
 
-      setTimeout(() => {
-        leftBtn.classList.remove("clicked");
-        rightBtn.classList.remove("clicked");
-      }, 2000);
+  // 1️⃣ 손 내려가면서 판다 바로 basic으로 복귀
+  setTimeout(() => {
+    leftBtn.classList.remove("clicked");
+    rightBtn.classList.remove("clicked");
+    pandaImg.src = "img/panda/basic.gif"; // ✅ 동시에 변경
+  }, 2000);
 
-      setTimeout(() => {
-        textImg.src = "img/panda/result.gif";
-      }, 2800);
-    }
+  // 2️⃣ 0.8초 뒤 result 등장 (유지)
+  setTimeout(() => {
+    textImg.src = "img/panda/result.gif";
+  }, 2800);
+}
 
     // 🚀 페이지 로드 후 0.8초 뒤 첫 음표 표시
     window.addEventListener("load", () => {
