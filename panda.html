@@ -108,7 +108,7 @@
       noteL.classList.remove("show");
       noteR.classList.remove("show");
 
-      // 👇 이제 클릭 시 바로 올라간 채로 유지 (내려오지 않음)
+      // 👇 클릭 시 올라간 채로 유지
       btn.classList.add("clicked");
 
       // 판정 실행
@@ -123,7 +123,7 @@
         clearImg.src = `img/panda/clear_${currentRound}.png`;
 
         if (currentRound < totalRounds) {
-          setTimeout(showNote, 1000);
+          setTimeout(showNote, 2000);
         } else {
           showFinalClear();
         }
@@ -157,6 +157,10 @@
       clearImg.src = "img/panda/clear_4.png";
       pandaImg.src = "img/panda/good.gif";
       textImg.src = "img/panda/result.gif";
+
+      // ✅ 모든 손 원위치
+      leftBtn.classList.remove("clicked");
+      rightBtn.classList.remove("clicked");
     }
 
     // 🚀 페이지 로드 후 1초 뒤에 첫 음표 표시
