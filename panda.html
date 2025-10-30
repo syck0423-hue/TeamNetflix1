@@ -25,8 +25,8 @@
 
   .item1 { left: 343px; bottom: 152px; width: 259px; height: 343px; }
   .item2 { left: 96px; top: 45px; width: 239px; height: 307px; }
-  .item3 { left: 57px; top: 433px; width: 237px; height: 304px; transition: transform 0.8s ease; cursor: pointer; }
-  .item4 { right: 57px; top: 433px; width: 239px; height: 307px; transition: transform 0.8s ease; cursor: pointer; }
+  .item3 { left: 57px; top: 433px; width: 237px; height: 304px; transition: transform 1s ease; cursor: pointer; }
+  .item4 { right: 57px; top: 433px; width: 239px; height: 307px; transition: transform 1s ease; cursor: pointer; }
   .item5 { right: 74px; top: 74px; width: 236px; height: 87px; }
 
   /* hover 시 살짝 올라오기 */
@@ -36,13 +36,14 @@
 
   /* 클릭 시 좀 더 크게 올라오기 */
   .item3.clicked, .item4.clicked {
-    transform: translateY(-160px); /* hover보다 더 위로 */
+    transform: translateY(-160px);
   }
 
   /* 음표 표시 */
   .note {
     position: absolute;
     top: 50%;
+    transform: translateY(-50%);
     width: 126px;
     height: 268px;
     opacity: 0;
@@ -57,11 +58,21 @@
 </head>
 <body>
   <div class="stage">
-    <div class="item item1"><img src="img/panda/basic.gif"></div>
-    <div class="item item2"><img src="img/panda/text.gif"></div>
-    <div class="item item3" id="leftBtn"><img src="img/panda/left.gif"></div>
-    <div class="item item4" id="rightBtn"><img src="img/panda/right.gif"></div>
-    <div class="item item5"><img id="clearImg" src="img/panda/clear_0.png"></div>
+    <div class="item item1">
+      <img id="pandaImg" src="img/panda/basic.gif">
+    </div>
+    <div class="item item2">
+      <img src="img/panda/text.gif">
+    </div>
+    <div class="item item3" id="leftBtn">
+      <img src="img/panda/left.gif">
+    </div>
+    <div class="item item4" id="rightBtn">
+      <img src="img/panda/right.gif">
+    </div>
+    <div class="item item5">
+      <img id="clearImg" src="img/panda/clear_0.png">
+    </div>
 
     <!-- 🎵 음표 표시 -->
     <img id="noteL" class="note" src="img/panda/soundL.gif" alt="왼쪽 음표">
@@ -71,10 +82,12 @@
   <script>
     const sequence = ["left", "left", "right", "left"];
     let currentStep = 0;
+    let clearCount = 0; // ✅ clear 이미지 단계 추적
 
     const noteL = document.getElementById("noteL");
     const noteR = document.getElementById("noteR");
     const clearImg = document.getElementById("clearImg");
+    const pandaImg = document.getElementById("pandaImg");
     const leftBtn = document.getElementById("leftBtn");
     const rightBtn = document.getElementById("rightBtn");
 
@@ -103,44 +116,51 @@
       el.classList.add("clicked");
       setTimeout(() => {
         el.classList.remove("clicked");
-      }, 600); // 0.6초 후 원래 자리로 복귀
+      }, 1000);
     }
 
     // 정답 판정
     function handleInput(dir) {
       if (dir === sequence[currentStep]) {
         currentStep++;
+        showGood(); // ✅ good 반응
         if (currentStep < sequence.length) {
           showNote();
         } else {
-          // ✅ 클리어
-          noteL.classList.remove("show");
-          noteR.classList.remove("show");
-          clearImg.src = "img/panda/clear_1.png";
-          flashSuccess();
+          // ✅ 한 세트 완성
+          clearCount = Math.min(clearCount + 1, 4);
+          clearImg.src = `img/panda/clear_${clearCount}.png`;
+
+          // 클리어 후 초기화
           currentStep = 0;
           setTimeout(() => {
-            clearImg.src = "img/panda/clear_0.png";
             showNote();
-          }, 1500);
+          }, 1000);
         }
       } else {
         // ❌ 실패
+        showBad(); // bad 반응
         currentStep = 0;
-        flashError();
+        clearCount = 0;
+        clearImg.src = "img/panda/clear_0.png";
         showNote();
       }
     }
 
-    // 시각 피드백
-    function flashError() {
-      document.body.style.backgroundColor = "#552222";
-      setTimeout(() => (document.body.style.backgroundColor = "#222"), 200);
+    // ✅ GOOD 표시
+    function showGood() {
+      pandaImg.src = "img/panda/good.gif";
+      setTimeout(() => {
+        pandaImg.src = "img/panda/basic.gif";
+      }, 1000);
     }
 
-    function flashSuccess() {
-      document.body.style.backgroundColor = "#226622";
-      setTimeout(() => (document.body.style.backgroundColor = "#222"), 200);
+    // ❌ BAD 표시
+    function showBad() {
+      pandaImg.src = "img/panda/bad.gif";
+      setTimeout(() => {
+        pandaImg.src = "img/panda/basic.gif";
+      }, 1000);
     }
 
     // 시작 시 첫 음표 표시
