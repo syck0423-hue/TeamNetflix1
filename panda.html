@@ -25,8 +25,8 @@
 
   .item1 { left: 343px; bottom: 152px; width: 259px; height: 343px; }
   .item2 { left: 96px; top: 45px; width: 239px; height: 307px; }
-  .item3 { left: 57px; top: 433px; width: 237px; height: 304px; transition: transform 1s ease; cursor: pointer; }
-  .item4 { right: 57px; top: 433px; width: 239px; height: 307px; transition: transform 1s ease; cursor: pointer; }
+  .item3 { left: 57px; top: 433px; width: 237px; height: 304px; transition: transform 0.6s ease; cursor: pointer; }
+  .item4 { right: 57px; top: 433px; width: 239px; height: 307px; transition: transform 0.6s ease; cursor: pointer; }
   .item5 { right: 74px; top: 74px; width: 236px; height: 87px; }
 
   .item3:hover, .item4:hover { transform: translateY(-30px); }
@@ -81,8 +81,12 @@
       if (gameEnded) return;
       canClick = true;
 
-      // ✅ 다음 음표 등장 시 판다를 basic으로 복귀
+      // ✅ 판다 초기화
       pandaImg.src = "img/panda/basic.gif";
+
+      // ✅ 다음 라운드 시작 시 손 내려가기
+      leftBtn.classList.remove("clicked");
+      rightBtn.classList.remove("clicked");
 
       noteL.classList.remove("show");
       noteR.classList.remove("show");
@@ -104,15 +108,11 @@
       noteL.classList.remove("show");
       noteR.classList.remove("show");
 
-      raiseSmoothly(btn, () => handleInput(dir));
-    }
+      // 👇 이제 클릭 시 바로 올라간 채로 유지 (내려오지 않음)
+      btn.classList.add("clicked");
 
-    function raiseSmoothly(el, callback) {
-      el.classList.add("clicked");
-      setTimeout(() => {
-        el.classList.remove("clicked");
-        if (callback) callback();
-      }, 1000);
+      // 판정 실행
+      handleInput(dir);
     }
 
     // 입력 판정
@@ -132,16 +132,21 @@
         currentRound = 0;
         clearImg.src = "img/panda/clear_0.png";
         textImg.src = "img/panda/text.gif";
-        setTimeout(showNote, 1000);
+
+        // ❌ 오답 후 기본으로 리셋
+        setTimeout(() => {
+          pandaImg.src = "img/panda/basic.gif";
+          showNote();
+        }, 1000);
       }
     }
 
-    // ✅ GOOD 반응 (다음 음표 나올 때까지 유지)
+    // ✅ GOOD 반응 (다음 음표 전까지 유지)
     function showGood() {
       pandaImg.src = "img/panda/good.gif";
     }
 
-    // ❌ BAD 반응 (다음 음표 나올 때까지 유지)
+    // ❌ BAD 반응 (다음 음표 전까지 유지)
     function showBad() {
       pandaImg.src = "img/panda/bad.gif";
     }
