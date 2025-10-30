@@ -81,6 +81,9 @@
       if (gameEnded) return;
       canClick = true;
 
+      // ✅ 판다 표정 초기화 (새 라운드 시작할 때)
+      pandaImg.src = "img/panda/basic.gif";
+
       noteL.classList.remove("show");
       noteR.classList.remove("show");
 
@@ -109,7 +112,7 @@
       setTimeout(() => {
         el.classList.remove("clicked");
         if (callback) callback();
-      }, 1000); // 손 내려올 때 판정 실행
+      }, 1000);
     }
 
     // 입력 판정
@@ -120,7 +123,7 @@
         clearImg.src = `img/panda/clear_${currentRound}.png`;
 
         if (currentRound < totalRounds) {
-          setTimeout(showNote, 1000); // 1초 뒤 다음 라운드
+          setTimeout(showNote, 1000);
         } else {
           showFinalClear();
         }
@@ -133,16 +136,14 @@
       }
     }
 
-    // ✅ GOOD 반응
+    // ✅ GOOD 반응 (지속)
     function showGood() {
-      pandaImg.src = "img/panda/good.gif";
-      setTimeout(() => (pandaImg.src = "img/panda/basic.gif"), 2000);
+      pandaImg.src = "img/panda/good.gif"; // 다음 클릭 전까지 유지
     }
 
-    // ❌ BAD 반응
+    // ❌ BAD 반응 (지속)
     function showBad() {
-      pandaImg.src = "img/panda/bad.gif";
-      setTimeout(() => (pandaImg.src = "img/panda/basic.gif"), 2000);
+      pandaImg.src = "img/panda/bad.gif"; // 다음 클릭 전까지 유지
     }
 
     // 🎉 4라운드 클리어
