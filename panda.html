@@ -81,9 +81,7 @@
       if (gameEnded) return;
       canClick = true;
 
-      // ✅ 판다 표정 초기화 (새 라운드 시작할 때)
-      pandaImg.src = "img/panda/basic.gif";
-
+      // 🐼 더 이상 기본 표정으로 강제 복귀하지 않음
       noteL.classList.remove("show");
       noteR.classList.remove("show");
 
@@ -132,18 +130,23 @@
         currentRound = 0;
         clearImg.src = "img/panda/clear_0.png";
         textImg.src = "img/panda/text.gif";
-        setTimeout(showNote, 1000);
+
+        // ❌ 오답 후엔 다시 기본 표정으로 돌리고 재시작
+        setTimeout(() => {
+          pandaImg.src = "img/panda/basic.gif";
+          showNote();
+        }, 1000);
       }
     }
 
-    // ✅ GOOD 반응 (지속)
+    // ✅ GOOD 반응 (유지)
     function showGood() {
-      pandaImg.src = "img/panda/good.gif"; // 다음 클릭 전까지 유지
+      pandaImg.src = "img/panda/good.gif";
     }
 
-    // ❌ BAD 반응 (지속)
+    // ❌ BAD 반응 (유지)
     function showBad() {
-      pandaImg.src = "img/panda/bad.gif"; // 다음 클릭 전까지 유지
+      pandaImg.src = "img/panda/bad.gif";
     }
 
     // 🎉 4라운드 클리어
