@@ -103,13 +103,18 @@
       light.style.top = `${mouseY + offsetY}px`;
 
       // 원형 구멍
-      mask.style.maskImage = `
-        radial-gradient(circle ${radius}px at ${mouseX}px ${mouseY}px,
-          transparent 0,
-          transparent ${radius - 1}px,
-          black ${radius}px)
-      `;
-      mask.style.webkitMaskImage = mask.style.maskImage;
+      const blurSize = 80; // 번지는 정도 (값이 클수록 부드러움)
+const lightRadius = radius * 2; // 기본 반지름보다 2배 키움
+
+mask.style.maskImage = `
+  radial-gradient(
+    circle ${lightRadius}px at ${mouseX}px ${mouseY}px,
+    rgba(0,0,0,0) 0%,         /* 완전 투명 중심 */
+    rgba(0,0,0,0) ${lightRadius - blurSize}px, /* 투명 영역 */
+    rgba(0,0,0,0.8) ${lightRadius}px           /* 경계 부드럽게 */
+  )
+`;
+mask.style.webkitMaskImage = mask.style.maskImage;
     });
   </script>
 </body>
