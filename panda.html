@@ -56,7 +56,6 @@
     <div class="item item4" id="rightBtn"><img src="img/panda/right.gif"></div>
     <div class="item item5"><img id="clearImg" src="img/panda/clear_0.png"></div>
 
-    <!-- 🎵 음표 표시 -->
     <img id="noteL" class="note" src="img/panda/soundL.gif" alt="왼쪽 음표">
     <img id="noteR" class="note" src="img/panda/soundR.gif" alt="오른쪽 음표">
   </div>
@@ -81,22 +80,23 @@
       if (gameEnded) return;
       canClick = true;
 
-      // ✅ 판다 초기화
       pandaImg.src = "img/panda/basic.gif";
 
-      // ✅ 다음 라운드 시작 시 손 내려가기
+      // 1️⃣ 손 내려가기
       leftBtn.classList.remove("clicked");
       rightBtn.classList.remove("clicked");
 
       noteL.classList.remove("show");
       noteR.classList.remove("show");
 
-      const current = sequence[currentRound];
-      if (current === "left") noteL.classList.add("show");
-      else if (current === "right") noteR.classList.add("show");
+      // 2️⃣ 0.3초 후 음표 표시
+      setTimeout(() => {
+        const current = sequence[currentRound];
+        if (current === "left") noteL.classList.add("show");
+        else if (current === "right") noteR.classList.add("show");
+      }, 300);
     }
 
-    // 🎮 클릭 처리
     leftBtn.addEventListener("click", () => handlePress("left", leftBtn));
     rightBtn.addEventListener("click", () => handlePress("right", rightBtn));
 
@@ -104,18 +104,13 @@
       if (gameEnded || !canClick) return;
       canClick = false;
 
-      // 클릭 시 음표 즉시 사라짐
       noteL.classList.remove("show");
       noteR.classList.remove("show");
 
-      // 👇 클릭 시 올라간 채로 유지
       btn.classList.add("clicked");
-
-      // 판정 실행
       handleInput(dir);
     }
 
-    // 입력 판정
     function handleInput(dir) {
       if (dir === sequence[currentRound]) {
         showGood();
@@ -133,7 +128,6 @@
         clearImg.src = "img/panda/clear_0.png";
         textImg.src = "img/panda/text.gif";
 
-        // ❌ 오답 후 기본으로 리셋
         setTimeout(() => {
           pandaImg.src = "img/panda/basic.gif";
           showNote();
@@ -141,29 +135,18 @@
       }
     }
 
-    // ✅ GOOD 반응 (다음 음표 전까지 유지)
-    function showGood() {
-      pandaImg.src = "img/panda/good.gif";
-    }
+    function showGood() { pandaImg.src = "img/panda/good.gif"; }
+    function showBad() { pandaImg.src = "img/panda/bad.gif"; }
 
-    // ❌ BAD 반응 (다음 음표 전까지 유지)
-    function showBad() {
-      pandaImg.src = "img/panda/bad.gif";
-    }
-
-    // 🎉 4라운드 클리어
     function showFinalClear() {
       gameEnded = true;
       clearImg.src = "img/panda/clear_4.png";
       pandaImg.src = "img/panda/good.gif";
       textImg.src = "img/panda/result.gif";
-
-      // ✅ 모든 손 원위치
       leftBtn.classList.remove("clicked");
       rightBtn.classList.remove("clicked");
     }
 
-    // 🚀 페이지 로드 후 1초 뒤에 첫 음표 표시
     window.addEventListener("load", () => {
       setTimeout(showNote, 1000);
     });
