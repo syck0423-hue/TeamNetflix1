@@ -107,7 +107,7 @@
       btn.classList.add("clicked");
 
       // 👇 손이 일정 시간 후 내려가게
-      setTimeout(() => btn.classList.remove("clicked"), 1500);
+      setTimeout(() => btn.classList.remove("clicked"), 2000);
 
       handleInput(dir);
     }
@@ -139,16 +139,21 @@
     function showBad() { pandaImg.src = "img/panda/bad.gif"; }
 
     function showFinalClear() {
-      gameEnded = true;
-      clearImg.src = "img/panda/clear_4.png";
-      pandaImg.src = "img/panda/good.gif";
-      
-      setTimeout(() => {
-        leftBtn.classList.remove("clicked");
-        rightBtn.classList.remove("clicked");
-        textImg.src = "img/panda/result.gif";
-      }, 1500);
-    }
+  gameEnded = true;
+  clearImg.src = "img/panda/clear_4.png";
+  pandaImg.src = "img/panda/good.gif";
+
+  // 1️⃣ 손이 내려감 (2초 뒤)
+  setTimeout(() => {
+    leftBtn.classList.remove("clicked");
+    rightBtn.classList.remove("clicked");
+  }, 2000);
+
+  // 2️⃣ 손 내려간 후 약간의 텀(0.8초 뒤) 후 result 등장
+  setTimeout(() => {
+    textImg.src = "img/panda/result.gif";
+  }, 3000);
+}
 
     window.addEventListener("load", () => {
       setTimeout(showNote, 1000);
