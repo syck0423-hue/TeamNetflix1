@@ -62,7 +62,7 @@
       <img id="pandaImg" src="img/panda/basic.gif">
     </div>
     <div class="item item2">
-      <img src="img/panda/text.gif">
+      <img id="textImg" src="img/panda/text.gif">
     </div>
     <div class="item item3" id="leftBtn">
       <img src="img/panda/left.gif">
@@ -80,15 +80,15 @@
   </div>
 
   <script>
-    // 🎯 각 라운드별 정답 순서
     const sequence = ["left", "left", "right", "left"];
-    let currentRound = 0; // 현재 라운드 (0~3)
+    let currentRound = 0;
     const totalRounds = sequence.length;
 
     const noteL = document.getElementById("noteL");
     const noteR = document.getElementById("noteR");
     const clearImg = document.getElementById("clearImg");
     const pandaImg = document.getElementById("pandaImg");
+    const textImg = document.getElementById("textImg"); // ✅ text.gif 접근
     const leftBtn = document.getElementById("leftBtn");
     const rightBtn = document.getElementById("rightBtn");
 
@@ -104,86 +104,22 @@
       setTimeout(() => {
         noteL.classList.remove("show");
         noteR.classList.remove("show");
-      }, 1000); // 0.5초 후 사라짐
+      }, 500);
     }
 
-    // 클릭 처리
     leftBtn.addEventListener("click", () => {
       raiseSmoothly(leftBtn);
       handleInput("left");
     });
-
     rightBtn.addEventListener("click", () => {
       raiseSmoothly(rightBtn);
       handleInput("right");
     });
 
-    // 클릭 시 천천히 올라갔다 내려오기
     function raiseSmoothly(el) {
       el.classList.add("clicked");
-      setTimeout(() => {
-        el.classList.remove("clicked");
-      }, 1000);
+      setTimeout(() => el.classList.remove("clicked"), 1000);
     }
 
-    // 입력 판정
     function handleInput(dir) {
-      if (dir === sequence[currentRound]) {
-        showGood();
-        currentRound++;
-        clearImg.src = `img/panda/clear_${currentRound}.png`; // 라운드별 클리어 상태 반영
-
-        if (currentRound < totalRounds) {
-          // 다음 라운드로 넘어가며 다음 음표 표시
-          setTimeout(() => {
-            showNote();
-          }, 1000);
-        } else {
-          // 🎉 모든 라운드 완료
-          showFinalClear();
-        }
-      } else {
-        // ❌ 틀릴 경우
-        showBad();
-        currentRound = 0;
-        clearImg.src = "img/panda/clear_0.png";
-        setTimeout(() => {
-          showNote();
-        }, 1000);
-      }
-    }
-
-    // ✅ GOOD 반응
-    function showGood() {
-      pandaImg.src = "img/panda/good.gif";
-      setTimeout(() => {
-        pandaImg.src = "img/panda/basic.gif";
-      }, 1000);
-    }
-
-    // ❌ BAD 반응
-    function showBad() {
-      pandaImg.src = "img/panda/bad.gif";
-      setTimeout(() => {
-        pandaImg.src = "img/panda/basic.gif";
-      }, 1000);
-    }
-
-    // 🎉 4라운드 클리어
-    function showFinalClear() {
-      clearImg.src = "img/panda/clear_4.png";
-      pandaImg.src = "img/panda/good.gif";
-      setTimeout(() => {
-        pandaImg.src = "img/panda/basic.gif";
-        // 다시 첫 라운드로 재시작
-        currentRound = 0;
-        clearImg.src = "img/panda/clear_0.png";
-        showNote();
-      }, 2000);
-    }
-
-    // 시작 시 첫 음표 표시
-    showNote();
-  </script>
-</body>
-</html>
+      if (dir ===
