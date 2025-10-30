@@ -51,7 +51,17 @@
     top: 433px; 
     width: 239px;
     height: 307px;
-  }  
+  } 
+  .item3, .item4 {
+    transition: transform 0.4s ease, opacity 0.4s ease;
+    opacity: 1; /* 기본 불투명 */
+  }
+
+/* hover 시 위로 살짝 올라오고 투명도 적용 */
+  .item3:hover, .item4:hover {
+    transform: translateY(-40px); /* 위로 이동 */
+    opacity: 0.7; /* 반투명 처리 */
+  }
   .item5 { 
     right: 74px; 
     top: 74px; 
