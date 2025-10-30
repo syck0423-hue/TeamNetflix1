@@ -54,7 +54,7 @@
     <div class="item item2"><img id="textImg" src="img/panda/text.gif"></div>
     <div class="item item3" id="leftBtn"><img src="img/panda/left.gif"></div>
     <div class="item item4" id="rightBtn"><img src="img/panda/right.gif"></div>
-    <div class="item item5"><img id="clearImg" src="img/panda/clear_0.png"></div>
+    <div class="item item5"><img id="clearImg" src="img/panda/c_0.png"></div>
 
     <img id="noteL" class="note" src="img/panda/soundL.gif" alt="왼쪽 음표">
     <img id="noteR" class="note" src="img/panda/soundR.gif" alt="오른쪽 음표">
@@ -116,7 +116,7 @@
       if (dir === sequence[currentRound]) {
         showGood();
         currentRound++;
-        clearImg.src = `img/panda/clear_${currentRound}.png`;
+        clearImg.src = `img/panda/c_${currentRound}.png`;
 
         if (currentRound < totalRounds) {
           setTimeout(showNote, 2000);
@@ -126,7 +126,7 @@
       } else {
         showBad();
         currentRound = 0;
-        clearImg.src = "img/panda/clear_0.png";
+        clearImg.src = "img/panda/c_0.png";
         textImg.src = "img/panda/text.gif";
         setTimeout(() => {
           pandaImg.src = "img/panda/basic.gif";
@@ -140,7 +140,7 @@
 
     function showFinalClear() {
   gameEnded = true;
-  clearImg.src = "img/panda/clear_4.png";
+  clearImg.src = "img/panda/c_4.png";
   pandaImg.src = "img/panda/good.gif";
 
   // 1️⃣ 손이 내려감 (2초 뒤)
