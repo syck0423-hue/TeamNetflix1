@@ -42,16 +42,16 @@
   /* 음표 표시 */
   .note {
     position: absolute;
-    top: 220px;
-    width: 100px;
-    height: 100px;
+    top: 50%;
+    width: 126px;
+    height: 268px;
     opacity: 0;
     transition: opacity 0.4s ease;
     z-index: 10;
   }
 
-  #noteL { left: 200px; }
-  #noteR { right: 200px; }
+  #noteL { left: 5px; }
+  #noteR { right: 5px; }
   .show { opacity: 1; }
 </style>
 </head>
@@ -64,8 +64,8 @@
     <div class="item item5"><img id="clearImg" src="img/panda/clear_0.png"></div>
 
     <!-- 🎵 음표 표시 -->
-    <img id="noteL" class="note" src="img/panda/soundL.png" alt="왼쪽 음표">
-    <img id="noteR" class="note" src="img/panda/soundR.png" alt="오른쪽 음표">
+    <img id="noteL" class="note" src="img/panda/soundL.gif" alt="왼쪽 음표">
+    <img id="noteR" class="note" src="img/panda/soundR.gif" alt="오른쪽 음표">
   </div>
 
   <script>
