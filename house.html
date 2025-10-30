@@ -1,59 +1,61 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>PNG 요소로 배경 뚫기 (1 먼저 로딩)</title>
-<style>
-  body {
-    margin: 0;
-    overflow: hidden;
-    background: #ccc;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
+  <meta charset="UTF-8">
+  <title>PNG 요소로 배경 뚫기 (1 먼저 로딩)</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #ccc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
 
-  .background {
-    position: relative;
-    width: 926px;
-    height: 574px;
-    overflow: hidden;
-  }
+    .background {
+      position: relative;
+      width: 926px;
+      height: 574px;
+      overflow: hidden;
+    }
 
-  /* 배경 (2.png) */
-  .bg-image {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0; left: 0;
-    background: url('img/house/11.png') no-repeat center/cover;
-    opacity: 0; /* 처음엔 숨김 */
-    transition: opacity 0.4s ease;
-    z-index: 1;
-  }
+    /* 배경 (11.png) */
+    .bg-image {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      background: url('img/house/11.png') no-repeat center/cover;
+      opacity: 0; /* 처음엔 숨김 */
+      transition: opacity 0.4s ease;
+      z-index: 1;
+    }
 
-  /* 덮개 (1.png) */
-  .mask {
-    position: absolute;
-    top: 0; left: 0;
-    width: 926px;
-    height: 574px;
-    background: url('img/house/22.png') no-repeat center/cover;
-    pointer-events: none;
-    z-index: 2;
-  }
+    /* 덮개 (22.png) */
+    .mask {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 926px;
+      height: 574px;
+      background: url('img/house/22.png') no-repeat center/cover;
+      pointer-events: none;
+      z-index: 2;
+    }
 
-  /* 마우스를 따라다니는 이미지 */
-  #light {
-    position: absolute;
-    width: 100px;
-    height: 100px;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    z-index: 3;
-  }
-</style>
+    /* 마우스를 따라다니는 이미지 */
+    #light {
+      position: absolute;
+      width: 110px;
+      height: 110px;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 3;
+    }
+  </style>
 </head>
 <body>
   <div class="background" id="bg">
@@ -89,7 +91,7 @@
       };
     };
 
-    // 마우스 이동 이벤트
+    // 🎯 마우스 이동 이벤트
     bg.addEventListener('mousemove', e => {
       const rect = bg.getBoundingClientRect();
       const mouseX = e.clientX - rect.left;
@@ -103,19 +105,15 @@
       light.style.top = `${mouseY + offsetY}px`;
 
       // 원형 구멍
-const blurSize = 120; // 퍼짐 정도
-const lightRadius = radius * 2; // 빛의 전체 반경
-
-mask.style.maskImage = `
-  radial-gradient(
-    circle ${lightRadius}px at ${mouseX}px ${mouseY}px,
-    rgba(0,0,0,0) 0%,               /* 중심부 - 완전 투명 (빛이 완전히 통과) */
-    rgba(0,0,0,0.4) 50%,            /* 중간부 - 반투명 */
-    rgba(0,0,0,0.8) 80%,            /* 바깥부 - 더 어두움 */
-    rgba(0,0,0,1) 100%              /* 가장자리 - 완전히 불투명 */
-  )
-`;
-mask.style.webkitMaskImage = mask.style.maskImage;
+      mask.style.maskImage = `
+        radial-gradient(
+          circle ${radius}px at ${mouseX}px ${mouseY}px,
+          transparent 0,
+          transparent ${radius - 1}px,
+          black ${radius}px
+        )
+      `;
+      mask.style.webkitMaskImage = mask.style.maskImage;
     });
   </script>
 </body>
