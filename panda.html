@@ -78,7 +78,7 @@
     // 🎵 음표 표시
     function showNote() {
       if (gameEnded) return;
-      canClick = true;
+      canClick = false; // ✅ 클릭 잠금 상태로 시작
 
       pandaImg.src = "img/panda/basic.gif";
 
@@ -88,10 +88,14 @@
       noteL.classList.remove("show");
       noteR.classList.remove("show");
 
+      // 1초 후 음표 표시
       setTimeout(() => {
         const current = sequence[currentRound];
         if (current === "left") noteL.classList.add("show");
         else if (current === "right") noteR.classList.add("show");
+
+        // ✅ 음표가 실제로 나타난 직후 클릭 허용
+        setTimeout(() => { canClick = true; }, 300); // 0.3초 뒤부터 클릭 가능
       }, 1000);
     }
 
@@ -103,20 +107,15 @@
       // 🔒 음표가 뜨지 않았거나 게임 종료 상태면 반응 안 함
       if (gameEnded || !canClick) return;
 
-      // 클릭 가능 상태만 true
       canClick = false;
 
-      // 음표 제거
       noteL.classList.remove("show");
       noteR.classList.remove("show");
 
-      // 손 올리기
       btn.classList.add("clicked");
 
-      // 손이 일정 시간 후 내려가게
       setTimeout(() => btn.classList.remove("clicked"), 2000);
 
-      // 판정 실행
       handleInput(dir);
     }
 
@@ -154,13 +153,11 @@
       clearImg.src = "img/panda/c_4.png";
       pandaImg.src = "img/panda/good.gif";
 
-      // 1️⃣ 손 내려감
       setTimeout(() => {
         leftBtn.classList.remove("clicked");
         rightBtn.classList.remove("clicked");
       }, 2000);
 
-      // 2️⃣ 0.8초 후 result 표시
       setTimeout(() => {
         textImg.src = "img/panda/result.gif";
       }, 2800);
