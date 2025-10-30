@@ -83,17 +83,20 @@
     const sequence = ["left", "left", "right", "left"];
     let currentRound = 0;
     const totalRounds = sequence.length;
+    let gameEnded = false; // ✅ 게임 종료 상태
 
     const noteL = document.getElementById("noteL");
     const noteR = document.getElementById("noteR");
     const clearImg = document.getElementById("clearImg");
     const pandaImg = document.getElementById("pandaImg");
-    const textImg = document.getElementById("textImg"); // ✅ text.gif 접근
+    const textImg = document.getElementById("textImg");
     const leftBtn = document.getElementById("leftBtn");
     const rightBtn = document.getElementById("rightBtn");
 
-    // 음표 표시 (0.5초 후 자동 사라짐)
+    // 🎵 음표 표시 (0.5초 후 자동 사라짐)
     function showNote() {
+      if (gameEnded) return; // ✅ 클리어 후엔 음표 표시 안 함
+
       noteL.classList.remove("show");
       noteR.classList.remove("show");
 
@@ -104,22 +107,72 @@
       setTimeout(() => {
         noteL.classList.remove("show");
         noteR.classList.remove("show");
-      }, 500);
+      }, 500); // 0.5초 후 사라짐
     }
 
+    // 🎮 클릭 처리
     leftBtn.addEventListener("click", () => {
+      if (gameEnded) return; // 클리어 후 클릭 막기
       raiseSmoothly(leftBtn);
       handleInput("left");
     });
     rightBtn.addEventListener("click", () => {
+      if (gameEnded) return;
       raiseSmoothly(rightBtn);
       handleInput("right");
     });
 
+    // 클릭 시 천천히 올라갔다 내려오기
     function raiseSmoothly(el) {
       el.classList.add("clicked");
       setTimeout(() => el.classList.remove("clicked"), 1000);
     }
 
+    // 입력 판정
     function handleInput(dir) {
-      if (dir ===
+      if (dir === sequence[currentRound]) {
+        showGood();
+        currentRound++;
+        clearImg.src = `img/panda/clear_${currentRound}.png`;
+
+        if (currentRound < totalRounds) {
+          setTimeout(showNote, 1000);
+        } else {
+          showFinalClear();
+        }
+      } else {
+        showBad();
+        currentRound = 0;
+        clearImg.src = "img/panda/clear_0.png";
+        textImg.src = "img/panda/text.gif";
+        setTimeout(showNote, 1000);
+      }
+    }
+
+    // ✅ GOOD 반응
+    function showGood() {
+      pandaImg.src = "img/panda/good.gif";
+      setTimeout(() => (pandaImg.src = "img/panda/basic.gif"), 1000);
+    }
+
+    // ❌ BAD 반응
+    function showBad() {
+      pandaImg.src = "img/panda/bad.gif";
+      setTimeout(() => (pandaImg.src = "img/panda/basic.gif"), 1000);
+    }
+
+    // 🎉 4라운드 클리어
+    function showFinalClear() {
+      gameEnded = true; // ✅ 게임 종료 상태 고정
+      clearImg.src = "img/panda/clear_4.png";
+      pandaImg.src = "img/panda/good.gif";
+      textImg.src = "img/panda/result.gif";
+    }
+
+    // 🚀 페이지 로드 후 2초 뒤에 첫 음표 표시
+    window.addEventListener("load", () => {
+      setTimeout(showNote, 2000);
+    });
+  </script>
+</body>
+</html>
