@@ -103,15 +103,16 @@
       light.style.top = `${mouseY + offsetY}px`;
 
       // 원형 구멍
-      const blurSize = 80; // 번지는 정도 (값이 클수록 부드러움)
-const lightRadius = radius * 2; // 기본 반지름보다 2배 키움
+const blurSize = 120; // 퍼짐 정도
+const lightRadius = radius * 2; // 빛의 전체 반경
 
 mask.style.maskImage = `
   radial-gradient(
     circle ${lightRadius}px at ${mouseX}px ${mouseY}px,
-    rgba(0,0,0,0) 0%,         
-    rgba(0,0,0,0) ${lightRadius - blurSize}px,
-    black ${lightRadius}px  /* ✅ 완전히 불투명 */
+    rgba(0,0,0,0) 0%,               /* 중심부 - 완전 투명 (빛이 완전히 통과) */
+    rgba(0,0,0,0.4) 50%,            /* 중간부 - 반투명 */
+    rgba(0,0,0,0.8) 80%,            /* 바깥부 - 더 어두움 */
+    rgba(0,0,0,1) 100%              /* 가장자리 - 완전히 불투명 */
   )
 `;
 mask.style.webkitMaskImage = mask.style.maskImage;
