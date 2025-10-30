@@ -47,7 +47,7 @@
     width: 126px;
     height: 268px;
     opacity: 0;
-    transition: opacity 0.4s ease;
+    transition: opacity 0.3s ease;
     z-index: 10;
   }
 
@@ -80,9 +80,10 @@
   </div>
 
   <script>
+    // 🎯 각 라운드별 정답 순서
     const sequence = ["left", "left", "right", "left"];
-    let currentStep = 0;
-    let clearCount = 0; // ✅ clear 이미지 단계 추적
+    let currentRound = 0; // 현재 라운드 (0~3)
+    const totalRounds = sequence.length;
 
     const noteL = document.getElementById("noteL");
     const noteR = document.getElementById("noteR");
@@ -91,13 +92,19 @@
     const leftBtn = document.getElementById("leftBtn");
     const rightBtn = document.getElementById("rightBtn");
 
-    // 현재 단계의 음표 표시
+    // 음표 표시 (0.5초 후 자동 사라짐)
     function showNote() {
       noteL.classList.remove("show");
       noteR.classList.remove("show");
-      const current = sequence[currentStep];
+
+      const current = sequence[currentRound];
       if (current === "left") noteL.classList.add("show");
       else if (current === "right") noteR.classList.add("show");
+
+      setTimeout(() => {
+        noteL.classList.remove("show");
+        noteR.classList.remove("show");
+      }, 500); // 0.5초 후 사라짐
     }
 
     // 클릭 처리
@@ -119,35 +126,34 @@
       }, 1000);
     }
 
-    // 정답 판정
+    // 입력 판정
     function handleInput(dir) {
-      if (dir === sequence[currentStep]) {
-        currentStep++;
-        showGood(); // ✅ good 반응
-        if (currentStep < sequence.length) {
-          showNote();
-        } else {
-          // ✅ 한 세트 완성
-          clearCount = Math.min(clearCount + 1, 4);
-          clearImg.src = `img/panda/clear_${clearCount}.png`;
+      if (dir === sequence[currentRound]) {
+        showGood();
+        currentRound++;
+        clearImg.src = `img/panda/clear_${currentRound}.png`; // 라운드별 클리어 상태 반영
 
-          // 클리어 후 초기화
-          currentStep = 0;
+        if (currentRound < totalRounds) {
+          // 다음 라운드로 넘어가며 다음 음표 표시
           setTimeout(() => {
             showNote();
           }, 1000);
+        } else {
+          // 🎉 모든 라운드 완료
+          showFinalClear();
         }
       } else {
-        // ❌ 실패
-        showBad(); // bad 반응
-        currentStep = 0;
-        clearCount = 0;
+        // ❌ 틀릴 경우
+        showBad();
+        currentRound = 0;
         clearImg.src = "img/panda/clear_0.png";
-        showNote();
+        setTimeout(() => {
+          showNote();
+        }, 1000);
       }
     }
 
-    // ✅ GOOD 표시
+    // ✅ GOOD 반응
     function showGood() {
       pandaImg.src = "img/panda/good.gif";
       setTimeout(() => {
@@ -155,12 +161,25 @@
       }, 1000);
     }
 
-    // ❌ BAD 표시
+    // ❌ BAD 반응
     function showBad() {
       pandaImg.src = "img/panda/bad.gif";
       setTimeout(() => {
         pandaImg.src = "img/panda/basic.gif";
       }, 1000);
+    }
+
+    // 🎉 4라운드 클리어
+    function showFinalClear() {
+      clearImg.src = "img/panda/clear_4.png";
+      pandaImg.src = "img/panda/good.gif";
+      setTimeout(() => {
+        pandaImg.src = "img/panda/basic.gif";
+        // 다시 첫 라운드로 재시작
+        currentRound = 0;
+        clearImg.src = "img/panda/clear_0.png";
+        showNote();
+      }, 2000);
     }
 
     // 시작 시 첫 음표 표시
