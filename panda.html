@@ -93,7 +93,6 @@
     const leftBtn = document.getElementById("leftBtn");
     const rightBtn = document.getElementById("rightBtn");
 
-    // 🎵 음표 표시 (0.5초 후 자동 사라짐)
     function showNote() {
       if (gameEnded) return; // ✅ 클리어 후엔 음표 표시 안 함
 
@@ -107,7 +106,7 @@
       setTimeout(() => {
         noteL.classList.remove("show");
         noteR.classList.remove("show");
-      }, 500); // 0.5초 후 사라짐
+      }, 2000); // 
     }
 
     // 🎮 클릭 처리
