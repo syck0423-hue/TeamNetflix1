@@ -9,7 +9,8 @@
     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
     font-weight: normal;
     font-display: swap;
-}
+  }
+
   body {
     margin: 0;
     background: #222;
@@ -52,60 +53,60 @@
   #noteL { left: 5px; }
   #noteR { right: 5px; }
   .show { opacity: 1; }
-  
+
   /* === 다이얼 & ENTER UI === */
-.dial {
-  position: absolute;       /* 위치 자유 */
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  font-family: 'Juache', sans-serif;
-  font-size: 30px;
-  color: #cccccc;
-  user-select: none;
-  cursor: default;
-}
+  .dial {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-family: 'Juache', sans-serif;
+    font-size: 30px;
+    color: #cccccc;
+    user-select: none;
+    cursor: default;
+  }
 
-.dial .arrow {
-  cursor: pointer;
-  font-size : 10px;
-}
+  .dial .arrow {
+    cursor: pointer;
+    font-size: 10px;
+  }
 
-.dial .value {
-  min-width: 22px;
-  text-align: center;
-  font-weight: bold;
-  letter-spacing: 2px;
-}
+  .dial .value {
+    min-width: 22px;
+    text-align: center;
+    font-weight: bold;
+    letter-spacing: 2px;
+  }
 
-/* ENTER 버튼 */
-.enter-btn {
-  position: absolute;  /* 자유 위치 */
-  font-family: 'Juache', sans-serif;
-  font-size: 28px;
-  font-weight: bold;
-  color: #cccccc;
-  cursor: pointer;
-  user-select: none;
-}
+  /* ENTER 버튼 */
+  .enter-btn {
+    position: absolute;
+    font-family: 'Juache', sans-serif;
+    font-size: 28px;
+    font-weight: bold;
+    color: #cccccc;
+    cursor: pointer;
+    user-select: none;
+  }
 
-/* 🎯 위치 예시 — 자유롭게 바꾸면 됨 */
-#dial1 { right: 254px; top: 100px; }
-#dial2 { right: 198px; top: 100px; }
-#dial3 { right: 138px; top: 100px; }
-#dial4 { right: 80px; top: 100px; }
-#enterBtn { right: 150px; top: 153px; }
+  /* 🎯 위치 (자유 조정 가능) */
+  #dial1 { right: 254px; top: 105px; }
+  #dial2 { right: 198px; top: 105px; }
+  #dial3 { right: 138px; top: 105px; }
+  #dial4 { right: 80px; top: 105px; }
+  #enterBtn { right: 150px; top: 153px; }
 
-.dial, .enter-btn {
-  opacity: 0;
-  transition: opacity 0.8s ease;
-}
+  /* 처음에는 숨김 */
+  .dial, .enter-btn {
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
 
-/* 나타날 때 */
-.show-ui {
-  opacity: 1;
-}
-
+  /* 나타날 때 */
+  .show-ui {
+    opacity: 1;
+  }
 </style>
 </head>
 <body>
@@ -119,28 +120,29 @@
     <img id="noteL" class="note" src="img/panda/soundL.gif" alt="왼쪽 음표">
     <img id="noteR" class="note" src="img/panda/soundR.gif" alt="오른쪽 음표">
 
+    <!-- 🎮 다이얼 UI -->
     <div class="dial" id="dial1" data-index="0">
-  <span class="arrow" data-dir="-1">◀</span>
-  <span class="value">A</span>
-  <span class="arrow" data-dir="1">▶</span>
-</div>
-<div class="dial" id="dial2" data-index="1">
-  <span class="arrow" data-dir="-1">◀</span>
-  <span class="value">A</span>
-  <span class="arrow" data-dir="1">▶</span>
-</div>
-<div class="dial" id="dial3" data-index="2">
-  <span class="arrow" data-dir="-1">◀</span>
-  <span class="value">A</span>
-  <span class="arrow" data-dir="1">▶</span>
-</div>
-<div class="dial" id="dial4" data-index="3">
-  <span class="arrow" data-dir="-1">◀</span>
-  <span class="value">A</span>
-  <span class="arrow" data-dir="1">▶</span>
-</div>
+      <span class="arrow" data-dir="-1">◀</span>
+      <span class="value">A</span>
+      <span class="arrow" data-dir="1">▶</span>
+    </div>
+    <div class="dial" id="dial2" data-index="1">
+      <span class="arrow" data-dir="-1">◀</span>
+      <span class="value">A</span>
+      <span class="arrow" data-dir="1">▶</span>
+    </div>
+    <div class="dial" id="dial3" data-index="2">
+      <span class="arrow" data-dir="-1">◀</span>
+      <span class="value">A</span>
+      <span class="arrow" data-dir="1">▶</span>
+    </div>
+    <div class="dial" id="dial4" data-index="3">
+      <span class="arrow" data-dir="-1">◀</span>
+      <span class="value">A</span>
+      <span class="arrow" data-dir="1">▶</span>
+    </div>
 
-<div class="enter-btn" id="enterBtn">ENTER</div>
+    <div class="enter-btn" id="enterBtn">ENTER</div>
   </div>
 
   <script>
@@ -161,23 +163,19 @@
     // 🎵 음표 표시
     function showNote() {
       if (gameEnded) return;
-      canClick = false; // ✅ 클릭 잠금 상태로 시작
+      canClick = false;
 
       pandaImg.src = "img/panda/basic.gif";
-
       leftBtn.classList.remove("clicked");
       rightBtn.classList.remove("clicked");
-
       noteL.classList.remove("show");
       noteR.classList.remove("show");
 
-      // 1초 후 음표 표시
       setTimeout(() => {
         const current = sequence[currentRound];
         if (current === "left") noteL.classList.add("show");
         else if (current === "right") noteR.classList.add("show");
 
-        // ✅ 음표가 실제로 나타난 직후 클릭 허용
         setTimeout(() => { canClick = true; }, 300);
       }, 1000);
     }
@@ -187,16 +185,13 @@
     rightBtn.addEventListener("click", () => handlePress("right", rightBtn));
 
     function handlePress(dir, btn) {
-      // 🔒 음표가 뜨지 않았거나 게임 종료 상태면 반응 안 함
       if (gameEnded || !canClick) return;
 
       canClick = false;
-
       noteL.classList.remove("show");
       noteR.classList.remove("show");
 
       btn.classList.add("clicked");
-
       setTimeout(() => btn.classList.remove("clicked"), 2000);
 
       handleInput(dir);
@@ -231,52 +226,73 @@
     function showBad() { pandaImg.src = "img/panda/bad.gif"; }
 
     // 🎉 최종 클리어
-function showFinalClear() {
-  gameEnded = true;
-  clearImg.src = "img/panda/c_4.png";
-  pandaImg.src = "img/panda/good.gif";
+    function showFinalClear() {
+      gameEnded = true;
+      clearImg.src = "img/panda/c_4.png";
+      pandaImg.src = "img/panda/good.gif";
 
-  // 1️⃣ 손 내려가면서 판다 바로 basic으로 복귀
-  setTimeout(() => {
-    leftBtn.classList.remove("clicked");
-    rightBtn.classList.remove("clicked");
-    pandaImg.src = "img/panda/basic.gif"; // ✅ 동시에 변경
-  }, 2000);
+      setTimeout(() => {
+        leftBtn.classList.remove("clicked");
+        rightBtn.classList.remove("clicked");
+        pandaImg.src = "img/panda/basic.gif";
+      }, 2000);
 
-  // 2️⃣ 0.8초 뒤 middle.gif로 변경 + c_0.png로 복귀 (위치 조정)
-  setTimeout(() => {
-    textImg.src = "img/panda/middle.gif";
-    clearImg.src = "img/panda/c_0.png";
-    clearImg.style.transform = "translateY(-20px)";
-    
-    // ✅ 게임 종료 후 다이얼과 ENTER 표시
-    document.querySelectorAll(".dial, .enter-btn").forEach(el => {
-      el.classList.add("show-ui");
-    });
-  }, 2800);
-}
+      setTimeout(() => {
+        textImg.src = "img/panda/middle.gif";
+        clearImg.src = "img/panda/c_0.png";
+        clearImg.style.transform = "translateY(-20px)";
+        
+        // ✅ 다이얼 & ENTER 표시
+        document.querySelectorAll(".dial, .enter-btn").forEach(el => {
+          el.classList.add("show-ui");
+        });
+      }, 2800);
+    }
 
     // 🚀 페이지 로드 후 0.8초 뒤 첫 음표 표시
     window.addEventListener("load", () => {
       setTimeout(showNote, 800);
     });
+
+    // 🔠 다이얼 로직
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-let dialStates = [0, 0, 0, 0];
+    let dialStates = [0, 0, 0, 0];
 
-document.querySelectorAll(".dial").forEach((dial, index) => {
-  dial.addEventListener("click", (e) => {
-    if (!e.target.classList.contains("arrow")) return;
-    const dir = parseInt(e.target.dataset.dir, 10);
-    dialStates[index] = (dialStates[index] + dir + letters.length) % letters.length;
-    dial.querySelector(".value").textContent = letters[dialStates[index]];
-  });
-});
+    document.querySelectorAll(".dial").forEach((dial, index) => {
+      dial.addEventListener("click", (e) => {
+        if (!e.target.classList.contains("arrow")) return;
+        const dir = parseInt(e.target.dataset.dir, 10);
+        dialStates[index] = (dialStates[index] + dir + letters.length) % letters.length;
+        dial.querySelector(".value").textContent = letters[dialStates[index]];
+      });
+    });
 
-document.getElementById("enterBtn").addEventListener("click", () => {
-  const code = dialStates.map(i => letters[i]).join("");
-  console.log("입력된 코드:", code);
-  // ✅ 여기에 ENTER 눌렀을 때 동작 추가 가능 (정답체크, 연출 등)
-});
+    // ✅ ENTER 클릭 로직
+    document.getElementById("enterBtn").addEventListener("click", () => {
+      const code = dialStates.map(i => letters[i]).join("");
+      console.log("입력된 코드:", code);
+
+      const correctCode = "PPAP";
+
+      if (code === correctCode) {
+        textImg.src = "img/panda/result.gif";
+        pandaImg.src = "img/panda/good.gif";
+
+        setTimeout(() => {
+          pandaImg.src = "img/panda/basic.gif";
+        }, 2000);
+      } else {
+        pandaImg.src = "img/panda/bad.gif";
+
+        // 다이얼 초기화 (AAAA로)
+        dialStates = [0, 0, 0, 0];
+        document.querySelectorAll(".dial .value").forEach(v => v.textContent = "A");
+
+        setTimeout(() => {
+          pandaImg.src = "img/panda/basic.gif";
+        }, 2000);
+      }
+    });
   </script>
 </body>
 </html>
