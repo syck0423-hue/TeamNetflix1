@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <title>판다 클릭 리듬게임</title>
 <style>
+  @font-face {
+    font-family: 'Juache';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMJUA.woff') format('woff');
+    font-weight: normal;
+    font-display: swap;
+}
   body {
     margin: 0;
     background: #222;
@@ -46,6 +52,50 @@
   #noteL { left: 5px; }
   #noteR { right: 5px; }
   .show { opacity: 1; }
+  
+  /* === 다이얼 & ENTER UI === */
+.dial {
+  position: absolute;       /* 위치 자유 */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Juache', sans-serif;
+  font-size: 30px;
+  color: #cccccc;
+  user-select: none;
+  cursor: default;
+}
+
+.dial .arrow {
+  cursor: pointer;
+  font-size : 10px;
+}
+
+.dial .value {
+  min-width: 22px;
+  text-align: center;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+/* ENTER 버튼 */
+.enter-btn {
+  position: absolute;  /* 자유 위치 */
+  font-family: 'Juache', sans-serif;
+  font-size: 28px;
+  font-weight: bold;
+  color: #cccccc;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* 🎯 위치 예시 — 자유롭게 바꾸면 됨 */
+#dial1 { right: 254px; top: 110px; }
+#dial2 { right: 198px; top: 110px; }
+#dial3 { right: 138px; top: 110px; }
+#dial4 { right: 80px; top: 110px; }
+#enterBtn { right: 150px; top: 153px; }
+
 </style>
 </head>
 <body>
@@ -58,6 +108,29 @@
 
     <img id="noteL" class="note" src="img/panda/soundL.gif" alt="왼쪽 음표">
     <img id="noteR" class="note" src="img/panda/soundR.gif" alt="오른쪽 음표">
+
+    <div class="dial" id="dial1" data-index="0">
+  <span class="arrow" data-dir="-1">◀</span>
+  <span class="value">A</span>
+  <span class="arrow" data-dir="1">▶</span>
+</div>
+<div class="dial" id="dial2" data-index="1">
+  <span class="arrow" data-dir="-1">◀</span>
+  <span class="value">A</span>
+  <span class="arrow" data-dir="1">▶</span>
+</div>
+<div class="dial" id="dial3" data-index="2">
+  <span class="arrow" data-dir="-1">◀</span>
+  <span class="value">A</span>
+  <span class="arrow" data-dir="1">▶</span>
+</div>
+<div class="dial" id="dial4" data-index="3">
+  <span class="arrow" data-dir="-1">◀</span>
+  <span class="value">A</span>
+  <span class="arrow" data-dir="1">▶</span>
+</div>
+
+<div class="enter-btn" id="enterBtn">ENTER</div>
   </div>
 
   <script>
@@ -172,6 +245,23 @@ function showFinalClear() {
     window.addEventListener("load", () => {
       setTimeout(showNote, 800);
     });
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+let dialStates = [0, 0, 0, 0];
+
+document.querySelectorAll(".dial").forEach((dial, index) => {
+  dial.addEventListener("click", (e) => {
+    if (!e.target.classList.contains("arrow")) return;
+    const dir = parseInt(e.target.dataset.dir, 10);
+    dialStates[index] = (dialStates[index] + dir + letters.length) % letters.length;
+    dial.querySelector(".value").textContent = letters[dialStates[index]];
+  });
+});
+
+document.getElementById("enterBtn").addEventListener("click", () => {
+  const code = dialStates.map(i => letters[i]).join("");
+  console.log("입력된 코드:", code);
+  // ✅ 여기에 ENTER 눌렀을 때 동작 추가 가능 (정답체크, 연출 등)
+});
   </script>
 </body>
 </html>
