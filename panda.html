@@ -96,6 +96,16 @@
 #dial4 { right: 80px; top: 110px; }
 #enterBtn { right: 150px; top: 153px; }
 
+.dial, .enter-btn {
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+/* 나타날 때 */
+.show-ui {
+  opacity: 1;
+}
+
 </style>
 </head>
 <body>
@@ -233,11 +243,16 @@ function showFinalClear() {
     pandaImg.src = "img/panda/basic.gif"; // ✅ 동시에 변경
   }, 2000);
 
-  // 2️⃣ 0.8초 뒤 middle.gif로 변경 + c_0.gif로 복귀 (위치 조정)
+  // 2️⃣ 0.8초 뒤 middle.gif로 변경 + c_0.png로 복귀 (위치 조정)
   setTimeout(() => {
     textImg.src = "img/panda/middle.gif";
     clearImg.src = "img/panda/c_0.png";
-    clearImg.style.transform = "translateY(-20px)"; // ✅ 위로 20px 이동 (원하면 더 조절 가능)
+    clearImg.style.transform = "translateY(-20px)";
+    
+    // ✅ 게임 종료 후 다이얼과 ENTER 표시
+    document.querySelectorAll(".dial, .enter-btn").forEach(el => {
+      el.classList.add("show-ui");
+    });
   }, 2800);
 }
 
