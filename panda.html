@@ -160,9 +160,11 @@ function showFinalClear() {
     pandaImg.src = "img/panda/basic.gif"; // ✅ 동시에 변경
   }, 2000);
 
-  // 2️⃣ 0.8초 뒤 result 등장 (유지)
+  // 2️⃣ 0.8초 뒤 middle.gif로 변경 + c_0.gif로 복귀 (위치 조정)
   setTimeout(() => {
-    textImg.src = "img/panda/result.gif";
+    textImg.src = "img/panda/middle.gif";
+    clearImg.src = "img/panda/c_0.gif";
+    clearImg.style.transform = "translateY(-20px)"; // ✅ 위로 20px 이동 (원하면 더 조절 가능)
   }, 2800);
 }
 
