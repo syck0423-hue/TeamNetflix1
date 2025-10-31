@@ -280,6 +280,13 @@
         textImg.src = "img/panda/result.gif";
         pandaImg.src = "img/panda/good.gif";
 
+        // 다이얼과 ENTER 조작 비활성화
+        document.querySelectorAll(".dial, .enter-btn").forEach(el => {
+          el.style.pointerEvents = "none";
+          el.style.opacity = "0.6"; // 선택적으로 약간 흐리게
+        });
+
+        // 2초 뒤 basic으로 복귀
         setTimeout(() => {
           pandaImg.src = "img/panda/basic.gif";
         }, 2000);
