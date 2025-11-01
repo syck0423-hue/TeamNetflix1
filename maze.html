@@ -1,289 +1,263 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>미로</title>
-    <style>
-        @font-face {
-            font-family: 'PixelFont';
-            src: url('font/2DAMHAE pixel NEW.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
-        }
-        body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #f0f0f0;
-            font-family: 'PixelFont', sans-serif;
-        }
-        .container {
-            position: relative;
-            width: 926px;
-            height: 574px;
-        }
-        .bg-image {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
-            height: 100%;
-        }
-        .grid {
-            position: absolute;
-            top: 130px;
-            left: 255px;
-            display: grid;
-            grid-template-columns: repeat(10, 41px);
-            grid-template-rows: repeat(10, 41px);
-            gap: 0;
-            width: 412px;
-            height: 412px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .grid.show {
-            opacity: 1;
-        }
-        .cell {
-            width: 41px;
-            height: 41px;
-            background-color: transparent;
-            position: relative;
-        }
-        .wall {
-            position: absolute;
-            background-color: black;
-        }
-        .top-wall { width: 100%; height: 2px; top: 0; left: 0; }
-        .bottom-wall { width: 100%; height: 2px; bottom: 0; left: 0; }
-        .left-wall { width: 2px; height: 100%; top: 0; left: 0; }
-        .right-wall { width: 2px; height: 100%; top: 0; right: 0; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>미로</title>
+  <style>
+    @font-face {
+      font-family: 'PixelFont';
+      src: url('font/2DAMHAE pixel NEW.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
 
-        .mouse {
-            width: 22px;
-            height: 22px;
-            position: absolute;
-            z-index: 15;
-            pointer-events: none;
-        }
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f0f0f0;
+      font-family: 'PixelFont', sans-serif;
+    }
 
-        .path-line {
-            position: absolute;
-            background-color: #DF9696;
-            z-index: 5;
-        }
+    .container {
+      position: relative;
+      width: 926px;
+      height: 574px;
+    }
 
-        .letter {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-weight: bold;
-            font-size: 24px;
-            color: #FFC900;
-            font-family: 'PixelFont';
-            z-index: 10;
-            pointer-events: none;
-        }
+    .bg-image {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      height: 100%;
+    }
 
-        .collected {
-            position: absolute;
-            top: 15px;
-            right: 25px;
-            width: 340px;
-            height: 100px;
-            font-size: 20px;
-            font-weight: bold;
-            color: #FFC900;
-            font-family: 'PixelFont';
-            text-align: center;
-            background-color: rgba(0, 0, 0, 0.5);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            box-sizing: border-box;
-        }
+    .grid {
+      position: absolute;
+      top: 130px;
+      left: 255px;
+      display: grid;
+      grid-template-columns: repeat(10, 41px);
+      grid-template-rows: repeat(10, 41px);
+      gap: 0;
+      width: 412px;
+      height: 412px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
 
-        .maze-overlay {
-            position: absolute;
-            z-index: 12;
-            pointer-events: none;
-        }
+    .grid.show {
+      opacity: 1;
+    }
 
-        /* ✅ 안정적인 retry 버튼 (background-image 사용) */
-        .retry-button {
-            position: absolute;
-            bottom: 20px;
-            right: 45px;
-            width: 160px;
-            height: 132px;
-            cursor: pointer;
-            z-index: 20;
-            background: url('img/maze/RETRY_ORI1.png') no-repeat center/contain;
-        }
-        .retry-button:hover {
-            background-image: url('img/maze/RETRY_PRESS1.png');
-        }
-        body::after {
-            content: "";
-            display: none;
-            background: url('img/maze/RETRY_PRESS1.png') no-repeat;
-        }
-    </style>
+    .cell {
+      width: 41px;
+      height: 41px;
+      background-color: transparent;
+      position: relative;
+    }
+
+    .wall {
+      position: absolute;
+      background-color: black;
+    }
+
+    .top-wall { width: 100%; height: 2px; top: 0; left: 0; }
+    .bottom-wall { width: 100%; height: 2px; bottom: 0; left: 0; }
+    .left-wall { width: 2px; height: 100%; top: 0; left: 0; }
+    .right-wall { width: 2px; height: 100%; top: 0; right: 0; }
+
+    .mouse {
+      width: 22px;
+      height: 22px;
+      position: absolute;
+      z-index: 15;
+      pointer-events: none;
+    }
+
+    .path-line {
+      position: absolute;
+      background-color: #DF9696;
+      z-index: 5;
+    }
+
+    .letter {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-weight: bold;
+      font-size: 24px;
+      color: #FFC900;
+      font-family: 'PixelFont';
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .collected {
+      position: absolute;
+      top: 15px;
+      right: 25px;
+      width: 340px;
+      height: 100px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #FFC900;
+      font-family: 'PixelFont';
+      text-align: center;
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .maze-overlay {
+      position: absolute;
+      z-index: 12;
+      pointer-events: none;
+    }
+
+    /* ✅ 안정적인 retry 버튼 (이미지 교체용) */
+    .retry-button {
+      position: absolute;
+      bottom: 20px;
+      right: 45px;
+      width: 160px;
+      height: 132px;
+      cursor: pointer;
+      z-index: 20;
+      user-select: none;
+    }
+  </style>
 </head>
 <body>
 
-<div class="container">
+  <div class="container">
     <img src="img/maze/back.gif" class="bg-image">
     <div class="grid" id="grid"></div>
     <img src="img/maze/maze.png" class="maze-overlay">
     <div class="collected" id="collected"></div>
-    <div class="retry-button" id="retryButton"></div>
-</div>
 
-<script>
-  const mazeOverlay = document.querySelector('.maze-overlay');
-  const grid = document.querySelector('.grid');
+    <!-- ✅ 이미지 교체용 버튼 -->
+    <img src="img/maze/RETRY_ORI1.png" class="retry-button" id="retryButton">
+  </div>
 
-  mazeOverlay.onload = () => {
-    grid.classList.add('show');
-  };
+  <script>
+    const mazeOverlay = document.querySelector('.maze-overlay');
+    const grid = document.querySelector('.grid');
 
-  const gridContainer = document.getElementById('grid');
-  const collectedDisplay = document.getElementById('collected');
+    mazeOverlay.onload = () => {
+      grid.classList.add('show');
+    };
 
-  const maze = [
-      [[1, 0, 0, 1], [1, 0, 0, 0], [1, 0, 1, 0], [1, 0, 0, 0], [1, 0, 0, 0],
-       [1, 0, 0, 0], [1, 1, 0, 0], [1, 0, 0, 0], [1, 0, 1, 0], [1, 1, 0, 0]],
-      [[0, 1, 0, 1], [0, 1, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 1, 1, 0],
-       [0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 1, 0, 0]],
-      [[0, 1, 0, 1], [0, 0, 0, 0], [0, 0, 1, 0], [0, 1, 1, 0], [0, 0, 1, 0],
-       [0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0]],
-      [[0, 1, 1, 1], [0, 0, 0, 0], [0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 1, 0],
-       [0, 1, 1, 0], [0, 0, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0]],
-      [[0, 0, 0, 1], [0, 1, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [1, 1, 1, 1],
-       [1, 1, 1, 1], [0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0]],
-      [[0, 1, 1, 1], [0, 0, 1, 0], [0, 0, 1, 0], [0, 1, 0, 0], [1, 1, 1, 1],
-       [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0], [0, 1, 0, 0], [0, 1, 1, 0]],
-      [[0, 0, 0, 1], [0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 0, 0], [0, 0, 1, 0],
-       [0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0]],
-      [[0, 1, 0, 1], [0, 0, 0, 0], [0, 1, 1, 0], [0, 0, 0, 0], [0, 1, 0, 0],
-       [0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 1, 1, 0], [0, 1, 0, 0]],
-      [[0, 1, 0, 1], [0, 0, 1, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 1, 0],
-       [0, 0, 1, 0], [0, 0, 0, 0], [0, 0, 1, 0], [0, 0, 1, 0], [0, 1, 0, 0]],
-      [[0, 0, 1, 1], [0, 0, 1, 0], [0, 1, 1, 0], [0, 0, 1, 0], [0, 0, 1, 0],
-       [0, 0, 1, 0], [0, 0, 1, 0], [0, 0, 1, 0], [0, 1, 1, 0], [0, 1, 1, 0]]    
-  ];
+    const gridContainer = document.getElementById('grid');
+    const collectedDisplay = document.getElementById('collected');
 
-  const LINE_THICKNESS = 6;
+    const maze = [
+      [[1,0,0,1],[1,0,0,0],[1,0,1,0],[1,0,0,0],[1,0,0,0],[1,0,0,0],[1,1,0,0],[1,0,0,0],[1,0,1,0],[1,1,0,0]],
+      [[0,1,0,1],[0,1,0,0],[0,0,1,0],[0,1,0,0],[0,1,1,0],[0,1,0,0],[0,0,0,0],[0,0,1,0],[0,1,0,0],[0,1,0,0]],
+      [[0,1,0,1],[0,0,0,0],[0,0,1,0],[0,1,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,0,0],[0,1,0,0],[0,1,0,0]],
+      [[0,1,1,1],[0,0,0,0],[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,1,1,0],[0,0,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]],
+      [[0,0,0,1],[0,1,0,0],[0,0,1,0],[0,1,0,0],[1,1,1,1],[1,1,1,1],[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]],
+      [[0,1,1,1],[0,0,1,0],[0,0,1,0],[0,1,0,0],[1,1,1,1],[1,1,1,1],[0,0,0,0],[0,0,0,0],[0,1,0,0],[0,1,1,0]],
+      [[0,0,0,1],[0,0,1,0],[0,0,1,0],[0,0,0,0],[0,0,1,0],[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,0,1,0],[0,1,0,0]],
+      [[0,1,0,1],[0,0,0,0],[0,1,1,0],[0,0,0,0],[0,1,0,0],[0,0,0,0],[0,1,0,0],[0,0,1,0],[0,1,1,0],[0,1,0,0]],
+      [[0,1,0,1],[0,0,1,0],[0,0,1,0],[0,1,0,0],[0,0,1,0],[0,0,1,0],[0,0,0,0],[0,0,1,0],[0,0,1,0],[0,1,0,0]],
+      [[0,0,1,1],[0,0,1,0],[0,1,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,1,1,0],[0,1,1,0]]
+    ];
 
-  const letters = [
-        { x: 1, y: 0, char: "C" }, { x: 2, y: 0, char: "A" }, { x: 3, y: 0, char: "T" },
-      { x: 6, y: 0, char: "H" }, { x: 7, y: 0, char: "O" }, { x: 8, y: 0, char: "T" },
-      { x: 7, y: 1, char: "K" }, { x: 0, y: 2, char: "B" }, { x: 1, y: 2, char: "E" },
-      { x: 3, y: 2, char: "H" }, { x: 4, y: 2, char: "E" }, { x: 5, y: 2, char: "A" },
-      { x: 6, y: 2, char: "T" }, { x: 8, y: 2, char: "N" }, { x: 9, y: 2, char: "O" },
-      { x: 2, y: 3, char: "Q" }, { x: 5, y: 3, char: "G" }, { x: 7, y: 3, char: "J" },
-      { x: 6, y: 4, char: "O" }, { x: 7, y: 4, char: "V" }, { x: 9, y: 4, char: "E" },
-      { x: 0, y: 5, char: "C" }, { x: 1, y: 5, char: "L" }, { x: 3, y: 5, char: "A" },
-      { x: 6, y: 5, char: "R" }, { x: 8, y: 5, char: "I" }, { x: 9, y: 5, char: "T" },
-      { x: 2, y: 6, char: "W" }, { x: 5, y: 6, char: "D" }, { x: 8, y: 6, char: "F" },
-      { x: 0, y: 7, char: "N" }, { x: 2, y: 7, char: "E" }, { x: 4, y: 7, char: "V" },
-      { x: 7, y: 7, char: "E" }, { x: 9, y: 7, char: "R" }, { x: 1, y: 8, char: "P" },
-      { x: 2, y: 8, char: "O" }, { x: 4, y: 8, char: "I" }, { x: 5, y: 8, char: "S" },
-      { x: 7, y: 8, char: "O" }, { x: 9, y: 8, char: "N" }, { x: 1, y: 9, char: "B" },
-      { x: 2, y: 9, char: "A" }, { x: 3, y: 9, char: "B" }, { x: 6, y: 9, char: "Y" },
-      { x: 8, y: 9, char: "Z" }    
-  ];
+    const LINE_THICKNESS = 6;
 
-  let collectedLetters = [];
+    const letters = [
+      { x:1,y:0,char:"C"},{x:2,y:0,char:"A"},{x:3,y:0,char:"T"},{x:6,y:0,char:"H"},{x:7,y:0,char:"O"},{x:8,y:0,char:"T"},
+      {x:7,y:1,char:"K"},{x:0,y:2,char:"B"},{x:1,y:2,char:"E"},{x:3,y:2,char:"H"},{x:4,y:2,char:"E"},{x:5,y:2,char:"A"},
+      {x:6,y:2,char:"T"},{x:8,y:2,char:"N"},{x:9,y:2,char:"O"},{x:2,y:3,char:"Q"},{x:5,y:3,char:"G"},{x:7,y:3,char:"J"},
+      {x:6,y:4,char:"O"},{x:7,y:4,char:"V"},{x:9,y:4,char:"E"},{x:0,y:5,char:"C"},{x:1,y:5,char:"L"},{x:3,y:5,char:"A"},
+      {x:6,y:5,char:"R"},{x:8,y:5,char:"I"},{x:9,y:5,char:"T"},{x:2,y:6,char:"W"},{x:5,y:6,char:"D"},{x:8,y:6,char:"F"},
+      {x:0,y:7,char:"N"},{x:2,y:7,char:"E"},{x:4,y:7,char:"V"},{x:7,y:7,char:"E"},{x:9,y:7,char:"R"},{x:1,y:8,char:"P"},
+      {x:2,y:8,char:"O"},{x:4,y:8,char:"I"},{x:5,y:8,char:"S"},{x:7,y:8,char:"O"},{x:9,y:8,char:"N"},{x:1,y:9,char:"B"},
+      {x:2,y:9,char:"A"},{x:3,y:9,char:"B"},{x:6,y:9,char:"Y"},{x:8,y:9,char:"Z"}
+    ];
 
-  function generateGrid() {
+    let collectedLetters = [];
+
+    function generateGrid() {
       maze.forEach((row, y) => {
-          row.forEach((cell, x) => {
-              const cellDiv = document.createElement('div');
-              cellDiv.classList.add('cell');
+        row.forEach((cell, x) => {
+          const cellDiv = document.createElement('div');
+          cellDiv.classList.add('cell');
 
-              if (
-                  (x === 4 && y === 4) ||
-                  (x === 5 && y === 4) ||
-                  (x === 4 && y === 5) ||
-                  (x === 5 && y === 5)
-              ) {
-                  cellDiv.style.backgroundColor = "black";
-                  cellDiv.style.pointerEvents = "none";
-              }
+          if ((x === 4 && y === 4) || (x === 5 && y === 4) || (x === 4 && y === 5) || (x === 5 && y === 5)) {
+            cellDiv.style.backgroundColor = "black";
+            cellDiv.style.pointerEvents = "none";
+          }
 
-              if (cell[0] === 1) addWall(cellDiv, 'top-wall');
-              if (cell[1] === 1) addWall(cellDiv, 'right-wall');
-              if (cell[2] === 1) addWall(cellDiv, 'bottom-wall');
-              if (cell[3] === 1) addWall(cellDiv, 'left-wall');
+          if (cell[0] === 1) addWall(cellDiv, 'top-wall');
+          if (cell[1] === 1) addWall(cellDiv, 'right-wall');
+          if (cell[2] === 1) addWall(cellDiv, 'bottom-wall');
+          if (cell[3] === 1) addWall(cellDiv, 'left-wall');
 
-              const letter = letters.find(l => l.x === x && l.y === y);
-              if (letter) {
-                  const span = document.createElement('span');
-                  span.textContent = letter.char;
-                  span.classList.add('letter');
-                  span.dataset.x = x;
-                  span.dataset.y = y;
-                  cellDiv.appendChild(span);
-              }
+          const letter = letters.find(l => l.x === x && l.y === y);
+          if (letter) {
+            const span = document.createElement('span');
+            span.textContent = letter.char;
+            span.classList.add('letter');
+            span.dataset.x = x;
+            span.dataset.y = y;
+            cellDiv.appendChild(span);
+          }
 
-              gridContainer.appendChild(cellDiv);
-          });
+          gridContainer.appendChild(cellDiv);
+        });
       });
-  }
+    }
 
-  function addWall(cellDiv, direction) {
+    function addWall(cellDiv, direction) {
       const wall = document.createElement('div');
       wall.classList.add('wall', direction);
       cellDiv.appendChild(wall);
-  }
+    }
 
-  const mouse = document.createElement('img');
-  mouse.src = 'img/maze/mouse.png';
-  mouse.classList.add('mouse');
-  gridContainer.appendChild(mouse);
+    const mouse = document.createElement('img');
+    mouse.src = 'img/maze/mouse.png';
+    mouse.classList.add('mouse');
+    gridContainer.appendChild(mouse);
 
-  let mouseX = 4;
-  let mouseY = 0;
-  const CELL_SIZE = 41;
+    let mouseX = 4;
+    let mouseY = 0;
+    const CELL_SIZE = 41;
 
-  function updateMousePosition() {
+    function updateMousePosition() {
       mouse.style.left = (mouseX * CELL_SIZE + 9.5) + 'px';
       mouse.style.top = (mouseY * CELL_SIZE + 9.5) + 'px';
-  }
+    }
 
-  updateMousePosition();
+    updateMousePosition();
 
-  function canMove(newX, newY, dir) {
+    function canMove(newX, newY, dir) {
       if (newX < 0 || newY < 0 || newY >= maze.length || newX >= maze[0].length) return false;
-      if (
-          (newX === 4 && newY === 4) ||
-          (newX === 5 && newY === 4) ||
-          (newX === 4 && newY === 5) ||
-          (newX === 5 && newY === 5)
-      ) return false;
+      if ((newX === 4 && newY === 4) || (newX === 5 && newY === 4) || (newX === 4 && newY === 5) || (newX === 5 && newY === 5))
+        return false;
 
       const curCell = maze[mouseY][mouseX];
       const nextCell = maze[newY][newX];
 
-      if (dir === 'up')    return curCell[0] === 0 && nextCell[2] === 0;
+      if (dir === 'up') return curCell[0] === 0 && nextCell[2] === 0;
       if (dir === 'right') return curCell[1] === 0 && nextCell[3] === 0;
-      if (dir === 'down')  return curCell[2] === 0 && nextCell[0] === 0;
-      if (dir === 'left')  return curCell[3] === 0 && nextCell[1] === 0;
-
+      if (dir === 'down') return curCell[2] === 0 && nextCell[0] === 0;
+      if (dir === 'left') return curCell[3] === 0 && nextCell[1] === 0;
       return false;
-  }
+    }
 
-  document.addEventListener('keydown', (e) => {
+    document.addEventListener('keydown', (e) => {
       let nx = mouseX;
       let ny = mouseY;
       let dir = null;
@@ -294,15 +268,15 @@
       if (e.key === 'ArrowRight' || e.key === 'd') { nx++; dir = 'right'; }
 
       if (dir && canMove(nx, ny, dir)) {
-          drawLine(mouseX, mouseY, dir);
-          mouseX = nx;
-          mouseY = ny;
-          updateMousePosition();
-          collectLetter(mouseX, mouseY);
+        drawLine(mouseX, mouseY, dir);
+        mouseX = nx;
+        mouseY = ny;
+        updateMousePosition();
+        collectLetter(mouseX, mouseY);
       }
-  });
+    });
 
-  function drawLine(x, y, dir) {
+    function drawLine(x, y, dir) {
       const line = document.createElement('div');
       line.classList.add('path-line');
 
@@ -310,61 +284,66 @@
       const startY = y * CELL_SIZE + 19.5;
 
       if (dir === 'up') {
-          line.style.width = LINE_THICKNESS + "px";
-          line.style.height = CELL_SIZE + "px";
-          line.style.left = startX + "px";
-          line.style.top = (startY - CELL_SIZE) + "px";
+        line.style.width = LINE_THICKNESS + "px";
+        line.style.height = CELL_SIZE + "px";
+        line.style.left = startX + "px";
+        line.style.top = (startY - CELL_SIZE) + "px";
       }
       if (dir === 'down') {
-          line.style.width = LINE_THICKNESS + "px";
-          line.style.height = CELL_SIZE + "px";
-          line.style.left = startX + "px";
-          line.style.top = startY + "px";
+        line.style.width = LINE_THICKNESS + "px";
+        line.style.height = CELL_SIZE + "px";
+        line.style.left = startX + "px";
+        line.style.top = startY + "px";
       }
       if (dir === 'left') {
-          line.style.width = CELL_SIZE + "px";
-          line.style.height = LINE_THICKNESS + "px";
-          line.style.left = (startX - CELL_SIZE) + "px";
-          line.style.top = startY + "px";
+        line.style.width = CELL_SIZE + "px";
+        line.style.height = LINE_THICKNESS + "px";
+        line.style.left = (startX - CELL_SIZE) + "px";
+        line.style.top = startY + "px";
       }
       if (dir === 'right') {
-          line.style.width = CELL_SIZE + "px";
-          line.style.height = LINE_THICKNESS + "px";
-          line.style.left = startX + "px";
-          line.style.top = startY + "px";
+        line.style.width = CELL_SIZE + "px";
+        line.style.height = LINE_THICKNESS + "px";
+        line.style.left = startX + "px";
+        line.style.top = startY + "px";
       }
 
       gridContainer.appendChild(line);
-  }
+    }
 
-  function collectLetter(x, y) {
+    function collectLetter(x, y) {
       const letter = letters.find(l => l.x === x && l.y === y);
       if (!letter) return;
 
-      const alreadyCollected = collectedLetters.some(
-          collected => collected.x === x && collected.y === y
-      );
-
+      const alreadyCollected = collectedLetters.some(c => c.x === x && c.y === y);
       if (!alreadyCollected) {
-          collectedLetters.push({ x, y, char: letter.char });
-          const chars = collectedLetters.map(l => l.char);
-          collectedDisplay.textContent = chars.join(' ');
+        collectedLetters.push({ x, y, char: letter.char });
+        const chars = collectedLetters.map(l => l.char);
+        collectedDisplay.textContent = chars.join(' ');
       }
-  }
+    }
 
-  generateGrid();
+    generateGrid();
 
-  const retryButton = document.getElementById('retryButton');
+    const retryButton = document.getElementById('retryButton');
 
-  retryButton.addEventListener('click', () => {
+    // ✅ hover 시 이미지 전환 (안정적)
+    retryButton.addEventListener('mouseenter', () => {
+      retryButton.src = 'img/maze/RETRY_PRESS1.png';
+    });
+    retryButton.addEventListener('mouseleave', () => {
+      retryButton.src = 'img/maze/RETRY_ORI1.png';
+    });
+
+    retryButton.addEventListener('click', () => {
       document.querySelectorAll('.path-line').forEach(line => line.remove());
       mouseX = 4;
       mouseY = 0;
       updateMousePosition();
       collectedLetters = [];
       collectedDisplay.textContent = "";
-  });
-</script>
+    });
+  </script>
 
 </body>
 </html>
