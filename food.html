@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>원형 내부 음식 배치 + 드래그 이동 (수정 완성본)</title>
+<title>원형 내부 음식 배치 + 꼬치 자동 정렬 버전</title>
 
 <style>
 body {
@@ -33,9 +33,7 @@ body {
   height: 431px;
   top: 71px;
   right: 76px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  position: absolute;
 }
 .food {
   position: absolute;
@@ -62,7 +60,7 @@ body {
 </div>
 
 <script>
-// DOM 요소
+// DOM
 const stage = document.getElementById('stage');
 const circle = document.getElementById("circle");
 const box = document.getElementById("box");
@@ -81,11 +79,11 @@ const foods = [
   { name: "XERASIA", size: [143, 46] }
 ];
 
-const circleRadius = 342 / 2;
+const circleRadius = 171;
 const placedFoods = [];
 const boxItems = [];
 
-// 식품이 원 내부에 완전히 들어가있는지 검사
+// 원 내부 체크
 function insideCircleAllCorners(x, y, w, h, radius) {
   const cx = radius;
   const cy = radius;
@@ -100,41 +98,43 @@ function insideCircleAllCorners(x, y, w, h, radius) {
   });
 }
 
-// ✅ 초기 원 내부 중복 없이 배치
+// 원 내부 랜덤배치 + 중복회피
 foods.forEach(food => {
   const img = document.createElement("img");
   img.src = `img/food/${food.name}.png`;
   img.className = "food";
-  
+
   const [w, h] = food.size;
   img.style.width = `${w}px`;
   img.style.height = `${h}px`;
 
-  let x=0, y=0, tries=0;
-  const maxTries=800;
-  while(tries < maxTries){
-    const angle = Math.random()*2*Math.PI;
-    const r = Math.random()*(circleRadius - Math.max(w,h)/2);
-    const cx = circleRadius + Math.cos(angle)*r;
-    const cy = circleRadius + Math.sin(angle)*r;
+  let x, y, tries = 0;
+  const maxTries = 800;
 
-    x = cx - w/2;
-    y = cy - h/2;
+  while (tries < maxTries) {
+    const angle = Math.random() * 2 * Math.PI;
+    const r = Math.random() * (circleRadius - Math.max(w, h) / 2);
+    const cx = circleRadius + Math.cos(angle) * r;
+    const cy = circleRadius + Math.sin(angle) * r;
 
-    // 원 밖이면 취소
-    if(!insideCircleAllCorners(x,y,w,h,circleRadius)){ tries++; continue; }
+    x = cx - w / 2;
+    y = cy - h / 2;
 
-    // 기존 음식과 충돌 여부
+    if (!insideCircleAllCorners(x, y, w, h, circleRadius)) {
+      tries++;
+      continue;
+    }
+
     let overlap = false;
-    for(const p of placedFoods){
-      const dx = (x+w/2) - (p.x+p.w/2);
-      const dy = (y+h/2) - (p.y+p.h/2);
-      if(Math.sqrt(dx*dx+dy*dy) < (Math.max(w,p.w))){
+    for (const p of placedFoods) {
+      const dx = (x + w/2) - (p.x + p.w/2);
+      const dy = (y + h/2) - (p.y + p.h/2);
+      if (Math.sqrt(dx*dx + dy*dy) < Math.max(w, p.w)) {
         overlap = true;
         break;
       }
     }
-    if(!overlap) break;
+    if (!overlap) break;
     tries++;
   }
 
@@ -144,16 +144,15 @@ foods.forEach(food => {
   img.dataset.originalTop = y;
   img.dataset.inBox = "false";
 
-  placedFoods.push({ x,y,w,h });
+  placedFoods.push({ x, y, w, h });
   circle.appendChild(img);
 });
 
-// 🔹 드래그 관련 변수
+// 드래그
 let dragged = null;
 let offsetX = 0, offsetY = 0;
 let originalX = 0, originalY = 0;
 
-// 좌표 변환 Stage 기준
 function clientToStagePos(clientX, clientY) {
   const rect = stage.getBoundingClientRect();
   return {
@@ -162,20 +161,20 @@ function clientToStagePos(clientX, clientY) {
   };
 }
 
-// ✅ 드래그 활성화
 function enableDraggingForFoods() {
-  img.addEventListener("touchstart", e => {
-  const touch = e.touches[0];
-  e.clientX = touch.clientX;
-  e.clientY = touch.clientY;
-  img.dispatchEvent(new MouseEvent("mousedown", e));
-}, { passive: false });
-  
   document.querySelectorAll(".food").forEach(img => {
+
+    // touchstart
+    img.addEventListener("touchstart", e => {
+      const t = e.touches[0];
+      img.dispatchEvent(new MouseEvent("mousedown", { clientX: t.clientX, clientY: t.clientY }));
+    });
+
+    // mousedown
     img.addEventListener("mousedown", e => {
       e.preventDefault();
       dragged = img;
-      dragged.classList.add("dragging");
+      img.classList.add("dragging");
 
       const rect = img.getBoundingClientRect();
       const stageRect = stage.getBoundingClientRect();
@@ -186,7 +185,7 @@ function enableDraggingForFoods() {
       offsetX = e.clientX - rect.left;
       offsetY = e.clientY - rect.top;
 
-      stage.appendChild(img); // stage 기준 절대 위치
+      stage.appendChild(img);
       img.style.left = `${originalX}px`;
       img.style.top = `${originalY}px`;
 
@@ -203,48 +202,39 @@ function onMouseMove(e) {
   dragged.style.top = `${pos.y - offsetY}px`;
 }
 
-// ✅ 박스 정렬
-const GAP = 2;
+// 박스 자동정렬
+const GAP = 6;
+
 function updateBoxLayout() {
-  let yCursor = GAP;
+  let y = 10;
+  boxItems.forEach(item => {
+    const w = item.offsetWidth;
+    const h = item.offsetHeight;
 
-boxItems.forEach(item => {
-  const w = item.offsetWidth;
-  const h = item.offsetHeight;
+    const cx = (box.clientWidth - w) / 2;
 
-  const centerX = (box.clientWidth - w) / 2;
-  item.style.left = `${centerX}px`;
-  item.style.top = `${yCursor}px`;
+    item.style.left = `${cx}px`;
+    item.style.top = `${y}px`;
 
-  // ✅ DOM 계층을 확실히 박스 안으로 이동
-  box.appendChild(item);
-
-  yCursor += h + GAP;
-});
-
+    box.appendChild(item);
+    y += h + GAP;
+  });
 }
 
-// ✅ 마우스 떼기 처리 (핵심 수정 완료)
+// 마우스업 (핵심)
 function onMouseUp() {
   if (!dragged) return;
-
   const img = dragged;
+
   const rect = img.getBoundingClientRect();
-  const stageRect = stage.getBoundingClientRect();
   const boxRect = box.getBoundingClientRect();
-
-  const x = rect.left - stageRect.left;
-  const y = rect.top - stageRect.top;
-
-  const insideBox = (
+  const isInsideBox =
     rect.right > boxRect.left &&
     rect.left < boxRect.right &&
     rect.bottom > boxRect.top &&
-    rect.top < boxRect.bottom
-  );
+    rect.top < boxRect.bottom;
 
-  if (insideBox) {
-    // ✅ 박스로 이동
+  if (isInsideBox) {
     img.dataset.inBox = "true";
 
     const oldIndex = boxItems.indexOf(img);
@@ -255,24 +245,22 @@ function onMouseUp() {
       const r = el.getBoundingClientRect();
       return middleY < r.top + r.height / 2;
     });
+
     if (newIndex === -1) newIndex = boxItems.length;
 
     boxItems.splice(newIndex, 0, img);
-    box.appendChild(img);
-updateBoxLayout();
-
-  }  else {
-    // ✅ 박스 밖 → 원래 자리로 복귀
+    updateBoxLayout();
+  } else {
+    // 원래 자리로 복귀
     img.dataset.inBox = "false";
-
-    img.style.left = `${img.dataset.originalLeft}px`;
-    img.style.top = `${img.dataset.originalTop}px`;
-    circle.appendChild(img);
+    img.style.left = img.dataset.originalLeft + "px";
+    img.style.top = img.dataset.originalTop + "px";
 
     const idx = boxItems.indexOf(img);
     if (idx >= 0) boxItems.splice(idx, 1);
-}
 
+    circle.appendChild(img);
+  }
 
   img.classList.remove("dragging");
   dragged = null;
@@ -280,22 +268,17 @@ updateBoxLayout();
   document.removeEventListener("mousemove", onMouseMove);
   document.removeEventListener("mouseup", onMouseUp);
 }
-  document.addEventListener("touchmove", e => {
-  if (!dragged) return;
-  const touch = e.touches[0];
-  e.clientX = touch.clientX;
-  e.clientY = touch.clientY;
-  onMouseMove(e);
-}, { passive: false });
 
-// 전역 터치 종료
-document.addEventListener("touchend", e => {
-  onMouseUp(e);
+document.addEventListener("touchmove", e => {
+  if (!dragged) return;
+  const t = e.touches[0];
+  onMouseMove({ clientX: t.clientX, clientY: t.clientY });
 });
 
-// ⭐ 초기 드래그 활성화
-enableDraggingForFoods();
+document.addEventListener("touchend", () => onMouseUp());
 
+// 실행
+enableDraggingForFoods();
 </script>
 
 </body>
