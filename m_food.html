@@ -62,11 +62,6 @@ body {
 </div>
 
 <script>
-// DOM 요소
-const stage = document.getElementById('stage');
-const circle = document.getElementById("circle");
-
-// 음식 데이터
 const foods = [
   { name: "BREATHE", size: [135, 47] },
   { name: "CORRECT", size: [121, 45] },
@@ -80,77 +75,36 @@ const foods = [
   { name: "XERASIA", size: [143, 46] }
 ];
 
-const circleRadius = 342 / 2;
-const placedFoods = [];
+const box = document.getElementById("box");
 
-// 원 내부에 완전히 들어가는지 검사
-function insideCircleAllCorners(x, y, w, h, radius) {
-  const cx = radius;
-  const cy = radius;
-  const corners = [
-    [x, y], [x+w, y],
-    [x, y+h], [x+w, y+h]
-  ];
-  return corners.every(([px, py]) => {
-    const dx = px - cx;
-    const dy = py - cy;
-    return Math.sqrt(dx*dx + dy*dy) <= radius;
-  });
-}
+// ⭐ 1) 음식 순서를 랜덤 셔플
+const shuffled = foods.sort(() => Math.random() - 0.5);
 
-// ⭐ 원 내부 위치 그대로 사용하지만 stage 기준 좌표로 변환해서 배치
-foods.forEach(food => {
+const GAP = 2;
+let yCursor = GAP;
+
+// ⭐ 2) 박스(꼬치)에 자동으로 꽂히는 로직
+shuffled.forEach(food => {
   const img = document.createElement("img");
   img.src = `img/food/${food.name}.png`;
-  img.className = "food";
+  img.style.position = "absolute";
 
   const [w, h] = food.size;
   img.style.width = `${w}px`;
   img.style.height = `${h}px`;
 
-  let x=0, y=0, tries=0;
-  const maxTries=800;
+  // 박스 가운데 정렬
+  const centerX = (box.clientWidth - w) / 2;
 
-  // circle 내부 랜덤 배치
-  while(tries < maxTries){
-    const angle = Math.random()*2*Math.PI;
-    const r = Math.random()*(circleRadius - Math.max(w,h)/2);
-    const cx = circleRadius + Math.cos(angle)*r;
-    const cy = circleRadius + Math.sin(angle)*r;
+  img.style.left = `${centerX}px`;
+  img.style.top = `${yCursor}px`;
 
-    x = cx - w/2;
-    y = cy - h/2;
+  yCursor += h + GAP;
 
-    if(!insideCircleAllCorners(x,y,w,h,circleRadius)){ tries++; continue; }
-
-    let overlap = false;
-    for(const p of placedFoods){
-      const dx = (x+w/2) - (p.x+p.w/2);
-      const dy = (y+h/2) - (p.y+p.h/2);
-      if(Math.sqrt(dx*dx+dy*dy) < (Math.max(w,p.w))){
-        overlap = true;
-        break;
-      }
-    }
-    if(!overlap) break;
-    tries++;
-  }
-
-  placedFoods.push({ x,y,w,h });
-
-  // ⭐ circle-relative → stage-relative 로 변환
-  const circleRect = circle.getBoundingClientRect();
-  const stageRect = stage.getBoundingClientRect();
-
-  const stageX = x + (circleRect.left - stageRect.left);
-  const stageY = y + (circleRect.top - stageRect.top);
-
-  img.style.left = `${stageX}px`;
-  img.style.top = `${stageY}px`;
-
-  stage.appendChild(img);
+  box.appendChild(img);
 });
 </script>
+
 
 
 </body>
