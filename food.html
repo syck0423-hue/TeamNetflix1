@@ -164,6 +164,13 @@ function clientToStagePos(clientX, clientY) {
 
 // ✅ 드래그 활성화
 function enableDraggingForFoods() {
+  img.addEventListener("touchstart", e => {
+  const touch = e.touches[0];
+  e.clientX = touch.clientX;
+  e.clientY = touch.clientY;
+  img.dispatchEvent(new MouseEvent("mousedown", e));
+}, { passive: false });
+  
   document.querySelectorAll(".food").forEach(img => {
     img.addEventListener("mousedown", e => {
       e.preventDefault();
@@ -273,6 +280,18 @@ updateBoxLayout();
   document.removeEventListener("mousemove", onMouseMove);
   document.removeEventListener("mouseup", onMouseUp);
 }
+  document.addEventListener("touchmove", e => {
+  if (!dragged) return;
+  const touch = e.touches[0];
+  e.clientX = touch.clientX;
+  e.clientY = touch.clientY;
+  onMouseMove(e);
+}, { passive: false });
+
+// 전역 터치 종료
+document.addEventListener("touchend", e => {
+  onMouseUp(e);
+});
 
 // ⭐ 초기 드래그 활성화
 enableDraggingForFoods();
