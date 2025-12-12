@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>원형 내부 음식 배치 + 드래그 이동 (수정 완성본)</title>
+
+<style>
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+.stage {
+  position: relative;
+  width: 926px;
+  height: 574px;
+  background: url('img/food/bg.png') no-repeat center center;
+  background-size: contain;
+}
+.circle {
+  position: absolute;
+  width: 342px;
+  height: 342px;
+  border-radius: 50%;
+  top: 126px;
+  left: 83px;
+}
+.box {
+  position: absolute;
+  width: 333px;
+  height: 431px;
+  top: 71px;
+  right: 76px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.food {
+  position: absolute;
+  user-select: none;
+  cursor: grab;
+  transition: transform 0.15s ease;
+  will-change: transform, left, top;
+}
+.food.dragging {
+  opacity: 0.9;
+  transform: scale(1.06);
+  transition: none;
+  z-index: 999;
+  cursor: grabbing !important;
+}
+</style>
+
+</head>
+<body>
+
+<div class="stage" id="stage">
+  <div class="circle" id="circle"></div>
+  <div class="box" id="box"></div>
+</div>
+
+<script>
+// DOM 요소
+const stage = document.getElementById('stage');
+const circle = document.getElementById("circle");
+
+// 음식 데이터
+const foods = [
+  { name: "BREATHE", size: [135, 47] },
+  { name: "CORRECT", size: [121, 45] },
+  { name: "DIG", size: [55, 48] },
+  { name: "ELECTRIC", size: [130, 43] },
+  { name: "GLASS", size: [106, 32] },
+  { name: "KID", size: [58, 44] },
+  { name: "NETFLIX", size: [137, 36] },
+  { name: "SUSTAIN", size: [121, 43] },
+  { name: "TRICK", size: [88, 36] },
+  { name: "XERASIA", size: [143, 46] }
+];
+
+const circleRadius = 342 / 2;
+const placedFoods = [];
+
+// 원 내부에 완전히 들어가는지 검사
+function insideCircleAllCorners(x, y, w, h, radius) {
+  const cx = radius;
+  const cy = radius;
+  const corners = [
+    [x, y], [x+w, y],
+    [x, y+h], [x+w, y+h]
+  ];
+  return corners.every(([px, py]) => {
+    const dx = px - cx;
+    const dy = py - cy;
+    return Math.sqrt(dx*dx + dy*dy) <= radius;
+  });
+}
+
+// ⭐ 원 내부 위치 그대로 사용하지만 stage 기준 좌표로 변환해서 배치
+foods.forEach(food => {
+  const img = document.createElement("img");
+  img.src = `img/food/${food.name}.png`;
+  img.className = "food";
+
+  const [w, h] = food.size;
+  img.style.width = `${w}px`;
+  img.style.height = `${h}px`;
+
+  let x=0, y=0, tries=0;
+  const maxTries=800;
+
+  // circle 내부 랜덤 배치
+  while(tries < maxTries){
+    const angle = Math.random()*2*Math.PI;
+    const r = Math.random()*(circleRadius - Math.max(w,h)/2);
+    const cx = circleRadius + Math.cos(angle)*r;
+    const cy = circleRadius + Math.sin(angle)*r;
+
+    x = cx - w/2;
+    y = cy - h/2;
+
+    if(!insideCircleAllCorners(x,y,w,h,circleRadius)){ tries++; continue; }
+
+    let overlap = false;
+    for(const p of placedFoods){
+      const dx = (x+w/2) - (p.x+p.w/2);
+      const dy = (y+h/2) - (p.y+p.h/2);
+      if(Math.sqrt(dx*dx+dy*dy) < (Math.max(w,p.w))){
+        overlap = true;
+        break;
+      }
+    }
+    if(!overlap) break;
+    tries++;
+  }
+
+  placedFoods.push({ x,y,w,h });
+
+  // ⭐ circle-relative → stage-relative 로 변환
+  const circleRect = circle.getBoundingClientRect();
+  const stageRect = stage.getBoundingClientRect();
+
+  const stageX = x + (circleRect.left - stageRect.left);
+  const stageY = y + (circleRect.top - stageRect.top);
+
+  img.style.left = `${stageX}px`;
+  img.style.top = `${stageY}px`;
+
+  stage.appendChild(img);
+});
+</script>
+
+
+</body>
+</html>
