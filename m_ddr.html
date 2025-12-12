@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>리듬게임</title>
+<style>
+  @font-face {
+    font-family: 'neodgm';
+    src: url('font/neodgm.ttf') format('truetype');
+  }
+  body {
+    margin: 0;
+    overflow: hidden;
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'neodgm', sans-serif;
+  }
+
+  #game-container {
+    position: relative;
+    width: 926px;
+    height: 574px;
+    background:url("img/ddr/bg.gif");
+    overflow: hidden;
+  }
+
+  /* 화살표 */
+  .fixed-arrow {
+    position: absolute;
+    bottom: 60px;
+    width: 82px;
+    height: 82px;
+    z-index: 2;
+  }
+
+  .arrow {
+    position: absolute;
+    width: 82px;
+    height: 82px;
+    z-index: 3;
+  }
+
+  #fixed-left { left: 270px; background: url("img/ddr/left.png") no-repeat center/contain; }
+  #fixed-down { left: 370px; background: url("img/ddr/down.png") no-repeat center/contain; }
+  #fixed-up { left: 470px; background: url("img/ddr/up.png") no-repeat center/contain; }
+  #fixed-right { left: 570px; background: url("img/ddr/right.png") no-repeat center/contain; }
+
+  #combo {
+    position: absolute;
+    top: 65px;
+    width: 100%;
+    text-align: center;
+    color: #e3ac00;
+    text-shadow: 2px 2px 4px #000;
+    font-family: 'neodgm', sans-serif;
+  }
+  #combo-label {
+    font-size: 70px;
+  }
+  #combo-number {
+    font-family: 'neodgm', sans-serif;
+    font-size: 150px;
+    font-weight: bold;
+  }
+
+  #result-screen, #start-screen, #countdown, #rule-screen {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 10;
+  }
+
+  #start-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: 'neodgm', sans-serif;
+    color: #ffffff;
+  }
+
+  #start-screen h1 {
+    font-size: 72px;
+    margin-bottom: 40px;
+    color: #ffa500;
+  }
+
+  #start-options {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    font-size: 32px;
+    text-align: center;
+    margin-top: 40px;
+    position: relative; /* 기준 부모 */
+  }
+
+  #selector {
+    position: absolute; /* 다시 absolute */
+    font-size: 28px;
+    color: #ffa500;
+    transition: top 0.2s, left 0.2s;
+    z-index: 15;
+  }
+
+  .selected {
+    color: #fff;
+    text-shadow: 0 0 10px #fff;
+  }
+
+  #countdown {
+    font-family: 'neodgm', sans-serif;
+    font-size: 100px;
+  }
+
+  #rule-screen {
+    font-family: 'neodgm', sans-serif;
+    font-size: 26px;
+    text-align: center;
+    padding: 40px;
+  }
+</style>
+</head>
+<body>
+  <div id="game-container">
+    <div id="combo">
+      <div id="combo-label">COMBO</div>
+      <div id="combo-number">0</div>
+    </div>
+
+    <!-- 판정선 -->
+    <div id="fixed-left" class="fixed-arrow"></div>
+    <div id="fixed-down" class="fixed-arrow"></div>
+    <div id="fixed-up" class="fixed-arrow"></div>
+    <div id="fixed-right" class="fixed-arrow"></div>
+
+
+    <!-- 카운트다운 -->
+    <div id="countdown"></div>
+
+  </div>
+
+<script>
+const container = document.getElementById("game-container");
+const countdown = document.getElementById("countdown");
+
+// 화살표 이미지 매핑
+const arrowImages = {
+  1: "img/ddr/left_note.png",
+  2: "img/ddr/down_note.png",
+  3: "img/ddr/up_note.png",
+  4: "img/ddr/right_note.png"
+};
+const positions = {1: 270, 2: 370, 3: 470, 4: 570};
+
+// 노트 시퀀스
+const sequence = [2,2,4,3,3,2,2,4,3,3,"gap",2,2,"gap",4,2,2,3,3,4,"gap",1,2,2,4,"gap",2,2,3,4,3,2,2];
+
+const fallSpeed = 3;
+const noteInterval = 600;
+const hitWindow = 80;
+
+let activeArrows = [];
+let combo = 0;
+let missedCount = 0;
+let hitCount = 0;
+let currentIndex = 0;
+let gameOver = false;
+
+// ---------- 자동 루프 시작 ----------
+window.onload = () => {
+  startCountdown();
+};
+
+// ---------- 키 입력 ----------
+window.addEventListener("keydown", (e) => {
+  if (gameOver) return;
+
+  const keyMap = { a: 1, s: 2, w: 3, d: 4 };
+  const input = keyMap[e.key.toLowerCase()];
+  if (!input) return;
+
+  const hit = activeArrows.find(a => parseInt(a.dataset.type) === input);
+  if (hit) {
+    const dist = Math.abs(parseFloat(hit.style.top) - 420);
+    if (dist < hitWindow) {
+      combo++;
+      hitCount++;
+      document.getElementById("combo-number").textContent = combo;
+      container.removeChild(hit);
+      activeArrows = activeArrows.filter(a => a !== hit);
+    } else {
+      missedCount++;
+      resetCombo();
+    }
+  } else {
+    missedCount++;
+    resetCombo();
+  }
+  checkEnd();
+});
+
+
+function startCountdown() {
+  countdown.style.display = "flex";
+  let count = 3;
+  countdown.textContent = count;
+
+  const iv = setInterval(() => {
+    count--;
+    if (count <= 0) {
+      clearInterval(iv);
+      countdown.style.display = "none";
+      startGame();
+    } else {
+      countdown.textContent = count;
+    }
+  }, 1000);
+}
+
+function startGame() {
+  resetState();
+  dropArrows();
+  updateArrows();
+}
+
+// ---------- 노트 생성 ----------
+function createArrow(type) {
+  const arrow = document.createElement("div");
+  arrow.classList.add("arrow");
+  arrow.style.left = positions[type] + "px";
+  arrow.style.top = "-82px";
+  arrow.dataset.type = type;
+  arrow.style.background = `url(${arrowImages[type]}) no-repeat center/contain`;
+  container.appendChild(arrow);
+  activeArrows.push(arrow);
+}
+
+function dropArrows() {
+  if (currentIndex >= sequence.length || gameOver) return;
+
+  const next = sequence[currentIndex++];
+  if (next === "gap") {
+    setTimeout(dropArrows, noteInterval * 3);
+    return;
+  }
+  createArrow(next);
+  setTimeout(dropArrows, noteInterval);
+}
+
+function updateArrows() {
+  if (gameOver) return;
+
+  activeArrows.forEach((arrow, i) => {
+    const top = parseFloat(arrow.style.top);
+    arrow.style.top = top + fallSpeed + "px";
+
+    if (top > 460) {
+      missedCount++;
+      resetCombo();
+      container.removeChild(arrow);
+      activeArrows.splice(i, 1);
+      checkEnd();
+    }
+  });
+
+  requestAnimationFrame(updateArrows);
+}
+
+// ---------- 판정 ----------
+function resetCombo() {
+  combo = 0;
+  document.getElementById("combo-number").textContent = combo;
+}
+
+function checkEnd() {
+  if (currentIndex >= sequence.length && activeArrows.length === 0) {
+    showEnd();
+  }
+}
+
+function showEnd() {
+  gameOver = true;
+
+  // 화면 중앙에 "END" 표시
+  countdown.style.display = "flex";
+  countdown.textContent = "END";
+
+  // 2초 후 자동 재시작
+  setTimeout(() => {
+    countdown.style.display = "none";
+    startCountdown();
+  }, 2000);
+}
+
+// ---------- 초기화 ----------
+function resetState() {
+  activeArrows.forEach(a => {
+    if (a.parentNode === container) container.removeChild(a);
+  });
+
+  activeArrows = [];
+  combo = 0;
+  missedCount = 0;
+  hitCount = 0;
+  currentIndex = 0;
+  gameOver = false;
+
+  document.getElementById("combo-number").textContent = 0;
+}
+
+</script>
+</body>
+</html>
